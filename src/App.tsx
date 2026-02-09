@@ -177,6 +177,8 @@ const App = () => {
           </BrowserRouter>
         </GlobalErrorBoundary>
       </QueryClientProvider>
+      <Toaster />
+      <Sonner />
     </TooltipProvider>
   );
 };
