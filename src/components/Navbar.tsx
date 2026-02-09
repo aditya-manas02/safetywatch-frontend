@@ -19,8 +19,8 @@ export default function Navbar() {
     };
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-[60] border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 transition-all duration-300 shadow-sm pt-[max(env(safe-area-inset-top),35px)]">
-            <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+        <header className="fixed top-0 left-0 right-0 z-[60] border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 transition-all duration-300 shadow-sm pt-[max(env(safe-area-inset-top),10px)]">
+            <div className="container mx-auto px-6 py-2.5 flex items-center justify-between">
                 {/* Logo */}
                 <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate("/")}>
                     <div className="rounded-xl p-2 bg-gradient-to-tr from-primary to-blue-500 shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform duration-300">
