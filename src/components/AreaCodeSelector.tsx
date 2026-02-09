@@ -89,6 +89,13 @@ export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSele
                 throw new Error(data.message || "Failed to assign area code");
             }
 
+            // Update local storage with new user data
+            if (data.user) {
+                const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+                const updatedUser = { ...currentUser, ...data.user, hasAreaCode: true };
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+            }
+
             toast({
                 title: "Welcome to " + data.areaInfo.name,
                 description: "You have successfully joined this area.",
