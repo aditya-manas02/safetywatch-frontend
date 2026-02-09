@@ -43,7 +43,10 @@ export default function ChatBot() {
         try {
             const res = await fetch(`${API_BASE}/chat`, {
                 method: "POST",
-                headers: VERSION_HEADERS,
+                headers: {
+                    ...VERSION_HEADERS,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     message: userMessage,
                     history: messages.slice(1)
@@ -59,7 +62,7 @@ export default function ChatBot() {
         } catch (err: any) {
             const errorMessage = err.message.includes("Failed to fetch")
                 ? "Network anomaly detected. Retrying connection..."
-                : "Processing Error. Algorithms interrupted.";
+                : `Nexus Error: ${err.message || "Algorithms interrupted."}`;
             setMessages((prev) => [...prev, { role: "bot", content: errorMessage }]);
         } finally {
             setIsLoading(false);
