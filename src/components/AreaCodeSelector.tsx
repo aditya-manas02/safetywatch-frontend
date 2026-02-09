@@ -75,6 +75,7 @@ export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSele
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
                     ...VERSION_HEADERS,
                 },
                 body: JSON.stringify({

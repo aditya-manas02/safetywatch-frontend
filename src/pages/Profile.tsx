@@ -405,7 +405,8 @@ export default function Profile() {
                 method: "POST",
                 headers: {
                     ...VERSION_HEADERS,
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({ email: user?.email }),
             });
