@@ -1,66 +1,73 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, MapPin, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Shield, MapPin, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
-
-interface AreaCode {
-    _id: string;
-    code: string;
-    name: string;
-    description?: string;
-    isActive: boolean;
-}
+import { Badge } from "@/components/ui/badge";
 
 interface AreaCodeSelectorProps {
     userEmail: string;
     onAreaCodeAssigned: () => void;
 }
 
+interface AreaInfo {
+    code: string;
+    name: string;
+    description?: string;
+}
+
 export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSelectorProps) {
-    const [areaCodes, setAreaCodes] = useState<AreaCode[]>([]);
-    const [selectedAreaCode, setSelectedAreaCode] = useState<string>("");
-    const [loading, setLoading] = useState(true);
+    const [inputCode, setInputCode] = useState("");
+    const [verifiedArea, setVerifiedArea] = useState<AreaInfo | null>(null);
+    const [verifying, setVerifying] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        fetchAreaCodes();
-    }, []);
+    const handleVerify = async () => {
+        if (!inputCode.trim()) {
+            setError("Please enter an area code");
+            return;
+        }
 
-    const fetchAreaCodes = async () => {
+        setVerifying(true);
+        setError(null);
+        setVerifiedArea(null);
+
         try {
-            const response = await fetch(`${API_BASE}/area-codes`, {
-                headers: VERSION_HEADERS,
+            const response = await fetch(`${API_BASE}/auth/verify-area-code`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...VERSION_HEADERS,
+                },
+                body: JSON.stringify({ areaCode: inputCode.trim() }),
             });
 
-            if (!response.ok) throw new Error("Failed to fetch area codes");
-
             const data = await response.json();
-            setAreaCodes(data.filter((ac: AreaCode) => ac.isActive));
-        } catch (error) {
-            console.error("Error fetching area codes:", error);
+
+            if (!response.ok || !data.valid) {
+                throw new Error(data.message || "Invalid area code");
+            }
+
+            setVerifiedArea(data.areaCode);
+        } catch (err: any) {
+            console.error("Verification error:", err);
+            setError(err.message || "Could not verify area code");
             toast({
-                title: "Error",
-                description: "Failed to load area codes. Please refresh the page.",
+                title: "Invalid Area Code",
+                description: err.message || "Please check the code and try again.",
                 variant: "destructive",
             });
         } finally {
-            setLoading(false);
+            setVerifying(false);
         }
     };
 
-    const handleSubmit = async () => {
-        if (!selectedAreaCode) {
-            toast({
-                title: "Area Code Required",
-                description: "Please select your area code to continue.",
-                variant: "destructive",
-            });
-            return;
-        }
+    const handleJoin = async () => {
+        if (!verifiedArea) return;
 
         setSubmitting(true);
         try {
@@ -72,7 +79,7 @@ export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSele
                 },
                 body: JSON.stringify({
                     email: userEmail,
-                    areaCode: selectedAreaCode,
+                    areaCode: verifiedArea.code,
                 }),
             });
 
@@ -83,8 +90,8 @@ export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSele
             }
 
             toast({
-                title: "Area Code Assigned",
-                description: `You have been assigned to ${data.areaInfo.name}`,
+                title: "Welcome to " + data.areaInfo.name,
+                description: "You have successfully joined this area.",
             });
 
             onAreaCodeAssigned();
@@ -92,7 +99,7 @@ export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSele
             console.error("Error assigning area code:", error);
             toast({
                 title: "Assignment Failed",
-                description: error.message || "Failed to assign area code. Please try again.",
+                description: error.message || "Failed to join area. Please try again.",
                 variant: "destructive",
             });
         } finally {
@@ -106,58 +113,97 @@ export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSele
                 <DialogHeader>
                     <div className="flex items-center gap-2 mb-2">
                         <Shield className="h-6 w-6 text-primary" />
-                        <DialogTitle>Select Your Area Code</DialogTitle>
+                        <DialogTitle>Enter Access Code</DialogTitle>
                     </div>
                     <DialogDescription>
-                        To access SafetyWatch, please select your area code. This helps us provide you with relevant local safety information.
+                        SafetyWatch is access-restricted. Please enter your provided area code to verify your location eligibility.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-4 py-4">
-                    {loading ? (
-                        <div className="flex items-center justify-center py-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        </div>
-                    ) : (
-                        <>
-                            <div className="space-y-2">
-                                <Label htmlFor="areaCode" className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4" />
-                                    Area Code
-                                </Label>
-                                <Select value={selectedAreaCode} onValueChange={setSelectedAreaCode}>
-                                    <SelectTrigger id="areaCode">
-                                        <SelectValue placeholder="Select your area code" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {areaCodes.map((areaCode) => (
-                                            <SelectItem key={areaCode._id} value={areaCode.code}>
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold">{areaCode.code}</span>
-                                                    <span className="text-sm text-muted-foreground">{areaCode.name}</span>
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                <div className="space-y-6 py-4">
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="areaCode" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                <MapPin className="h-3.5 w-3.5" />
+                                Area Access Code
+                            </Label>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                                <div className="relative flex-1">
+                                    <Input
+                                        id="areaCode"
+                                        placeholder="e.g. NYC01"
+                                        value={inputCode}
+                                        onChange={(e) => {
+                                            setInputCode(e.target.value.toUpperCase());
+                                            setError(null);
+                                            setVerifiedArea(null);
+                                        }}
+                                        className="font-mono text-lg tracking-widest uppercase input-premium h-12"
+                                        disabled={verifying || submitting}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" && !verifiedArea) {
+                                                handleVerify();
+                                            }
+                                        }}
+                                    />
+                                    {verifiedArea && (
+                                        <div className="absolute right-3 top-3.5 text-green-500 animate-in fade-in zoom-in duration-300">
+                                            <CheckCircle2 className="h-5 w-5" />
+                                        </div>
+                                    )}
+                                </div>
+                                <Button
+                                    onClick={handleVerify}
+                                    disabled={!inputCode || verifying || submitting || !!verifiedArea}
+                                    className="h-12 px-6 font-bold w-full sm:w-auto"
+                                    variant="secondary"
+                                >
+                                    {verifying ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        "Verify"
+                                    )}
+                                </Button>
                             </div>
+                            {error && (
+                                <p className="text-xs font-bold text-destructive flex items-center gap-1.5 animate-in slide-in-from-top-1">
+                                    <AlertCircle className="h-3.5 w-3.5" />
+                                    {error}
+                                </p>
+                            )}
+                        </div>
 
-                            <Button
-                                onClick={handleSubmit}
-                                disabled={!selectedAreaCode || submitting}
-                                className="w-full"
-                            >
-                                {submitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Assigning...
-                                    </>
-                                ) : (
-                                    "Continue"
-                                )}
-                            </Button>
-                        </>
-                    )}
+                        {verifiedArea && (
+                            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="flex items-start justify-between">
+                                    <div className="space-y-1">
+                                        <h4 className="font-black text-lg tracking-tight text-foreground">{verifiedArea.name}</h4>
+                                        <p className="text-xs font-medium text-muted-foreground">{verifiedArea.description}</p>
+                                    </div>
+                                    <Badge variant="outline" className="bg-background text-primary border-primary/30 font-mono">
+                                        {verifiedArea.code}
+                                    </Badge>
+                                </div>
+
+                                <div className="pt-2">
+                                    <Button
+                                        onClick={handleJoin}
+                                        disabled={submitting}
+                                        className="w-full font-black uppercase tracking-widest text-xs h-10 shadow-lg shadow-primary/20"
+                                    >
+                                        {submitting ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Joining Network...
+                                            </>
+                                        ) : (
+                                            "Confirm & Access System"
+                                        )}
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>

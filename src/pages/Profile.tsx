@@ -15,7 +15,7 @@ import { API_BASE, getAuthHeaders, VERSION_HEADERS } from "@/lib/api";
 import {
     Shield, ArrowLeft, User, Mail, Phone, Save, RefreshCw, Lock,
     Eye, EyeOff, KeyRound, CheckCircle2, Calendar, Edit2, X, Camera,
-    Info, MapPin, Trophy, MessageSquare, Clock
+    Info, MapPin, Trophy, MessageSquare, Clock, AlertCircle
 } from "lucide-react";
 
 
@@ -397,7 +397,36 @@ export default function Profile() {
         }
     };
 
+    const handleLeaveAreaCode = async () => {
+        if (!confirm("Are you sure you want to leave your current area? You will need to re-enter an area code to access the app.")) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/auth/leave-area-code`, {
+                method: "POST",
+                headers: {
+                    ...VERSION_HEADERS,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email: user?.email }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Failed to leave area code");
+            }
+
+            toast({ title: "Success", description: "You have left the area." });
+            // Reload to show AreaCodeSelector
+            window.location.reload();
+
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        }
+    };
+
     const passwordStrength = getPasswordStrength(passwordTab === "change" ? newPassword : newPasswordOtp);
+
 
     if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>;
 
@@ -718,6 +747,26 @@ export default function Profile() {
                                     >
                                         OTP Signal
                                     </button>
+                                </div>
+
+                                {/* LEAVE AREA CODE BUTTON */}
+                                <div className="p-4 rounded-2xl bg-destructive/5 border border-destructive/20 space-y-3">
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-destructive/10 rounded-lg">
+                                            <AlertCircle className="h-5 w-5 text-destructive" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-sm uppercase tracking-wider text-destructive">Danger Zone</h4>
+                                            <p className="text-xs text-muted-foreground mt-1">Leaving your area will restrict access to local alerts until you rejoin.</p>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        onClick={handleLeaveAreaCode}
+                                        variant="destructive"
+                                        className="w-full font-black text-xs uppercase tracking-widest"
+                                    >
+                                        Leave Current Area
+                                    </Button>
                                 </div>
 
                                 <AnimatePresence mode="wait">
