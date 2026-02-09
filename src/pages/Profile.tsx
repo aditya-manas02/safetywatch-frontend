@@ -290,7 +290,10 @@ export default function Profile() {
         try {
             const res = await fetch(`${API_BASE}/auth/change-password`, {
                 method: "POST",
-                headers: VERSION_HEADERS,
+                headers: {
+                    ...VERSION_HEADERS,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     email: user?.email,
                     currentPassword,
@@ -322,7 +325,10 @@ export default function Profile() {
         try {
             const res = await fetch(`${API_BASE}/auth/request-password-otp`, {
                 method: "POST",
-                headers: VERSION_HEADERS,
+                headers: {
+                    ...VERSION_HEADERS,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({ email: otpEmail }),
             });
 
@@ -362,7 +368,10 @@ export default function Profile() {
         try {
             const res = await fetch(`${API_BASE}/auth/reset-password-otp`, {
                 method: "POST",
-                headers: VERSION_HEADERS,
+                headers: {
+                    ...VERSION_HEADERS,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     email: otpEmail,
                     otp,
