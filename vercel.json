@@ -1,0 +1,15 @@
+{
+    "redirects": [
+        {
+            "source": "/SafetyWatch.apk",
+            "destination": "https://safetywatch-backend.onrender.com/SafetyWatch.apk",
+            "permanent": false
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}

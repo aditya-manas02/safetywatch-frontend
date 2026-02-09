@@ -1,0 +1,27 @@
+{
+    "appId": "com.safetywatch.app",
+    "appName": "SafetyWatch",
+    "webDir": "dist",
+    "server": {
+        "url": "https://safetywatch.vercel.app",
+        "cleartext": true,
+        "androidScheme": "https"
+    },
+    "plugins": {
+        "StatusBar": {
+            "style": "DARK",
+            "backgroundColor": "#05070a",
+            "overlaysWebView": true
+        },
+        "SplashScreen": {
+            "launchShowDuration": 0,
+            "launchAutoHide": true,
+            "backgroundColor": "#020817",
+            "androidSplashResourceName": "splash",
+            "showSpinner": false
+        },
+        "CapacitorHttp": {
+            "enabled": true
+        }
+    }
+}

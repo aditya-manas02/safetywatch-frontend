@@ -1,0 +1,30 @@
+{
+	"appId": "com.safetywatch.app",
+	"appName": "SafetyWatch",
+	"webDir": "dist",
+	"plugins": {
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#05070a",
+			"overlaysWebView": true
+		},
+		"SplashScreen": {
+			"launchShowDuration": 0,
+			"launchAutoHide": true,
+			"backgroundColor": "#020817",
+			"androidSplashResourceName": "splash",
+			"showSpinner": false
+		},
+		"CapacitorHttp": {
+			"enabled": true
+		}
+	},
+	"packageClassList": [
+		"AppPlugin",
+		"CAPBrowserPlugin",
+		"CAPCameraPlugin",
+		"GeolocationPlugin",
+		"SplashScreenPlugin",
+		"StatusBarPlugin"
+	]
+}
