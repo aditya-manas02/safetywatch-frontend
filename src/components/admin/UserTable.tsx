@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Calendar, Shield, ExternalLink } from "lucide-react";
+import { User, Mail, Calendar, Shield, ExternalLink, Users, UserCog } from "lucide-react";
 import { format } from "date-fns";
+import { useState } from "react";
 
 import { User as UserType } from "@/types";
 
@@ -11,8 +12,58 @@ export interface UserTableProps {
 }
 
 export default function UserTable({ users, onView }: UserTableProps) {
+  const [roleFilter, setRoleFilter] = useState<"all" | "citizens" | "admins">("all");
+
+  // Filter users based on role
+  const filteredUsers = users.filter((u) => {
+    if (roleFilter === "citizens") {
+      return !u.roles?.includes("admin") && !u.roles?.includes("superadmin");
+    }
+    if (roleFilter === "admins") {
+      return u.roles?.includes("admin") || u.roles?.includes("superadmin");
+    }
+    return true; // "all"
+  });
+
+  const citizenCount = users.filter(u => !u.roles?.includes("admin") && !u.roles?.includes("superadmin")).length;
+  const adminCount = users.filter(u => u.roles?.includes("admin") || u.roles?.includes("superadmin")).length;
+
   return (
     <>
+      {/* Role Filter Tabs */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setRoleFilter("all")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "all"
+              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+              : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+            }`}
+        >
+          <Users className="h-4 w-4" />
+          All Users ({users.length})
+        </button>
+        <button
+          onClick={() => setRoleFilter("citizens")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "citizens"
+              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+              : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+            }`}
+        >
+          <User className="h-4 w-4" />
+          Citizens ({citizenCount})
+        </button>
+        <button
+          onClick={() => setRoleFilter("admins")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "admins"
+              ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+              : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+            }`}
+        >
+          <UserCog className="h-4 w-4" />
+          Admins ({adminCount})
+        </button>
+      </div>
+
       {/* DESKTOP TABLE VIEW */}
       <div className="hidden md:block bg-[#071328] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
@@ -27,7 +78,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
             </thead>
 
             <tbody className="divide-y divide-gray-800">
-              {users.map((u: UserType) => (
+              {filteredUsers.map((u: UserType) => (
                 <tr key={u._id} className="transition-colors hover:bg-white/5 group">
                   <td className="px-4 md:px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -86,7 +137,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
 
       {/* MOBILE CARD VIEW */}
       <div className="md:hidden space-y-4">
-        {users.map((u: UserType) => (
+        {filteredUsers.map((u: UserType) => (
           <div key={u._id} className="bg-[#071328] border border-gray-800 rounded-xl p-4 shadow-sm relative overflow-hidden">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
