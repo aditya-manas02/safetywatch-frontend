@@ -7,6 +7,8 @@ interface UserData {
   name?: string;
   phone?: string;
   roles: string[];
+  hasAreaCode?: boolean;
+  areaCode?: string;
 }
 
 export interface RateLimitInfo {
@@ -26,6 +28,7 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<{ error: Error | null; tempPassword?: string; rateLimit?: RateLimitInfo }>;
   verifyOtp: (email: string, otp: string) => Promise<{ error: Error | null }>;
   resendOtp: (email: string) => Promise<{ error: Error | null; rateLimit?: RateLimitInfo }>;
+  refreshUser: () => Promise<void>;
 }
 
 
@@ -213,6 +216,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // ---------------------------
+  // REFRESH USER (after area code assignment)
+  // ---------------------------
+  const refreshUser = async () => {
+    const savedUser = localStorage.getItem("user");
+    const savedToken = localStorage.getItem("token");
+
+    if (savedUser && savedToken) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+        setToken(savedToken);
+        setIsAdmin(parsed.roles?.includes("admin"));
+      } catch (error) {
+        console.error("Error refreshing user:", error);
+      }
+    }
+  };
 
   // ---------------------------
   // SIGN OUT
@@ -240,6 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         forgotPassword,
         verifyOtp,
         resendOtp,
+        refreshUser,
       }}
     >
       {children}

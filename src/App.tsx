@@ -18,6 +18,7 @@ import { Geolocation } from "@capacitor/geolocation";
 import { Camera } from "@capacitor/camera";
 import { SafetyWatchLoader } from "./components/SafetyWatchLoader";
 import { SecurityUpdatePanel } from "./components/SecurityUpdatePanel";
+import { AreaCodeSelector } from "./components/AreaCodeSelector";
 
 // Lazy load pages for performance
 const Index = lazy(() => import("./pages/Index"));
@@ -37,8 +38,13 @@ const AppContent = () => {
   const location = useLocation();
   const hideNavbar = ["/admin", "/auth"].some(path => location.pathname.startsWith(path));
 
-  const { isLoading } = useAuth();
+  const { isLoading, user, refreshUser } = useAuth();
   const [minLoadTimePassed, setMinLoadTimePassed] = useState(false);
+
+  // Check if user needs to set area code (not superadmin and hasAreaCode is false)
+  const needsAreaCode = user &&
+    !user.roles?.includes("superadmin") &&
+    user.hasAreaCode === false;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -69,6 +75,23 @@ const AppContent = () => {
 
   if (isLoading || !minLoadTimePassed) {
     return <SafetyWatchLoader />;
+  }
+
+  // Show area code selector if needed
+  if (needsAreaCode) {
+    return (
+      <AnimatedBackground>
+        <AreaCodeSelector
+          userEmail={user.email}
+          onAreaCodeAssigned={async () => {
+            // Refresh user data after area code assignment
+            await refreshUser();
+            // Force reload to ensure all components get updated user data
+            window.location.reload();
+          }}
+        />
+      </AnimatedBackground>
+    );
   }
 
   return (
