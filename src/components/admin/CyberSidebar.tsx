@@ -12,7 +12,8 @@ import {
   XCircle,
   MessageSquare,
   Megaphone,
-  Flag
+  Flag,
+  MapPin
 } from "lucide-react";
 
 interface Props {
@@ -29,6 +30,7 @@ export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isO
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "incidents", label: "Moderation", icon: ListFilter },
     { id: "users", label: "Citizens", icon: UsersIcon },
+    { id: "areacodes", label: "Area Codes", icon: MapPin },
     { id: "support", label: "Support", icon: LifeBuoy },
     { id: "reports", label: "Reports", icon: Flag },
     { id: "announcements", label: "Broadcast", icon: Megaphone },

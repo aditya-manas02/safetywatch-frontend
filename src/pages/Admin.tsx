@@ -17,9 +17,10 @@ import SupportManager from "@/components/admin/SupportManager";
 import AuditLogViewer from "@/components/admin/AuditLogViewer";
 import CreateAnnouncement from "@/components/admin/CreateAnnouncement";
 import ReportManager from "@/components/admin/ReportManager";
-import { Megaphone, Flag } from "lucide-react";
+import { Megaphone, Flag, MapPin } from "lucide-react";
 import { DashboardSkeleton, TableSkeleton } from "@/components/admin/Skeletons";
 import { User as UserType, Incident } from "@/types";
+import AreaCodeManager from "@/components/admin/AreaCodeManager";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -204,6 +205,7 @@ export default function Admin() {
       case 'dashboard': return { title: 'Strategic Analytics', desc: 'Real-time community insights and growth trends.', icon: <LayoutDashboard /> };
       case 'incidents': return { title: 'Incident Moderation', desc: 'High-speed report verification and auditing.', icon: <ListFilter /> };
       case 'users': return { title: 'Citizen Control', desc: 'Access privilege and identity management.', icon: <Users /> };
+      case 'areacodes': return { title: 'Area Code Management', desc: 'Create and manage community area codes.', icon: <MapPin /> };
       case 'support': return { title: 'Community Support', desc: 'Feedback resolutions and citizen helpdesk.', icon: <LifeBuoy /> };
       case 'reports': return { title: 'Citizen Reports', desc: 'Manage user violations and disciplinary actions.', icon: <Flag /> };
       case 'announcements': return { title: 'Broadcast Center', desc: 'Send community-wide alerts and news.', icon: <Megaphone /> };
@@ -363,6 +365,8 @@ export default function Admin() {
               <UserTable users={users} onView={(u: UserType) => { setSelectedUser(u); fetchUserIncidents(u._id); }} />
             )
           )}
+
+          {activeTab === "areacodes" && <AreaCodeManager />}
 
           {activeTab === "support" && <SupportManager />}
 
