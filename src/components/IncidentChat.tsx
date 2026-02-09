@@ -322,7 +322,7 @@ export function IncidentChat({ incidentId, incidentOwnerId, otherUserId, inciden
                                                 ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm border border-primary/20"
                                                 : "bg-muted/80 text-foreground rounded-2xl rounded-tl-sm border border-border/50"
                                         )}>
-                                            {msg.content}
+                                            {typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)}
 
                                             {/* Timestamp & Status */}
                                             <div className={cn("flex items-center gap-1 justify-end mt-1 opacity-60 text-[9px] font-bold tracking-wider", isMe ? "text-primary-foreground" : "text-muted-foreground")}>

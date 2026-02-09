@@ -57,11 +57,13 @@ export class GlobalErrorBoundary extends Component<Props, State> {
                             </Button>
                         </div>
 
-                        {import.meta.env.DEV && (
-                            <pre className="mt-8 p-4 bg-black/40 border border-white/5 rounded-xl text-[10px] text-left overflow-auto max-h-32 text-red-400">
-                                {this.state.error?.toString()}
+                        <div className="mt-8 p-4 bg-black/40 border border-white/5 rounded-xl text-left overflow-auto max-h-32">
+                            <p className="text-[10px] font-bold text-red-400 mb-1 uppercase tracking-wider">Error Details for Support:</p>
+                            <pre className="text-[10px] text-red-300/80 whitespace-pre-wrap font-mono select-all">
+                                {this.state.error?.message || "Unknown Error"}
+                                {import.meta.env.DEV && this.state.error?.stack && `\n\n${this.state.error.stack}`}
                             </pre>
-                        )}
+                        </div>
                     </div>
                 </div>
             );

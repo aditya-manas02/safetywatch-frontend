@@ -399,7 +399,7 @@ export function IncidentCard({
                   <GanttChartSquare className="h-4 w-4" /> Comprehensive Summary
                 </div>
                 <div className="bg-white/5 border border-white/5 p-8 rounded-3xl italic leading-relaxed text-slate-300 text-lg shadow-inner selection:bg-primary/30">
-                  "{incident.description || "Official report analysis pending for this entry."}"
+                  "{typeof incident.description === 'string' ? incident.description : (incident.description ? JSON.stringify(incident.description) : "Official report analysis pending for this entry.")}"
                 </div>
               </div>
 
