@@ -100,7 +100,7 @@ const AppContent = () => {
 
       {!hideNavbar && <Navbar />}
       <main className={!hideNavbar
-        ? "pt-[calc(60px+env(safe-area-inset-top))] md:pt-[64px]"
+        ? "pt-[calc(80px+env(safe-area-inset-top))] md:pt-[96px]"
         : "pt-[env(safe-area-inset-top)]"
       }>
         <Suspense fallback={<SafetyWatchLoader />}>

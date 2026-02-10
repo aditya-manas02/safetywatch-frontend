@@ -151,7 +151,7 @@ const SafetyPulse = () => {
     };
 
     return (
-        <div className="w-full bg-background/95 text-foreground backdrop-blur-3xl border-b border-border overflow-hidden py-2 relative z-30 transition-colors duration-500 shadow-sm mt-[env(safe-area-inset-top)] md:mt-0">
+        <div className="w-full bg-background/95 text-foreground backdrop-blur-3xl border-b border-border overflow-hidden py-2 relative z-30 transition-colors duration-500 shadow-sm">
             <div className="container mx-auto flex items-center gap-2 md:gap-6">
                 {/* Master Badge */}
                 <div className="flex items-center gap-1.5 md:gap-2.5 px-2 md:px-4 py-1.5 bg-primary/10 text-primary rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap border border-primary/20 shadow-[0_0_20px_rgba(255,107,0,0.1)] bg-gradient-to-r from-primary/5 to-transparent flex-shrink-0">
