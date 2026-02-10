@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
@@ -51,12 +50,7 @@ export const SafetyWatchLoader = () => {
                         src="/assets/splash.png"
                         alt="Nexus AI"
                         className="h-full w-full object-contain relative z-10 drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]"
-                        onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.parentElement?.querySelector('.fallback-shield')?.classList.remove('hidden');
-                        }}
                     />
-                    <Shield className="fallback-shield hidden h-full w-full text-blue-500 relative z-10 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
                 </div>
 
                 <div className="mt-10 flex flex-col items-center">

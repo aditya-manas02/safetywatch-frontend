@@ -11,7 +11,6 @@ import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 
 import {
-  Shield,
   AlertCircle,
   LogIn,
   LogOut,
@@ -358,8 +357,12 @@ export default function Index() {
             <NewsFeed />
 
             <div className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden relative group">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Shield className="h-24 w-24" />
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <img
+                  src="/assets/splash.png"
+                  alt=""
+                  className="h-24 w-24 object-contain grayscale brightness-0 invert dark:invert-0"
+                />
               </div>
               <h4 className="text-xl font-black mb-6 flex items-center gap-2">
                 <LayoutDashboard className="h-5 w-5 text-primary" />

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Mail, Lock, CheckCircle2, MapPin, Bell, Users, Eye, EyeOff, LifeBuoy, Flag, Sparkles, HelpCircle } from "lucide-react";
+import { Mail, Lock, CheckCircle2, MapPin, Bell, Users, Eye, EyeOff, LifeBuoy, Flag, Sparkles, HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -343,7 +343,11 @@ const Auth = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
           <div className="flex items-center gap-3 mb-12">
             <div className="p-2 bg-white/10 rounded-xl backdrop-blur-md border border-white/20">
-              <Shield className="h-8 w-8 text-white" />
+              <img
+                src="/assets/splash.png"
+                alt="Nexus AI"
+                className="h-8 w-8 object-contain"
+              />
             </div>
             <span className="text-2xl font-bold text-white tracking-tight">SafetyWatch</span>
           </div>
@@ -404,8 +408,12 @@ const Auth = () => {
         >
           <div className="text-center lg:text-left">
             <motion.div variants={itemVariants} className="lg:hidden flex justify-center mb-6">
-              <div className="p-3 bg-primary rounded-2xl shadow-lg shadow-primary/20">
-                <Shield className="h-8 w-8 text-white" />
+              <div className="p-3 bg-background border border-border/50 rounded-2xl shadow-lg shadow-primary/10">
+                <img
+                  src="/assets/splash.png"
+                  alt="Nexus AI"
+                  className="h-8 w-8 object-contain"
+                />
               </div>
             </motion.div>
             <motion.h1 variants={itemVariants} className="text-3xl sm:text-4xl font-black tracking-tight mb-2">Welcome to SafetyWatch</motion.h1>
@@ -678,7 +686,12 @@ const Auth = () => {
             </Card>
 
             <motion.div variants={itemVariants} className="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-4 text-xs font-bold text-muted-foreground/60 tracking-wider">
-              <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Shield className="h-3 w-3" />TRUSTED NETWORK</a>
+              <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors">
+                <div className="w-3 h-3 flex items-center justify-center">
+                  <img src="/assets/splash.png" alt="" className="h-full w-full object-contain" />
+                </div>
+                TRUSTED NETWORK
+              </a>
               <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Lock className="h-3 w-3" />SECURE ACCESS</a>
               <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Flag className="h-3 w-3" />REPORT INCIDENTS</a>
             </motion.div>

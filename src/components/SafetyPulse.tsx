@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Activity, Shield, Zap, Globe, Users, Clock, AlertTriangle } from "lucide-react";
+import { Activity, Zap, Globe, Users, Clock, AlertTriangle } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -143,7 +143,7 @@ const SafetyPulse = () => {
     const getSignalIcon = (cls: SignalClass) => {
         switch (cls) {
             case "ALPHA": return <AlertTriangle className="h-3 w-3" />;
-            case "INTEL": return <Shield className="h-3 w-3" />;
+            case "INTEL": return <Zap className="h-3 w-3" />;
             case "SIGMA": return <Zap className="h-3 w-3" />;
             case "PULSE": return <Users className="h-3 w-3" />;
             default: return <Activity className="h-3 w-3" />;

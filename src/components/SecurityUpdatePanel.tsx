@@ -165,7 +165,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             setVersionInfo({
                 version: "Checking...",
                 minVersion: "1.4.3",
-                url: `${BASE_URL}/SafetyWatch-v1.4.5.apk`,
+                url: `https://safetywatch-backend.onrender.com/SafetyWatch.apk`,
                 notes: `Connection error. Please check your internet. (Error: ${error?.message || 'Unknown'})`
             });
             onCheckComplete?.(true); // Treat as blocking error
@@ -194,7 +194,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
     };
 
     const startDownload = async () => {
-        const downloadUrl = versionInfo?.url || `${BASE_URL}/SafetyWatch-v1.4.5.apk`;
+        const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
         if (!downloadUrl) return;
 
         // Ensure we have permissions for storage on Android
@@ -299,7 +299,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             }
 
             // Final safety fallback
-            const downloadUrl = versionInfo?.url || `${BASE_URL}/SafetyWatch-v1.4.5.apk`;
+            const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
             if (downloadUrl) {
                 window.open(downloadUrl, '_system');
             }
@@ -312,7 +312,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
     if (!showUpdate || !versionInfo) return null;
 
-    const downloadUrl = versionInfo?.url || `${BASE_URL}/SafetyWatch-v1.4.5.apk`;
+    const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
 
     return (
         <AnimatePresence>

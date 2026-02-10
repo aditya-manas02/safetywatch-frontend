@@ -23,10 +23,14 @@ export default function Footer() {
         {/* BRAND */}
         <div className="col-span-1 md:col-span-2 space-y-6">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-primary rounded-lg shadow-lg shadow-primary/20">
-              <Shield className="h-6 w-6 text-primary-foreground" />
+            <div className="p-1.5 bg-background border border-border/50 rounded-lg shadow-lg shadow-primary/10">
+              <img
+                src="/assets/splash.png"
+                alt="Nexus AI"
+                className="h-6 w-6 object-contain mix-blend-normal"
+              />
             </div>
-            <span className="text-xl font-bold tracking-tight">SafetyWatch</span>
+            <span className="text-xl font-bold tracking-tight text-foreground">SafetyWatch</span>
           </div>
           <p className="text-muted-foreground max-w-sm leading-relaxed font-medium">
             Empowering neighborhoods with real-time transparency and collective oversight. Together, we build safer communities through verified reporting and instant communication.

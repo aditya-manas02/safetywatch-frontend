@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Shield, MapPin, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { MapPin, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -119,8 +119,14 @@ export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSele
         <Dialog open={true}>
             <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
                 <DialogHeader>
-                    <div className="flex items-center gap-2 mb-2">
-                        <Shield className="h-6 w-6 text-primary" />
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-1 bg-background border border-border/50 rounded-lg shadow-sm">
+                            <img
+                                src="/assets/splash.png"
+                                alt="Nexus AI"
+                                className="h-5 w-5 object-contain"
+                            />
+                        </div>
                         <DialogTitle>Enter Access Code</DialogTitle>
                     </div>
                     <DialogDescription>

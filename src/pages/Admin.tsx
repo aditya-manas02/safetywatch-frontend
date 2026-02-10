@@ -1,7 +1,7 @@
 import DashboardStats from "@/components/admin/DashboardStats";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Shield, Search, RefreshCw, LayoutDashboard, ListFilter, Users, LifeBuoy, Activity, Menu } from "lucide-react";
+import { Loader2, Zap, Search, RefreshCw, LayoutDashboard, ListFilter, Users, LifeBuoy, Activity, Menu } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { API_BASE, VERSION_HEADERS, getAuthHeaders } from "@/lib/api";
@@ -210,7 +210,7 @@ export default function Admin() {
       case 'reports': return { title: 'Citizen Reports', desc: 'Manage user violations and disciplinary actions.', icon: <Flag /> };
       case 'announcements': return { title: 'Broadcast Center', desc: 'Send community-wide alerts and news.', icon: <Megaphone /> };
       case 'activity': return { title: 'System Activity', desc: 'Administrative audit logs and security history.', icon: <Activity /> };
-      default: return { title: 'Admin Console', desc: 'Enterprise management interface.', icon: <Shield /> };
+      default: return { title: 'Admin Console', desc: 'Enterprise management interface.', icon: <Zap /> };
     }
   };
 
@@ -239,8 +239,12 @@ export default function Admin() {
               <Menu className="h-6 w-6 text-foreground" />
             </button>
             <div className="hidden md:block h-12 w-12 rounded-xl bg-gradient-to-tr from-primary to-accent p-0.5 shadow-lg shadow-primary/10">
-              <div className="h-full w-full rounded-[10px] bg-background flex items-center justify-center text-foreground">
-                {info.icon}
+              <div className="h-full w-full rounded-[10px] bg-background flex items-center justify-center p-2 overflow-hidden">
+                <img
+                  src="/assets/splash.png"
+                  alt="Nexus AI"
+                  className="h-full w-full object-contain"
+                />
               </div>
             </div>
             <div>
