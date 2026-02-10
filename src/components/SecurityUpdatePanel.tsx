@@ -305,10 +305,23 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 }
             }, 400);
 
+            // Method 3: Hidden Iframe (Force Browser Download)
+            setTimeout(() => {
+                try {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = url;
+                    document.body.appendChild(iframe);
+                    setTimeout(() => document.body.removeChild(iframe), 5000);
+                } catch (e) {
+                    console.warn('[VERSION_DL] Iframe fallback failed');
+                }
+            }, 600);
+
             // Method 4: Assign (Terminal Fallback)
             setTimeout(() => {
                 window.location.assign(url);
-            }, 800);
+            }, 1000);
 
         } catch (e) {
             console.error('[VERSION_DL] Hyper-fallback failed:', e);
