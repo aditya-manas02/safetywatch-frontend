@@ -23,11 +23,19 @@ export default function Navbar() {
             <div className="container mx-auto px-6 py-2.5 flex items-center justify-between">
                 {/* Logo */}
                 <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate("/")}>
-                    <div className="rounded-xl p-2 bg-gradient-to-tr from-primary to-blue-500 shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform duration-300">
-                        <Shield className="h-6 w-6 text-primary-foreground" />
+                    <div className="relative">
+                        <div className="absolute -inset-1.5 bg-gradient-to-tr from-primary/40 to-blue-500/40 rounded-xl blur-sm group-hover:blur-md transition-all duration-300"></div>
+                        <div className="relative rounded-xl p-1.5 bg-background border border-border/50 shadow-lg shadow-primary/10 group-hover:scale-110 transition-transform duration-300 overflow-hidden">
+                            <img
+                                src="/assets/splash.png"
+                                alt="Nexus AI"
+                                className="h-7 w-7 object-contain mix-blend-normal drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]"
+                            />
+                        </div>
                     </div>
                     <span className="text-xl md:text-2xl font-black tracking-tighter text-foreground group-hover:text-primary transition-colors">SafetyWatch</span>
                 </div>
+
 
                 {/* Desktop Actions */}
                 <div className="hidden md:flex items-center gap-4">

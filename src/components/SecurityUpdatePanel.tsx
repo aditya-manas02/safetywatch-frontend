@@ -320,117 +320,135 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm overflow-hidden"
+                className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-[#020617]/95 backdrop-blur-md overflow-hidden"
             >
+                {/* Digital Noise Background Overlay */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
+
                 <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    initial={{ scale: 0.9, opacity: 0, y: 30 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
-                    className="relative w-full max-w-md bg-[#0a0f18] border border-white/10 rounded-2xl shadow-2xl p-6 md:p-8"
+                    className="relative w-full max-w-md bg-[#09090b] border border-purple-500/30 rounded-[2rem] shadow-[0_0_100px_-20px_rgba(168,85,247,0.3)] p-8 md:p-10 overflow-hidden"
                 >
-                    <div className="flex flex-col items-start text-left">
-                        {/* Header Section */}
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
-                                <AlertTriangle className="w-6 h-6 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
+                    {/* Interior Glow */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+
+                    <div className="flex flex-col items-center text-center">
+                        {/* Nexus AI Logo */}
+                        <div className="relative mb-8">
+                            <div className="absolute -inset-4 bg-purple-600/20 blur-2xl rounded-full animate-pulse"></div>
+                            <div className="relative p-4 bg-purple-950/30 rounded-2xl border border-purple-500/40 shadow-2xl">
+                                <img
+                                    src="/assets/splash.png"
+                                    alt="Nexus AI"
+                                    className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]"
+                                />
                             </div>
-                            <h2 className="text-2xl font-bold text-white tracking-tight">System Update Required</h2>
                         </div>
 
-                        <p className="text-[15px] text-slate-300 mb-4 leading-relaxed">
-                            A critical security update is required to continue. Your current version
-                            <span className="text-white font-bold px-1.5 py-0.5 bg-white/5 rounded mx-1">({currentVersion || 'Legacy'})</span>
-                            is discontinued.
+                        <h2 className="text-3xl font-black text-white tracking-tighter mb-4 flex items-center gap-2">
+                            UPDATE <span className="text-purple-500">AVAILABLE</span>
+                        </h2>
+
+                        <p className="text-[15px] text-slate-400 mb-6 leading-relaxed">
+                            A new security layer is ready for deployment. Please update now to continue using the
+                            <span className="text-white font-bold px-2 py-0.5 bg-purple-500/10 rounded ml-1 border border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]">SafetyWatch</span> app.
                         </p>
 
-                        <div className="space-y-1 mb-4">
-                            <p className="text-[15px] text-white font-bold">Latest Security Version: {versionInfo.version}</p>
-                            <p className="text-[13px] text-red-500 font-medium italic">Emergency Sync: Version 1.4.5 is now mandatory.</p>
+                        <div className="w-full space-y-2 mb-8 text-[13px] font-mono tracking-wider">
+                            <div className="flex justify-between items-center px-4 py-3 bg-white/5 rounded-xl border border-white/5">
+                                <span className="text-slate-500 uppercase">Current</span>
+                                <span className="text-white font-bold">{currentVersion || '1.4.3'}</span>
+                            </div>
+                            <div className="flex justify-between items-center px-4 py-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                                <span className="text-purple-400 uppercase">Target</span>
+                                <span className="text-white font-bold">{versionInfo.version}</span>
+                            </div>
                         </div>
 
-                        {/* What's New Section */}
-                        {versionInfo.notes && (
-                            <div className="w-full bg-[#111827] border border-white/5 rounded-xl p-5 mb-8">
-                                <p className="text-[12px] font-bold text-blue-400 uppercase tracking-wider mb-2">Security Patch Notes:</p>
-                                <p className="text-[14px] text-slate-300 leading-relaxed italic">
-                                    "{versionInfo.notes}"
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Progress Section (Only if downloading) */}
-                        {isDownloading && (
-                            <div className="w-full mb-6 space-y-2">
-                                <div className="flex justify-between items-center px-1">
-                                    <span className="text-[11px] font-bold text-blue-400 uppercase">Synchronizing Binary</span>
-                                    <span className="text-[11px] font-mono text-white">{downloadProgress}%</span>
-                                </div>
-                                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                                    <motion.div
-                                        className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                                        initial={{ width: "0%" }}
-                                        animate={{ width: `${downloadProgress}%` }}
-                                    />
-                                </div>
-                            </div>
-                        )}
+                        {/* Progress Section (Always visible when downloading) */}
+                        <AnimatePresence>
+                            {isDownloading && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    className="w-full mb-8 space-y-3"
+                                >
+                                    <div className="flex justify-between items-center px-1">
+                                        <div className="flex items-center gap-2">
+                                            <RefreshCw className="w-3 h-3 text-purple-400 animate-spin" />
+                                            <span className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">Encrypting Sync...</span>
+                                        </div>
+                                        <span className="text-[11px] font-mono text-white">{downloadProgress}%</span>
+                                    </div>
+                                    <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
+                                        <motion.div
+                                            className="h-full bg-gradient-to-r from-purple-600 via-indigo-500 to-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.6)] rounded-full"
+                                            initial={{ width: "0%" }}
+                                            animate={{ width: `${downloadProgress}%` }}
+                                            transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
                         {/* Action Hub */}
-                        <div className="w-full space-y-3">
+                        <div className="w-full space-y-4">
                             {!isDownloaded ? (
                                 <button
-                                    onClick={() => window.open(downloadUrl, '_system')}
-                                    className="w-full bg-red-700 hover:bg-red-600 text-white font-black text-lg py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-[0_10px_30px_rgba(185,28,28,0.2)]"
+                                    onClick={startDownload}
+                                    disabled={isDownloading}
+                                    className="relative w-full group overflow-hidden"
                                 >
-                                    <Download className="w-6 h-6" />
-                                    Update Now (Opens Chrome)
+                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 transition-transform duration-300 group-hover:scale-105 rounded-2xl"></div>
+                                    <div className="relative bg-transparent hover:bg-white/5 text-white font-black text-lg py-5 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-[0_20px_40px_-10px_rgba(168,85,247,0.4)]">
+                                        {isDownloading ? (
+                                            <>
+                                                <Loader2 className="w-6 h-6 animate-spin" />
+                                                Synchronizing...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Download className="w-6 h-6" />
+                                                Update Now
+                                            </>
+                                        )}
+                                    </div>
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleInstall}
-                                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all"
+                                    className="relative w-full group overflow-hidden"
                                 >
-                                    <CheckCircle2 className="w-6 h-6" />
-                                    Install Now (Local Sync)
+                                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 transition-transform duration-300 group-hover:scale-105 rounded-2xl"></div>
+                                    <div className="relative bg-transparent hover:bg-white/5 text-white font-black text-lg py-5 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all">
+                                        <CheckCircle2 className="w-6 h-6" />
+                                        Initialize Install
+                                    </div>
                                 </button>
                             )}
 
-                            {/* Secondary Actions */}
-                            <div className="flex flex-col items-center gap-4 pt-4 w-full">
-                                <p className="text-[11px] text-slate-500 text-center max-w-[80%]">
-                                    Clicking the button will redirect you to your web browser to download the updated SafetyWatch.apk
+                            {/* Fallback Option */}
+                            <div className="flex flex-col items-center gap-4 pt-2">
+                                <p className="text-[11px] text-slate-500 text-center uppercase tracking-widest font-bold">
+                                    Secure Build: v{versionInfo.version}-FINAL
                                 </p>
 
-                                <div className="flex items-center gap-3 text-[12px]">
-                                    <button
-                                        onClick={startDownload}
-                                        disabled={isDownloading}
-                                        className="text-blue-500 hover:underline font-bold disabled:opacity-50"
-                                    >
-                                        Try In-App Sync
-                                    </button>
-                                    <span className="text-slate-700">|</span>
-                                    <a
-                                        href={downloadUrl}
-                                        target="_system"
-                                        className="text-blue-500 hover:underline font-bold"
-                                    >
-                                        Direct Link
-                                    </a>
-                                </div>
+                                <button
+                                    onClick={() => window.open(downloadUrl, '_system')}
+                                    className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors py-2 px-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10"
+                                >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                    Download via Browser (Secondary)
+                                </button>
                             </div>
                         </div>
 
-                        {/* Footer Info */}
-                        <div className="w-full mt-8 pt-6 border-t border-white/5 flex flex-col items-center gap-4">
-                            <button
-                                onClick={handleHardReload}
-                                className="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-[0.2em] transition-colors bg-white/5 px-4 py-2 rounded-lg"
-                            >
-                                Force System Cache Reset
-                            </button>
-
-                            <span className="text-[9px] text-slate-600 font-mono tracking-widest uppercase">
-                                BUILD: 1.4.5-RED-ALERT-ENFORCED
+                        {/* Quantum Status */}
+                        <div className="w-full mt-10 pt-6 border-t border-white/5 flex justify-center">
+                            <span className="text-[9px] text-purple-500/40 font-mono tracking-widest uppercase flex items-center gap-2 italic">
+                                <Activity className="w-3 h-3" /> Binary Verification Protocols Active
                             </span>
                         </div>
                     </div>

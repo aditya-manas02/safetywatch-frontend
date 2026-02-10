@@ -43,27 +43,28 @@ export const SafetyWatchLoader = () => {
 
             <div className="relative z-10 flex flex-col items-center">
                 <div className="relative w-32 h-32 mb-8">
-                    <div className="absolute inset-0 bg-blue-500/30 blur-3xl rounded-full animate-pulse" />
-                    <img
+                    <div className="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full animate-pulse" />
+                    <motion.img
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
                         src="/assets/splash.png"
-                        alt="SafetyWatch Shield"
-                        className="h-full w-full object-contain relative z-10 mix-blend-screen"
+                        alt="Nexus AI"
+                        className="h-full w-full object-contain relative z-10 drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]"
                         onError={(e) => {
                             e.currentTarget.style.display = 'none';
                             e.currentTarget.parentElement?.querySelector('.fallback-shield')?.classList.remove('hidden');
                         }}
                     />
                     <Shield className="fallback-shield hidden h-full w-full text-blue-500 relative z-10 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-transparent" />
                 </div>
 
                 <div className="mt-10 flex flex-col items-center">
                     <motion.h1
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        style={{ opacity: 0 }}
-                        transition={{ delay: 0.8, duration: 1 }}
-                        className="text-5xl font-black tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                        className="text-5xl font-black tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
                     >
                         SafetyWatch
                     </motion.h1>
@@ -71,17 +72,17 @@ export const SafetyWatchLoader = () => {
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        style={{ opacity: 0 }}
-                        transition={{ delay: 1.2, duration: 1 }}
+                        transition={{ delay: 1, duration: 0.8 }}
                         className="flex items-center gap-2 mt-4"
                     >
-                        <div className="h-[1px] w-6 bg-blue-500" />
-                        <p className="text-white font-mono tracking-[0.4em] text-[11px] font-bold uppercase drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">
-                            v{displayVersion} • SECURE SESSION
+                        <div className="h-[1px] w-6 bg-blue-500/50" />
+                        <p className="text-white/80 font-mono tracking-[0.4em] text-[10px] font-bold uppercase">
+                            v{displayVersion} • NEXUS AI SECURE
                         </p>
-                        <div className="h-[1px] w-6 bg-blue-500" />
+                        <div className="h-[1px] w-6 bg-blue-500/50" />
                     </motion.div>
                 </div>
+
             </div>
 
             <div className="absolute bottom-16 flex flex-col items-center gap-4">
