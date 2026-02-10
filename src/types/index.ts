@@ -3,6 +3,8 @@ export interface User {
     email: string;
     name?: string;
     phone?: string;
+    profilePicture?: string;
+    areaCode?: string;
     roles: string[];
     createdAt: string;
 }

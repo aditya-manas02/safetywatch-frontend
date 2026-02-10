@@ -13,16 +13,21 @@ export interface UserTableProps {
 
 export default function UserTable({ users, onView }: UserTableProps) {
   const [roleFilter, setRoleFilter] = useState<"all" | "citizens" | "admins">("all");
+  const [areaCodeFilter, setAreaCodeFilter] = useState("");
 
-  // Filter users based on role
+  // Get unique area codes for filter dropdown
+  const uniqueAreaCodes = Array.from(new Set(users.map(u => u.areaCode).filter(Boolean)));
+
+  // Filter users based on role and area code
   const filteredUsers = users.filter((u) => {
-    if (roleFilter === "citizens") {
-      return !u.roles?.includes("admin") && !u.roles?.includes("superadmin");
-    }
-    if (roleFilter === "admins") {
-      return u.roles?.includes("admin") || u.roles?.includes("superadmin");
-    }
-    return true; // "all"
+    // Role Filter
+    if (roleFilter === "citizens" && (u.roles?.includes("admin") || u.roles?.includes("superadmin"))) return false;
+    if (roleFilter === "admins" && !u.roles?.includes("admin") && !u.roles?.includes("superadmin")) return false;
+
+    // Area Code Filter
+    if (areaCodeFilter && u.areaCode !== areaCodeFilter) return false;
+
+    return true;
   });
 
   const citizenCount = users.filter(u => !u.roles?.includes("admin") && !u.roles?.includes("superadmin")).length;
@@ -30,38 +35,54 @@ export default function UserTable({ users, onView }: UserTableProps) {
 
   return (
     <>
-      {/* Role Filter Tabs */}
-      <div className="flex gap-2 mb-6">
-        <button
-          onClick={() => setRoleFilter("all")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "all"
+      <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-start md:items-center">
+        {/* Role Filter Tabs */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setRoleFilter("all")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "all"
               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
               : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-            }`}
-        >
-          <Users className="h-4 w-4" />
-          All Users ({users.length})
-        </button>
-        <button
-          onClick={() => setRoleFilter("citizens")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "citizens"
+              }`}
+          >
+            <Users className="h-4 w-4" />
+            All ({users.length})
+          </button>
+          <button
+            onClick={() => setRoleFilter("citizens")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "citizens"
               ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
               : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-            }`}
-        >
-          <User className="h-4 w-4" />
-          Citizens ({citizenCount})
-        </button>
-        <button
-          onClick={() => setRoleFilter("admins")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "admins"
+              }`}
+          >
+            <User className="h-4 w-4" />
+            Citizens ({citizenCount})
+          </button>
+          <button
+            onClick={() => setRoleFilter("admins")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "admins"
               ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
               : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-            }`}
-        >
-          <UserCog className="h-4 w-4" />
-          Admins ({adminCount})
-        </button>
+              }`}
+          >
+            <UserCog className="h-4 w-4" />
+            Admins ({adminCount})
+          </button>
+        </div>
+
+        {/* Area Code Filter */}
+        <div className="w-full md:w-auto">
+          <select
+            className="h-10 w-full md:w-48 bg-muted/30 border border-border/50 rounded-lg px-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20"
+            value={areaCodeFilter}
+            onChange={(e) => setAreaCodeFilter(e.target.value)}
+          >
+            <option value="">All Areas</option>
+            {uniqueAreaCodes.map(code => (
+              <option key={code} value={code as string}>{code}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* DESKTOP TABLE VIEW */}
@@ -71,6 +92,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
             <thead className="bg-[#0b1220] border-b border-gray-800">
               <tr>
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Identifier</th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Area Code</th>
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Access Roles</th>
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Member Since</th>
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Actions</th>
@@ -82,8 +104,12 @@ export default function UserTable({ users, onView }: UserTableProps) {
                 <tr key={u._id} className="transition-colors hover:bg-white/5 group">
                   <td className="px-4 md:px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-110 transition-transform">
-                        <User className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                      <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-110 transition-transform overflow-hidden relative">
+                        {u.profilePicture ? (
+                          <img src={u.profilePicture} alt={u.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <User className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                        )}
                       </div>
                       <div>
                         <div className="font-bold text-slate-100 text-sm md:text-base">{u.name || "Anonymous User"}</div>
@@ -95,7 +121,18 @@ export default function UserTable({ users, onView }: UserTableProps) {
                   </td>
 
                   <td className="px-4 md:px-6 py-4">
+                    {u.areaCode ? (
+                      <Badge variant="outline" className="border-border/50 text-muted-foreground bg-muted/20">
+                        {u.areaCode}
+                      </Badge>
+                    ) : (
+                      <span className="text-slate-600 text-xs italic">N/A</span>
+                    )}
+                  </td>
+
+                  <td className="px-4 md:px-6 py-4">
                     <div className="flex flex-wrap gap-2">
+                      ...
                       {u.roles?.map((role: string) => (
                         <Badge
                           key={role}
@@ -141,14 +178,23 @@ export default function UserTable({ users, onView }: UserTableProps) {
           <div key={u._id} className="bg-[#071328] border border-gray-800 rounded-xl p-4 shadow-sm relative overflow-hidden">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                  <User className="h-5 w-5 text-primary" />
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 overflow-hidden relative">
+                  {u.profilePicture ? (
+                    <img src={u.profilePicture} alt={u.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <User className="h-5 w-5 text-primary" />
+                  )}
                 </div>
                 <div>
                   <div className="font-bold text-slate-100 text-sm">{u.name || "Anonymous User"}</div>
                   <div className="text-[10px] text-slate-500 flex items-center gap-1">
                     <Mail className="h-3 w-3" /> {u.email}
                   </div>
+                  {u.areaCode && (
+                    <Badge variant="outline" className="mt-1 border-border/50 text-muted-foreground bg-muted/20 text-[10px] py-0 px-1.5 w-fit">
+                      {u.areaCode}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>

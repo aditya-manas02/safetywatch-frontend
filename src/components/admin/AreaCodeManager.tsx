@@ -23,7 +23,7 @@ interface AreaCode {
 }
 
 export default function AreaCodeManager() {
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const [areaCodes, setAreaCodes] = useState<AreaCode[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -182,10 +182,12 @@ export default function AreaCodeManager() {
                     <h2 className="text-2xl font-bold">Area Code Management</h2>
                     <p className="text-sm text-muted-foreground">Create and manage area codes for your community</p>
                 </div>
-                <Button onClick={() => setShowCreateDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Area Code
-                </Button>
+                {token && JSON.parse(atob(token.split('.')[1])).role === 'superadmin' && ( // Decode token to check role or safer: useAuth user object
+                    <Button onClick={() => setShowCreateDialog(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Area Code
+                    </Button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -307,6 +309,6 @@ export default function AreaCodeManager() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }

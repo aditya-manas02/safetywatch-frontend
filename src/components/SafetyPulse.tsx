@@ -152,14 +152,15 @@ const SafetyPulse = () => {
 
     return (
         <div className="w-full bg-background/95 text-foreground backdrop-blur-3xl border-b border-border overflow-hidden py-2 relative z-30 transition-colors duration-500 shadow-sm mt-[env(safe-area-inset-top)] md:mt-0">
-            <div className="container mx-auto flex items-center gap-6">
+            <div className="container mx-auto flex items-center gap-2 md:gap-6">
                 {/* Master Badge */}
-                <div className="flex items-center gap-2.5 px-4 py-1.5 bg-primary/10 text-primary rounded-lg text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap border border-primary/20 shadow-[0_0_20px_rgba(255,107,0,0.1)] bg-gradient-to-r from-primary/5 to-transparent">
+                <div className="flex items-center gap-1.5 md:gap-2.5 px-2 md:px-4 py-1.5 bg-primary/10 text-primary rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap border border-primary/20 shadow-[0_0_20px_rgba(255,107,0,0.1)] bg-gradient-to-r from-primary/5 to-transparent flex-shrink-0">
                     <div className="relative">
-                        <Activity className="h-3.5 w-3.5 animate-pulse" />
+                        <Activity className="h-3 w-3 md:h-3.5 md:w-3.5 animate-pulse" />
                         <div className="absolute inset-0 bg-primary/20 blur-md animate-pulse" />
                     </div>
-                    Intelligence Feed
+                    <span className="hidden sm:inline">Intelligence Feed</span>
+                    <span className="sm:hidden">INTEL</span>
                 </div>
 
                 {/* Animated Intelligence Flow */}

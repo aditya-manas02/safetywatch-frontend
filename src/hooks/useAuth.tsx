@@ -9,6 +9,7 @@ interface UserData {
   roles: string[];
   hasAreaCode?: boolean;
   areaCode?: string;
+  profilePicture?: string;
 }
 
 export interface RateLimitInfo {

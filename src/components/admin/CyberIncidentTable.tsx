@@ -40,16 +40,16 @@ export default function CyberIncidentTable({
     const headers = ["ID", "Title", "Type", "Location", "Description", "Status", "Date"];
     const rows = incidents.map((i: Incident) => [
       i._id,
-      `"${i.title}"`,
+      `"${(i.title || "").replace(/"/g, '""')}"`,
       i.type,
-      `"${i.location}"`,
-      `"${i.description?.replace(/\n/g, " ")}"`,
+      `"${(i.location || "").replace(/"/g, '""')}"`,
+      `"${(i.description || "").replace(/\n/g, " ").replace(/"/g, '""')}"`,
       i.status,
       (() => { try { return format(new Date(i.createdAt), "yyyy-MM-dd HH:mm"); } catch { return "N/A"; } })()
     ]);
 
-    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const csvContent = "\uFEFF" + [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
