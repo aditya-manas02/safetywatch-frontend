@@ -4,6 +4,11 @@
             "source": "/SafetyWatch.apk",
             "destination": "https://safetywatch-backend.onrender.com/SafetyWatch.apk",
             "permanent": false
+        },
+        {
+            "source": "/SafetyWatch-v(.*).apk",
+            "destination": "https://safetywatch-backend.onrender.com/SafetyWatch.apk",
+            "permanent": false
         }
     ],
     "rewrites": [

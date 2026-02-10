@@ -196,46 +196,33 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
     const forceExternalDownload = (url: string) => {
         // Try multiple methods in sequence to escape the webview
         try {
-            // Method 1: Absolute Location Change
-            window.location.href = url;
+            // Method 1: System Browser Trigger (Most reliable for Capacitor)
+            try {
+                window.open(url, '_system');
+            } catch (e) {
+                console.warn('[VERSION_DL] _system open failed');
+            }
 
-            // Method 2: Android Intent Escape (THE NUCLEAR OPTION)
-            // This forces Chrome or the default browser to take over the URL
-            if (url.includes('onrender.com')) {
-                const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+            // Method 2: Absolute Location Change
+            setTimeout(() => {
+                window.location.href = url;
+            }, 300);
+
+            // Method 3: Android Intent Escape (THE NUCLEAR OPTION)
+            if (url.includes('onrender.com') || url.includes('vercel.app')) {
+                const cleanUrl = url.replace(/^https?:\/\//, '');
+                const intentUrl = `intent://${cleanUrl}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
                 setTimeout(() => {
                     console.log('[VERSION_DL] Triggering Android Intent Escape:', intentUrl);
                     window.location.href = intentUrl;
-                }, 200);
+                }, 600);
             }
 
-            // Method 3: System Browser Trigger
+            // Method 4: Fallback to direct redirect via Vercel if needed
+            const vercelFallback = `https://safetywatch.vercel.app/SafetyWatch.apk?t=${Date.now()}`;
             setTimeout(() => {
-                try {
-                    window.open(url, '_system');
-                } catch (e) {
-                    // Method 4: Blank Window
-                    window.open(url, '_blank');
-                }
-            }, 600);
-
-            // Method 5: Hidden Iframe (Force Browser Download)
-            setTimeout(() => {
-                try {
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = url;
-                    document.body.appendChild(iframe);
-                    setTimeout(() => document.body.removeChild(iframe), 5000);
-                } catch (e) {
-                    console.warn('[VERSION_DL] Iframe fallback failed');
-                }
-            }, 1000);
-
-            // Method 6: Assign (Terminal Fallback)
-            setTimeout(() => {
-                window.location.assign(url);
-            }, 1500);
+                window.open(vercelFallback, '_blank');
+            }, 1200);
 
         } catch (e) {
             console.error('[VERSION_DL] Hyper-fallback failed:', e);
