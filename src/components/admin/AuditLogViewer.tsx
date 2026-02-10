@@ -42,14 +42,14 @@ export default function AuditLogViewer() {
                         </h3>
                         <p className="text-xs text-muted-foreground font-medium">Tracking all moderator and system-level actions</p>
                     </div>
-                    <Shield className="h-8 w-8 text-slate-800" />
+                    <Shield className="h-8 w-8 text-muted-foreground opacity-30" />
                 </div>
 
                 <div className="divide-y divide-border/50 max-h-[600px] overflow-y-auto custom-scrollbar">
                     {logs.length === 0 ? (
                         <div className="py-20 text-center space-y-3">
-                            <AlertCircle className="h-12 w-12 text-slate-700 mx-auto" />
-                            <p className="text-slate-500 font-medium tracking-tight">No administrative actions recorded yet.</p>
+                            <AlertCircle className="h-12 w-12 text-muted-foreground/40 mx-auto" />
+                            <p className="text-muted-foreground font-medium tracking-tight">No administrative actions recorded yet.</p>
                         </div>
                     ) : (
                         logs.map((log: AuditLog) => (

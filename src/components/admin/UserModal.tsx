@@ -46,17 +46,22 @@ export default function UserModal({
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-[#0b1220] border border-gray-800 rounded-3xl p-0 max-w-2xl w-full max-h-[90vh] overflow-hidden relative shadow-2xl"
+        className="bg-card border border-border rounded-3xl p-0 max-w-2xl w-full max-h-[90vh] overflow-hidden relative shadow-2xl"
       >
+        {/* Banner */}
         <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600 relative">
-          <button className="absolute right-6 top-6 h-10 w-10 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center transition-colors" onClick={onClose}>
-            <X className="text-white h-5 w-5" />
+          <button
+            className="absolute right-6 top-6 h-10 w-10 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center transition-colors text-white"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="px-8 pb-8 -mt-12">
+          {/* Header with Icon and Roles */}
           <div className="flex justify-between items-end mb-8">
-            <div className="h-24 w-24 rounded-3xl bg-[#0b1220] border-4 border-[#0b1220] shadow-xl flex items-center justify-center">
+            <div className="h-24 w-24 rounded-3xl bg-card border-4 border-card shadow-xl flex items-center justify-center">
               <div className="h-full w-full rounded-2xl bg-primary flex items-center justify-center">
                 <Shield className="h-10 w-10 text-white" />
               </div>
@@ -64,51 +69,54 @@ export default function UserModal({
 
             <div className="flex gap-2">
               {user.roles.map((r: string) => (
-                <Badge key={r} className="capitalize bg-blue-500/20 text-blue-400 border-none px-3 font-black tracking-widest text-[10px]">
+                <Badge key={r} className="capitalize bg-blue-500/10 text-blue-500 border border-blue-500/20 px-3 font-black tracking-widest text-[10px]">
                   {r}
                 </Badge>
               ))}
             </div>
           </div>
 
-          <div className="space-y-6">
+          {/* Scrollable Content Area */}
+          <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-180px)] pr-2 custom-scrollbar">
+            {/* User Info */}
             <div>
-              <h2 className="text-3xl font-black tracking-tight">{user.name || "Verified Citizen"}</h2>
-              <div className="flex items-center gap-4 mt-2">
-                <span className="text-slate-400 text-sm flex items-center gap-1.5"><Mail className="h-4 w-4" /> {user.email}</span>
-                {user.phone && <span className="text-slate-400 text-sm flex items-center gap-1.5"><Phone className="h-4 w-4" /> {user.phone}</span>}
+              <h2 className="text-3xl font-black tracking-tight text-foreground">{user.name || "Verified Citizen"}</h2>
+              <div className="flex flex-wrap items-center gap-4 mt-2">
+                <span className="text-muted-foreground text-sm flex items-center gap-1.5"><Mail className="h-4 w-4" /> {user.email}</span>
+                {user.phone && <span className="text-muted-foreground text-sm flex items-center gap-1.5"><Phone className="h-4 w-4" /> {user.phone}</span>}
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/50 border border-gray-800 grid grid-cols-2 gap-4">
+            {/* Stats Grid */}
+            <div className="p-4 rounded-2xl bg-muted/30 border border-border grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Joined SafetyWatch</p>
-                <p className="font-bold text-slate-200">{(() => { try { return format(new Date(user.createdAt), "MMMM dd, yyyy"); } catch { return "N/A"; } })()}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Joined SafetyWatch</p>
+                <p className="font-bold text-foreground">{(() => { try { return format(new Date(user.createdAt), "MMMM dd, yyyy"); } catch { return "N/A"; } })()}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Contributions</p>
-                <p className="font-bold text-slate-200">{incidents.length} Incident Reports</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Contributions</p>
+                <p className="font-bold text-foreground">{incidents.length} Incident Reports</p>
               </div>
             </div>
 
-            {/* ACTION CENTER */}
+            {/* Privilege Management */}
             <div className="space-y-4">
-              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Privilege Management</h4>
+              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Privilege Management</h4>
               <div className="flex gap-3 flex-wrap">
                 {!user.roles.includes("admin") && (
-                  <Button className="bg-blue-600 hover:bg-blue-700 rounded-xl" onClick={() => onPromote(user._id)}>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20" onClick={() => onPromote(user._id)}>
                     <Award className="mr-2 h-4 w-4" /> Promote to Admin
                   </Button>
                 )}
 
                 {user.roles.includes("admin") && isSuperAdmin && !isSelf && (
-                  <Button variant="outline" className="border-amber-500/20 text-amber-500 hover:bg-amber-500/10 rounded-xl" onClick={() => onDemote(user._id)}>
+                  <Button variant="outline" className="border-amber-500/20 text-amber-600 dark:text-amber-500 hover:bg-amber-500/10 rounded-xl" onClick={() => onDemote(user._id)}>
                     <UserCheck className="mr-2 h-4 w-4" /> Demote to User
                   </Button>
                 )}
 
                 {isSuperAdmin && !isSelf && (
-                  <Button variant="destructive" className="rounded-xl" onClick={() => { if (window.confirm("Permanently delete user profile?")) onDelete(user._id); }}>
+                  <Button variant="destructive" className="rounded-xl shadow-lg shadow-destructive/20" onClick={() => { if (window.confirm("Permanently delete user profile?")) onDelete(user._id); }}>
                     <Trash2 className="mr-2 h-4 w-4" /> Remove Profile
                   </Button>
                 )}
@@ -116,28 +124,35 @@ export default function UserModal({
                 {isSelf && (
                   <div className="w-full p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
-                    <p className="text-xs text-amber-200/80 font-medium">Self-Protection Active: You cannot modify your own administrative privileges.</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-200/80 font-medium">Self-Protection Active: You cannot modify your own administrative privileges.</p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* CONTRIBUTION TIMELINE */}
-            <div>
-              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-4">Submission History</h4>
+            {/* Submission History */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Submission History</h4>
               {incidents.length === 0 ? (
-                <div className="text-center py-8 rounded-2xl border-2 border-dashed border-gray-800 bg-slate-900/20">
-                  <p className="text-slate-500 text-sm">No recent incidents recorded.</p>
+                <div className="text-center py-8 rounded-2xl border-2 border-dashed border-border bg-muted/5">
+                  <p className="text-muted-foreground text-sm font-medium">No recent incidents recorded.</p>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-3">
                   {incidents.map((i: Incident) => (
-                    <div key={i._id} className="p-4 bg-slate-900/80 rounded-2xl border border-gray-800 flex justify-between items-center group hover:border-primary/50 transition-colors">
+                    <div key={i._id} className="p-4 bg-muted/20 hover:bg-muted/40 rounded-2xl border border-border flex justify-between items-center group transition-all duration-300">
                       <div>
-                        <p className="font-bold text-slate-100">{i.title}</p>
-                        <p className="text-[10px] text-slate-500">{(() => { try { return format(new Date(i.createdAt), "Pp"); } catch { return "N/A"; } })()}</p>
+                        <p className="font-bold text-foreground">{i.title}</p>
+                        <p className="text-[10px] text-muted-foreground italic font-medium">{(() => { try { return format(new Date(i.createdAt), "Pp"); } catch { return "N/A"; } })()}</p>
                       </div>
-                      <Badge className={`capitalize py-0.5 px-2 text-[10px] font-black border-none ${i.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                      <Badge className={`capitalize py-0.5 px-3 text-[10px] font-black border-none shadow-sm ${i.status === 'approved'
+                          ? 'bg-emerald-500 text-white'
+                          : i.status === 'pending'
+                            ? 'bg-amber-500 text-white'
+                            : i.status === 'rejected'
+                              ? 'bg-red-500 text-white'
+                              : 'bg-blue-500 text-white'
+                        }`}>
                         {i.status}
                       </Badge>
                     </div>

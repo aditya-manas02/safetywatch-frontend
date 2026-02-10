@@ -298,54 +298,54 @@ export default function Admin() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search incidents..."
-                    className="w-full pl-11 h-11 bg-white/50 dark:bg-muted/30 border border-border/50 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm"
+                    className="w-full pl-11 h-11 bg-background border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm font-bold placeholder:font-normal"
                   />
-                  <Search className="absolute left-4 top-3 text-muted-foreground/60 h-4.5 w-4.5" />
+                  <Search className="absolute left-4 top-3.5 text-muted-foreground/60 h-4 w-4" />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full md:w-auto">
                   <select
                     value={importanceFilter}
                     onChange={(e) => setImportanceFilter(e.target.value)}
-                    className="h-11 w-full bg-white/50 dark:bg-muted/30 border border-border/50 px-4 rounded-xl text-xs font-bold outline-none text-primary shadow-sm hover:bg-white dark:hover:bg-muted/50 transition-colors"
+                    className="h-11 w-full bg-background border border-border px-4 rounded-xl text-xs font-bold outline-none text-primary shadow-sm hover:border-primary transition-colors cursor-pointer appearance-none"
                   >
-                    <option value="all">All Priority</option>
-                    <option value="important">⭐ Important</option>
-                    <option value="regular">Regular</option>
+                    <option value="all" className="bg-background text-foreground font-bold">All Priority</option>
+                    <option value="important" className="bg-background text-foreground font-bold">⭐ Important</option>
+                    <option value="regular" className="bg-background text-foreground font-bold">Regular</option>
                   </select>
 
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="h-11 w-full bg-white/50 dark:bg-muted/30 border border-border/50 px-4 rounded-xl text-xs font-bold outline-none shadow-sm hover:bg-white dark:hover:bg-muted/50 transition-colors"
+                    className="h-11 w-full bg-background border border-border px-4 rounded-xl text-xs font-bold outline-none shadow-sm hover:border-primary transition-colors cursor-pointer appearance-none text-foreground"
                   >
-                    <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="under process">Processing</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="problem solved">Solved</option>
+                    <option value="all" className="bg-background text-foreground font-bold">All Status</option>
+                    <option value="pending" className="bg-background text-foreground font-bold">Pending</option>
+                    <option value="under process" className="bg-background text-foreground font-bold">Processing</option>
+                    <option value="approved" className="bg-background text-foreground font-bold">Approved</option>
+                    <option value="rejected" className="bg-background text-foreground font-bold">Rejected</option>
+                    <option value="problem solved" className="bg-background text-foreground font-bold">Solved</option>
                   </select>
 
                   <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
-                    className="h-11 w-full bg-white/50 dark:bg-muted/30 border border-border/50 px-4 rounded-xl text-xs font-bold outline-none shadow-sm hover:bg-white dark:hover:bg-muted/50 transition-colors"
+                    className="h-11 w-full bg-background border border-border px-4 rounded-xl text-xs font-bold outline-none shadow-sm hover:border-primary transition-colors cursor-pointer appearance-none text-foreground"
                   >
-                    <option value="all">All Types</option>
-                    <option value="theft">Theft</option>
-                    <option value="vandalism">Vandalism</option>
-                    <option value="suspicious">Suspicious</option>
-                    <option value="assault">Assault</option>
-                    <option value="fire">Fire</option>
-                    <option value="medical">Medical</option>
-                    <option value="hazard">Hazard</option>
-                    <option value="traffic">Traffic</option>
-                    <option value="infrastructure">Infrastructure</option>
-                    <option value="nuisance">Nuisance</option>
-                    <option value="missing">Missing</option>
-                    <option value="harassment">Harassment</option>
-                    <option value="other">Other</option>
+                    <option value="all" className="bg-background text-foreground font-bold">All Types</option>
+                    <option value="theft" className="bg-background text-foreground font-bold">Theft</option>
+                    <option value="vandalism" className="bg-background text-foreground font-bold">Vandalism</option>
+                    <option value="suspicious" className="bg-background text-foreground font-bold">Suspicious</option>
+                    <option value="assault" className="bg-background text-foreground font-bold">Assault</option>
+                    <option value="fire" className="bg-background text-foreground font-bold">Fire</option>
+                    <option value="medical" className="bg-background text-foreground font-bold">Medical</option>
+                    <option value="hazard" className="bg-background text-foreground font-bold">Hazard</option>
+                    <option value="traffic" className="bg-background text-foreground font-bold">Traffic</option>
+                    <option value="infrastructure" className="bg-background text-foreground font-bold">Infrastructure</option>
+                    <option value="nuisance" className="bg-background text-foreground font-bold">Nuisance</option>
+                    <option value="missing" className="bg-background text-foreground font-bold">Missing</option>
+                    <option value="harassment" className="bg-background text-foreground font-bold">Harassment</option>
+                    <option value="other" className="bg-background text-foreground font-bold">Other</option>
                   </select>
                 </div>
               </div>

@@ -91,7 +91,7 @@ export default function CyberIncidentTable({
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="flex items-center gap-2 pl-4 border-l border-gray-800"
+                className="flex items-center gap-2 pl-4 border-l border-border"
               >
                 <Button
                   size="sm"

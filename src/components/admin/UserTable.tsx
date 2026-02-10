@@ -37,12 +37,12 @@ export default function UserTable({ users, onView }: UserTableProps) {
     <>
       <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-start md:items-center">
         {/* Role Filter Tabs */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
           <button
             onClick={() => setRoleFilter("all")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "all"
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm transition-all whitespace-nowrap min-w-[80px] ${roleFilter === "all"
               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-              : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+              : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent shadow-sm"
               }`}
           >
             <Users className="h-4 w-4" />
@@ -50,9 +50,9 @@ export default function UserTable({ users, onView }: UserTableProps) {
           </button>
           <button
             onClick={() => setRoleFilter("citizens")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "citizens"
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm transition-all whitespace-nowrap min-w-[100px] ${roleFilter === "citizens"
               ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-              : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+              : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent shadow-sm"
               }`}
           >
             <User className="h-4 w-4" />
@@ -60,9 +60,9 @@ export default function UserTable({ users, onView }: UserTableProps) {
           </button>
           <button
             onClick={() => setRoleFilter("admins")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${roleFilter === "admins"
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm transition-all whitespace-nowrap min-w-[90px] ${roleFilter === "admins"
               ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
-              : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+              : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent shadow-sm"
               }`}
           >
             <UserCog className="h-4 w-4" />
@@ -73,33 +73,33 @@ export default function UserTable({ users, onView }: UserTableProps) {
         {/* Area Code Filter */}
         <div className="w-full md:w-auto">
           <select
-            className="h-10 w-full md:w-48 bg-muted/30 border border-border/50 rounded-lg px-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-10 w-full md:w-48 bg-background border border-border rounded-lg px-3 text-sm font-bold text-foreground outline-none focus:ring-2 focus:ring-primary/20 shadow-sm appearance-none cursor-pointer hover:border-primary/50 transition-colors"
             value={areaCodeFilter}
             onChange={(e) => setAreaCodeFilter(e.target.value)}
           >
-            <option value="">All Areas</option>
+            <option value="" className="bg-background text-foreground font-bold italic">All Areas</option>
             {uniqueAreaCodes.map(code => (
-              <option key={code} value={code as string}>{code}</option>
+              <option key={code} value={code as string} className="bg-background text-foreground font-bold">{code}</option>
             ))}
           </select>
         </div>
       </div>
 
       {/* DESKTOP TABLE VIEW */}
-      <div className="hidden md:block bg-[#071328] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
+      <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[600px]">
-            <thead className="bg-[#0b1220] border-b border-gray-800">
+            <thead className="bg-muted/30 border-b border-border">
               <tr>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Identifier</th>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Area Code</th>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Access Roles</th>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Member Since</th>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Actions</th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Identifier</th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Area Code</th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Access Roles</th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Member Since</th>
+                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 text-right">Actions</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-border">
               {filteredUsers.map((u: UserType) => (
                 <tr key={u._id} className="transition-colors hover:bg-white/5 group">
                   <td className="px-4 md:px-6 py-4">
@@ -112,8 +112,8 @@ export default function UserTable({ users, onView }: UserTableProps) {
                         )}
                       </div>
                       <div>
-                        <div className="font-bold text-slate-100 text-sm md:text-base">{u.name || "Anonymous User"}</div>
-                        <div className="text-[10px] md:text-xs text-slate-500 flex items-center gap-1.5 break-all">
+                        <div className="font-bold text-foreground text-sm md:text-base">{u.name || "Anonymous User"}</div>
+                        <div className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1.5 break-all font-medium opacity-80">
                           <Mail className="h-3 w-3 flex-shrink-0" /> {u.email}
                         </div>
                       </div>
@@ -126,7 +126,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
                         {u.areaCode}
                       </Badge>
                     ) : (
-                      <span className="text-slate-600 text-xs italic">N/A</span>
+                      <span className="text-muted-foreground opacity-40 text-xs italic">N/A</span>
                     )}
                   </td>
 
@@ -149,8 +149,8 @@ export default function UserTable({ users, onView }: UserTableProps) {
                   </td>
 
                   <td className="px-4 md:px-6 py-4">
-                    <div className="text-xs md:text-sm text-slate-400 flex items-center gap-2">
-                      <Calendar className="h-3.5 w-3.5 text-slate-600" />
+                    <div className="text-xs md:text-sm text-muted-foreground flex items-center gap-2 font-medium">
+                      <Calendar className="h-3.5 w-3.5 text-muted-foreground/50" />
                       {(() => { try { return format(new Date(u.createdAt), "MMM dd, yyyy"); } catch { return "N/A"; } })()}
                     </div>
                   </td>
@@ -175,7 +175,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
       {/* MOBILE CARD VIEW */}
       <div className="md:hidden space-y-4">
         {filteredUsers.map((u: UserType) => (
-          <div key={u._id} className="bg-[#071328] border border-gray-800 rounded-xl p-4 shadow-sm relative overflow-hidden">
+          <div key={u._id} className="bg-card border border-border rounded-xl p-4 shadow-md relative overflow-hidden backdrop-blur-sm">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 overflow-hidden relative">
@@ -186,12 +186,12 @@ export default function UserTable({ users, onView }: UserTableProps) {
                   )}
                 </div>
                 <div>
-                  <div className="font-bold text-slate-100 text-sm">{u.name || "Anonymous User"}</div>
-                  <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                  <div className="font-bold text-foreground text-sm">{u.name || "Anonymous User"}</div>
+                  <div className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium opacity-80">
                     <Mail className="h-3 w-3" /> {u.email}
                   </div>
                   {u.areaCode && (
-                    <Badge variant="outline" className="mt-1 border-border/50 text-muted-foreground bg-muted/20 text-[10px] py-0 px-1.5 w-fit">
+                    <Badge variant="outline" className="mt-1 border-border/50 text-muted-foreground bg-muted/40 text-[10px] py-0 px-1.5 w-fit font-bold">
                       {u.areaCode}
                     </Badge>
                   )}
@@ -199,16 +199,16 @@ export default function UserTable({ users, onView }: UserTableProps) {
               </div>
             </div>
 
-            <div className="bg-gray-900/50 rounded-lg p-3 mb-4 space-y-2">
+            <div className="bg-muted/30 rounded-lg p-3 mb-4 space-y-2 border border-border/40">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500 font-medium">Joined On</span>
-                <span className="text-slate-300 font-bold flex items-center gap-1">
-                  <Calendar className="h-3 w-3 text-slate-600" />
+                <span className="text-muted-foreground font-bold opacity-70">Joined On</span>
+                <span className="text-foreground font-black flex items-center gap-1">
+                  <Calendar className="h-3 w-3 text-primary/50" />
                   {(() => { try { return format(new Date(u.createdAt), "MMM dd, yyyy"); } catch { return "N/A"; } })()}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-800">
-                <span className="text-slate-500 font-medium">Badges</span>
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
+                <span className="text-muted-foreground font-bold opacity-70">Roles</span>
                 <div className="flex flex-wrap gap-1 justify-end">
                   {u.roles?.map((role: string) => (
                     <Badge
@@ -227,10 +227,10 @@ export default function UserTable({ users, onView }: UserTableProps) {
             </div>
 
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
               onClick={() => onView(u)}
-              className="w-full bg-gray-800 hover:bg-gray-700 text-slate-200 h-9 rounded-lg font-bold text-xs"
+              className="w-full bg-muted/50 hover:bg-muted text-foreground h-9 rounded-lg font-bold text-xs border-border/50"
             >
               Manage Profile <ExternalLink className="ml-2 h-3.5 w-3.5" />
             </Button>
