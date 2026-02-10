@@ -203,14 +203,9 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
         if (!canAutoSync) {
             console.warn('[VERSION_CHECK] Native auto-sync protocols missing in this shell. Reverting to browser download.');
-            toast.info("Legacy shell detected. Initializing browser download protocol...");
-            setTimeout(() => {
-                try {
-                    window.open(downloadUrl, '_system');
-                } catch (e) {
-                    window.open(downloadUrl, '_blank');
-                }
-            }, 800);
+            toast.info("Legacy shell detected. Initializing hyper-fallback...");
+
+            forceExternalDownload(downloadUrl);
             return;
         }
 
@@ -278,14 +273,83 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
             const errorMsg = error?.message || "Protocol Bridge Interrupted";
 
+            // If it's a "not implemented" error, we don't show a scary message, just switch to browser
+            if (errorMsg.includes("not implemented")) {
+                toast.info("Switching to direct download protocol...");
+            } else {
+                toast.error(`Auto-sync failed: ${errorMsg.slice(0, 30)}. Opening browser...`);
+            }
+
             // Ultimate Fallback: Direct window redirect. This is the "Nuclear" option.
             // If the native bridge is broken, the browser will catch this.
-            toast.info("Switching to direct download protocol...");
-
             setTimeout(() => {
-                console.log('[VERSION_DL] Executing Ultimate Redirect:', downloadUrl);
-                window.location.href = downloadUrl;
+                console.log('[VERSION_DL] Executing Hyper-Fallback Redirect:', downloadUrl);
+                forceExternalDownload(downloadUrl);
             }, 1000);
+        }
+    };
+
+    const forceExternalDownload = (url: string) => {
+        // Try multiple methods in sequence to escape the webview
+        try {
+            // Method 1: Absolute Location Change
+            window.location.href = url;
+
+            // Method 2: System Browser Trigger
+            setTimeout(() => {
+                try {
+                    window.open(url, '_system');
+                } catch (e) {
+                    // Method 3: Blank Window
+                    window.open(url, '_blank');
+                }
+            }, 400);
+
+            // Method 4: Assign (Terminal Fallback)
+            setTimeout(() => {
+                window.location.assign(url);
+            }, 800);
+
+        } catch (e) {
+            console.error('[VERSION_DL] Hyper-fallback failed:', e);
+            toast.error("Please copy the URL manually and open in Chrome.");
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        try {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    toast.success("URL copied to clipboard.");
+                }).catch(() => legacyCopy(text));
+            } else {
+                legacyCopy(text);
+            }
+        } catch (e) {
+            legacyCopy(text);
+        }
+    };
+
+    const legacyCopy = (text: string) => {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (successful) {
+                toast.success("Manual Link Secured (Copied)");
+            } else {
+                throw new Error("Copy failed");
+            }
+        } catch (err) {
+            console.error('[VERSION_DL] Copy failed:', err);
+            toast.error("Could not copy. Please long-press the URL.");
         }
     };
 
@@ -453,15 +517,28 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                     Secure Build: v{versionInfo.version}-FINAL
                                 </p>
 
-                                <a
-                                    href={downloadUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors py-2 px-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 no-underline cursor-pointer"
-                                >
-                                    <ExternalLink className="w-3.5 h-3.5" />
-                                    Download via Browser (Secondary)
-                                </a>
+                                <div className="w-full space-y-3">
+                                    <a
+                                        href={downloadUrl}
+                                        className="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors py-3 px-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 no-underline cursor-pointer"
+                                    >
+                                        <ExternalLink className="w-3.5 h-3.5" />
+                                        Bypass Gate (Direct Browser Link)
+                                    </a>
+
+                                    <div className="p-3 bg-purple-950/20 border border-purple-500/20 rounded-xl">
+                                        <p className="text-[10px] text-purple-400 font-bold uppercase mb-2 tracking-widest">Manual Download URL (Copy & Paste)</p>
+                                        <input
+                                            readOnly
+                                            value={downloadUrl}
+                                            onClick={() => copyToClipboard(downloadUrl)}
+                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[10px] font-mono text-slate-300 focus:outline-none cursor-pointer"
+                                        />
+                                        <div className="mt-2 text-[9px] text-slate-500 font-bold text-center italic">
+                                            If the button fails, copy this link and open in Chrome.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
