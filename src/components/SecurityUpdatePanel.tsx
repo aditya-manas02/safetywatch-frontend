@@ -197,6 +197,23 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
         if (!downloadUrl) return;
 
+        // PROACTIVE PLUGIN CHECK: Avoid attempting auto-sync if plugins are missing in old shells
+        const canAutoSync = Capacitor.isPluginAvailable('Filesystem') &&
+            Capacitor.isPluginAvailable('FileOpener');
+
+        if (!canAutoSync) {
+            console.warn('[VERSION_CHECK] Native auto-sync protocols missing in this shell. Reverting to browser download.');
+            toast.info("Legacy shell detected. Initializing browser download protocol...");
+            setTimeout(() => {
+                try {
+                    window.open(downloadUrl, '_system');
+                } catch (e) {
+                    window.open(downloadUrl, '_blank');
+                }
+            }, 800);
+            return;
+        }
+
         // Ensure we have permissions for storage on Android
         if (Capacitor.getPlatform() === 'android') {
             try {
@@ -261,8 +278,12 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
             const errorMsg = error?.message || "Protocol Bridge Interrupted";
 
-            // Priority Fallback: Direct Browser Download (Matches "Opens Chrome" button intent)
-            toast.error(`Auto-sync failed: ${errorMsg.slice(0, 30)}. Reverting to manual protocol...`);
+            // If it's a "not implemented" error, we don't show a scary message, just switch to browser
+            if (errorMsg.includes("not implemented")) {
+                toast.info("Switching to browser download for this update...");
+            } else {
+                toast.error(`Auto-sync failed: ${errorMsg.slice(0, 30)}. Opening browser...`);
+            }
 
             // Robust browser fallback
             setTimeout(async () => {
