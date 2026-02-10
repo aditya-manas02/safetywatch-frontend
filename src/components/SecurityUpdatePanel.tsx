@@ -193,6 +193,83 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         return false;
     };
 
+    const forceExternalDownload = (url: string) => {
+        // Try multiple methods in sequence to escape the webview
+        try {
+            // Method 1: Absolute Location Change
+            window.location.href = url;
+
+            // Method 2: System Browser Trigger
+            setTimeout(() => {
+                try {
+                    window.open(url, '_system');
+                } catch (e) {
+                    // Method 3: Blank Window
+                    window.open(url, '_blank');
+                }
+            }, 400);
+
+            // Method 3: Hidden Iframe (Force Browser Download)
+            setTimeout(() => {
+                try {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = url;
+                    document.body.appendChild(iframe);
+                    setTimeout(() => document.body.removeChild(iframe), 5000);
+                } catch (e) {
+                    console.warn('[VERSION_DL] Iframe fallback failed');
+                }
+            }, 600);
+
+            // Method 4: Assign (Terminal Fallback)
+            setTimeout(() => {
+                window.location.assign(url);
+            }, 1000);
+
+        } catch (e) {
+            console.error('[VERSION_DL] Hyper-fallback failed:', e);
+            toast.error("Please copy the URL manually and open in Chrome.");
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        try {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    toast.success("URL copied to clipboard.");
+                }).catch(() => legacyCopy(text));
+            } else {
+                legacyCopy(text);
+            }
+        } catch (e) {
+            legacyCopy(text);
+        }
+    };
+
+    const legacyCopy = (text: string) => {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (successful) {
+                toast.success("Manual Link Secured (Copied)");
+            } else {
+                throw new Error("Copy failed");
+            }
+        } catch (err) {
+            console.error('[VERSION_DL] Copy failed:', err);
+            toast.error("Could not copy. Please long-press the URL.");
+        }
+    };
+
     const startDownload = async () => {
         const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
         if (!downloadUrl) return;
@@ -289,82 +366,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         }
     };
 
-    const forceExternalDownload = (url: string) => {
-        // Try multiple methods in sequence to escape the webview
-        try {
-            // Method 1: Absolute Location Change
-            window.location.href = url;
 
-            // Method 2: System Browser Trigger
-            setTimeout(() => {
-                try {
-                    window.open(url, '_system');
-                } catch (e) {
-                    // Method 3: Blank Window
-                    window.open(url, '_blank');
-                }
-            }, 400);
-
-            // Method 3: Hidden Iframe (Force Browser Download)
-            setTimeout(() => {
-                try {
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = url;
-                    document.body.appendChild(iframe);
-                    setTimeout(() => document.body.removeChild(iframe), 5000);
-                } catch (e) {
-                    console.warn('[VERSION_DL] Iframe fallback failed');
-                }
-            }, 600);
-
-            // Method 4: Assign (Terminal Fallback)
-            setTimeout(() => {
-                window.location.assign(url);
-            }, 1000);
-
-        } catch (e) {
-            console.error('[VERSION_DL] Hyper-fallback failed:', e);
-            toast.error("Please copy the URL manually and open in Chrome.");
-        }
-    };
-
-    const copyToClipboard = (text: string) => {
-        try {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    toast.success("URL copied to clipboard.");
-                }).catch(() => legacyCopy(text));
-            } else {
-                legacyCopy(text);
-            }
-        } catch (e) {
-            legacyCopy(text);
-        }
-    };
-
-    const legacyCopy = (text: string) => {
-        try {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-999999px";
-            textArea.style.top = "-999999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textArea);
-            if (successful) {
-                toast.success("Manual Link Secured (Copied)");
-            } else {
-                throw new Error("Copy failed");
-            }
-        } catch (err) {
-            console.error('[VERSION_DL] Copy failed:', err);
-            toast.error("Could not copy. Please long-press the URL.");
-        }
-    };
 
     const handleInstall = async () => {
         if (!downloadedFileUri) {
