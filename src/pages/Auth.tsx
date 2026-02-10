@@ -135,7 +135,8 @@ const Auth = () => {
 
   // Animation States for Bear
   const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [focusedPasswordField, setFocusedPasswordField] = useState<'password' | 'confirm' | null>(null);
+  const isPasswordFocused = !!focusedPasswordField;
 
   // Support Dialog State
   const [isSupportOpen, setIsSupportOpen] = useState(false);
@@ -195,9 +196,9 @@ const Auth = () => {
 
   useEffect(() => {
     setIsEmailFocused(false);
-    setIsPasswordFocused(false);
     setShowPassword(false);
     setShowConfirmPassword(false);
+    setFocusedPasswordField(null);
   }, [activeTab]);
 
   useEffect(() => {
@@ -518,8 +519,8 @@ const Auth = () => {
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                onFocus={() => setIsPasswordFocused(true)}
-                                onBlur={() => setIsPasswordFocused(false)}
+                                onFocus={() => setFocusedPasswordField('password')}
+                                onBlur={() => setFocusedPasswordField(null)}
                                 className="pl-12 pr-14 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
                                 required
                               />
@@ -546,7 +547,7 @@ const Auth = () => {
                           <YetiAnimation
                             isEmailFocused={isEmailFocused}
                             isPasswordFocused={isPasswordFocused}
-                            showPassword={showPassword}
+                            showPassword={focusedPasswordField === 'confirm' ? showConfirmPassword : showPassword}
                             emailValue={email}
                           />
                           <div className="space-y-2">
@@ -591,8 +592,8 @@ const Auth = () => {
                                   placeholder="••••••••"
                                   value={password}
                                   onChange={(e) => setPassword(e.target.value)}
-                                  onFocus={() => setIsPasswordFocused(true)}
-                                  onBlur={() => setIsPasswordFocused(false)}
+                                  onFocus={() => setFocusedPasswordField('password')}
+                                  onBlur={() => setFocusedPasswordField(null)}
                                   className="pl-12 pr-14 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
                                   required
                                 />
@@ -615,8 +616,8 @@ const Auth = () => {
                                   placeholder="••••••••"
                                   value={confirmPassword}
                                   onChange={(e) => setConfirmPassword(e.target.value)}
-                                  onFocus={() => setIsPasswordFocused(true)}
-                                  onBlur={() => setIsPasswordFocused(false)}
+                                  onFocus={() => setFocusedPasswordField('confirm')}
+                                  onBlur={() => setFocusedPasswordField(null)}
                                   className="pl-12 pr-14 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
                                   required
                                 />
