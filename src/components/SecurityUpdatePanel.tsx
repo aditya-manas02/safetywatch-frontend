@@ -199,17 +199,27 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             // Method 1: Absolute Location Change
             window.location.href = url;
 
-            // Method 2: System Browser Trigger
+            // Method 2: Android Intent Escape (THE NUCLEAR OPTION)
+            // This forces Chrome or the default browser to take over the URL
+            if (url.includes('onrender.com')) {
+                const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+                setTimeout(() => {
+                    console.log('[VERSION_DL] Triggering Android Intent Escape:', intentUrl);
+                    window.location.href = intentUrl;
+                }, 200);
+            }
+
+            // Method 3: System Browser Trigger
             setTimeout(() => {
                 try {
                     window.open(url, '_system');
                 } catch (e) {
-                    // Method 3: Blank Window
+                    // Method 4: Blank Window
                     window.open(url, '_blank');
                 }
-            }, 400);
+            }, 600);
 
-            // Method 3: Hidden Iframe (Force Browser Download)
+            // Method 5: Hidden Iframe (Force Browser Download)
             setTimeout(() => {
                 try {
                     const iframe = document.createElement('iframe');
@@ -220,12 +230,12 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 } catch (e) {
                     console.warn('[VERSION_DL] Iframe fallback failed');
                 }
-            }, 600);
+            }, 1000);
 
-            // Method 4: Assign (Terminal Fallback)
+            // Method 6: Assign (Terminal Fallback)
             setTimeout(() => {
                 window.location.assign(url);
-            }, 1000);
+            }, 1500);
 
         } catch (e) {
             console.error('[VERSION_DL] Hyper-fallback failed:', e);
