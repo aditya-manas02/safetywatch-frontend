@@ -3,5 +3,6 @@
     "build": 145,
     "date": "2026-02-10",
     "url": "https://safetywatch-backend.onrender.com/SafetyWatch.apk",
-    "notes": "Nexus AI Security Update: Mandatory protection protocols and performance synchronization."
+    "notes": "Nexus AI Security Update: Mandatory protection protocols and performance synchronization.",
+    "trigger": "sync-1739212150"
 }
