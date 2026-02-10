@@ -16,6 +16,7 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
 import { Camera } from "@capacitor/camera";
+import { StatusBar, Style } from "@capacitor/status-bar";
 import { SafetyWatchLoader } from "./components/SafetyWatchLoader";
 import { SecurityUpdatePanel } from "./components/SecurityUpdatePanel";
 import { AreaCodeSelector } from "./components/AreaCodeSelector";
@@ -98,7 +99,10 @@ const AppContent = () => {
     <AnimatedBackground>
 
       {!hideNavbar && <Navbar />}
-      <main className={!hideNavbar ? "pt-[calc(52px+env(safe-area-inset-top))] md:pt-[60px]" : "pt-[env(safe-area-inset-top)]"}>
+      <main className={!hideNavbar
+        ? "pt-[calc(60px+env(safe-area-inset-top))] md:pt-[64px]"
+        : "pt-[env(safe-area-inset-top)]"
+      }>
         <Suspense fallback={<SafetyWatchLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -161,9 +165,15 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    // Hide splash screen
     SplashScreen.hide().catch(err => console.warn("SplashScreen hide failed:", err));
 
+    // Configure Status Bar for native platforms
     if (Capacitor.isNativePlatform()) {
+      StatusBar.setOverlaysWebView({ overlay: true }).catch(err => console.warn("StatusBar overlay failed:", err));
+      // Set a default style, can be updated later based on theme
+      StatusBar.setStyle({ style: Style.Default }).catch(err => console.warn("StatusBar style set failed:", err));
+
       setTimeout(() => {
         requestNativePermissions();
       }, 2000);
