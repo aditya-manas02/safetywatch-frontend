@@ -278,25 +278,13 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
             const errorMsg = error?.message || "Protocol Bridge Interrupted";
 
-            // If it's a "not implemented" error, we don't show a scary message, just switch to browser
-            if (errorMsg.includes("not implemented")) {
-                toast.info("Switching to browser download for this update...");
-            } else {
-                toast.error(`Auto-sync failed: ${errorMsg.slice(0, 30)}. Opening browser...`);
-            }
+            // Ultimate Fallback: Direct window redirect. This is the "Nuclear" option.
+            // If the native bridge is broken, the browser will catch this.
+            toast.info("Switching to direct download protocol...");
 
-            // Robust browser fallback
-            setTimeout(async () => {
-                try {
-                    if (Capacitor.isNativePlatform()) {
-                        await Browser.open({ url: downloadUrl });
-                    } else {
-                        window.open(downloadUrl, '_system');
-                    }
-                } catch (browserErr) {
-                    console.error('[VERSION_DL] Browser fallback failed:', browserErr);
-                    window.open(downloadUrl, '_blank');
-                }
+            setTimeout(() => {
+                console.log('[VERSION_DL] Executing Ultimate Redirect:', downloadUrl);
+                window.location.href = downloadUrl;
             }, 1000);
         }
     };
@@ -465,13 +453,15 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                     Secure Build: v{versionInfo.version}-FINAL
                                 </p>
 
-                                <button
-                                    onClick={() => window.open(downloadUrl, '_system')}
-                                    className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors py-2 px-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10"
+                                <a
+                                    href={downloadUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors py-2 px-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 no-underline cursor-pointer"
                                 >
                                     <ExternalLink className="w-3.5 h-3.5" />
                                     Download via Browser (Secondary)
-                                </button>
+                                </a>
                             </div>
                         </div>
 
