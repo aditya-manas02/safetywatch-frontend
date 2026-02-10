@@ -21,11 +21,12 @@ interface Props {
   onSelect: (tab: string) => void;
   onFilter: (status: string) => void;
   onLogout?: () => void;
+  isSuperAdmin?: boolean;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isOpen, onClose }: Props) {
+export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isSuperAdmin, isOpen, onClose }: Props) {
   const items = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "incidents", label: "Moderation", icon: ListFilter },
@@ -36,6 +37,8 @@ export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isO
     { id: "announcements", label: "Broadcast", icon: Megaphone },
     { id: "activity", label: "Activity", icon: Activity },
   ];
+
+  const filteredItems = items.filter(it => it.id !== "areacodes" || isSuperAdmin);
 
   return (
     <>
@@ -70,7 +73,7 @@ export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isO
 
         {/* MENU TABS */}
         <nav className="mt-6 px-2">
-          {items.map((it) => {
+          {filteredItems.map((it) => {
             const activeClass =
               active === it.id
                 ? "bg-primary/10 border-l-4 border-primary text-primary"

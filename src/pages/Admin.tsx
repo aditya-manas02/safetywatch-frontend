@@ -1,7 +1,7 @@
 import DashboardStats from "@/components/admin/DashboardStats";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Zap, Search, RefreshCw, LayoutDashboard, ListFilter, Users, LifeBuoy, Activity, Menu } from "lucide-react";
+import { Loader2, Zap, Search, RefreshCw, LayoutDashboard, ListFilter, Users, LifeBuoy, Activity, Menu, Shield } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { API_BASE, VERSION_HEADERS, getAuthHeaders } from "@/lib/api";
@@ -24,7 +24,7 @@ import AreaCodeManager from "@/components/admin/AreaCodeManager";
 
 export default function Admin() {
   const navigate = useNavigate();
-  const { user, isAdmin, isLoading, token } = useAuth();
+  const { user, isAdmin, isSuperAdmin, isLoading, token } = useAuth();
 
   const [activeTab, setActiveTab] = useState("dashboard");
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -225,6 +225,7 @@ export default function Admin() {
         onSelect={setActiveTab}
         onFilter={setStatusFilter}
         onLogout={() => { localStorage.clear(); navigate("/"); }}
+        isSuperAdmin={isSuperAdmin}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
@@ -370,7 +371,22 @@ export default function Admin() {
             )
           )}
 
-          {activeTab === "areacodes" && <AreaCodeManager />}
+
+          {activeTab === "areacodes" && isSuperAdmin && <AreaCodeManager />}
+
+          {activeTab === "areacodes" && !isSuperAdmin && (
+            <div className="flex flex-col items-center justify-center p-10 space-y-4">
+              <Shield className="h-16 w-16 text-destructive opacity-50" />
+              <h2 className="text-xl font-bold">Access Restricted</h2>
+              <p className="text-muted-foreground text-center">Only SuperAdmins can manage area codes.</p>
+              <button
+                onClick={() => setActiveTab("dashboard")}
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-bold"
+              >
+                Return to Dashboard
+              </button>
+            </div>
+          )}
 
           {activeTab === "support" && <SupportManager />}
 

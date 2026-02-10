@@ -22,6 +22,7 @@ interface AuthContextType {
   user: UserData | null;
   token: string | null;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   isLoading: boolean;
   signUp: (email: string, password: string, name: string, phone?: string) => Promise<{ error: Error | null; rateLimit?: RateLimitInfo }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null; needsVerification?: boolean }>;
@@ -39,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
 
@@ -52,7 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(savedUser);
         setUser(parsed);
         setToken(savedToken);
-        setIsAdmin(parsed.roles?.includes("admin"));
+        setIsAdmin(parsed.roles?.includes("admin") || parsed.roles?.includes("superadmin"));
+        setIsSuperAdmin(parsed.roles?.includes("superadmin"));
       } catch (e) {
         console.error("Failed to parse saved user", e);
       }
@@ -118,7 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       setUser(data.user);
-      setIsAdmin(data.user.roles?.includes("admin"));
+      setIsAdmin(data.user.roles?.includes("admin") || data.user.roles?.includes("superadmin"));
+      setIsSuperAdmin(data.user.roles?.includes("superadmin"));
 
       return { error: null };
     } catch (err: unknown) {
@@ -154,7 +158,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       setUser(data.user);
-      setIsAdmin(data.user.roles?.includes("admin"));
+      setIsAdmin(data.user.roles?.includes("admin") || data.user.roles?.includes("superadmin"));
+      setIsSuperAdmin(data.user.roles?.includes("superadmin"));
 
       return { error: null };
     } catch (err: unknown) {
@@ -229,7 +234,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(savedUser);
         setUser(parsed);
         setToken(savedToken);
-        setIsAdmin(parsed.roles?.includes("admin"));
+        setIsAdmin(parsed.roles?.includes("admin") || parsed.roles?.includes("superadmin"));
+        setIsSuperAdmin(parsed.roles?.includes("superadmin"));
       } catch (error) {
         console.error("Error refreshing user:", error);
       }
@@ -245,6 +251,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setToken(null);
     setIsAdmin(false);
+    setIsSuperAdmin(false);
     // Absolute Redirection: Force full page reload to clear all React state
     window.location.href = "/auth";
   };
@@ -255,6 +262,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         token,
         isAdmin,
+        isSuperAdmin,
         isLoading,
         signUp,
         signIn,
