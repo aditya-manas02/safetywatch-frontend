@@ -264,9 +264,18 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             // Priority Fallback: Direct Browser Download (Matches "Opens Chrome" button intent)
             toast.error(`Auto-sync failed: ${errorMsg.slice(0, 30)}. Reverting to manual protocol...`);
 
-            // Use window.open with _system to force external browser
-            setTimeout(() => {
-                window.open(downloadUrl, '_system');
+            // Robust browser fallback
+            setTimeout(async () => {
+                try {
+                    if (Capacitor.isNativePlatform()) {
+                        await Browser.open({ url: downloadUrl });
+                    } else {
+                        window.open(downloadUrl, '_system');
+                    }
+                } catch (browserErr) {
+                    console.error('[VERSION_DL] Browser fallback failed:', browserErr);
+                    window.open(downloadUrl, '_blank');
+                }
             }, 1000);
         }
     };
