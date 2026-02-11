@@ -558,27 +558,48 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                         <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                                         <div>
                                             <p className="text-red-500 font-bold text-[13px] uppercase tracking-wider mb-1">
-                                                In-App Update Failed
+                                                {downloadError === "LEGACY_SHELL_INCOMPATIBILITY" ? "Legacy Version Detected" : "Update Interrupted"}
                                             </p>
                                             <p className="text-red-200/70 text-[12px] leading-tight italic">
-                                                Reason: {downloadError}
+                                                {downloadError === "LEGACY_SHELL_INCOMPATIBILITY"
+                                                    ? "Your current app shell (v1.4.0) is too old for in-app syncing."
+                                                    : `Reason: ${downloadError}`}
                                             </p>
                                         </div>
                                     </div>
-                                    <p className="text-slate-400 text-[11px] leading-relaxed mb-4">
-                                        Persistence error detected in native bridge. If retrying fails repeatedly, please use the
-                                        <span className="text-white font-semibold mx-1 text-[12px]">secondary browser option</span> below.
-                                    </p>
-                                    <Button
-                                        onClick={() => {
-                                            setDownloadError(null);
-                                            startDownload();
-                                        }}
-                                        className="w-full bg-red-500/20 hover:bg-red-500/30 text-red-100 border border-red-500/30 font-black tracking-tighter uppercase rounded-xl py-6 h-auto"
-                                    >
-                                        <RefreshCw className="w-4 h-4 mr-2" />
-                                        Retry Update
-                                    </Button>
+
+                                    {downloadError === "LEGACY_SHELL_INCOMPATIBILITY" ? (
+                                        <div className="space-y-4">
+                                            <p className="text-slate-400 text-[11px] leading-relaxed">
+                                                This is a one-time requirement. Please perform a **manual upgrade** to v1.4.5 using the
+                                                secondary button below. This will enable the automatic update engine for all future versions.
+                                            </p>
+                                            <Button
+                                                onClick={() => forceExternalDownload(downloadUrl)}
+                                                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-black tracking-tighter uppercase rounded-xl py-6 h-auto shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+                                            >
+                                                <ExternalLink className="w-4 h-4 mr-2" />
+                                                Manual Upgrade to v1.4.5
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <p className="text-slate-400 text-[11px] leading-relaxed mb-4">
+                                                Persistence error detected in native bridge. If retrying fails repeatedly, please use the
+                                                <span className="text-white font-semibold mx-1 text-[12px]">secondary browser option</span> below.
+                                            </p>
+                                            <Button
+                                                onClick={() => {
+                                                    setDownloadError(null);
+                                                    startDownload();
+                                                }}
+                                                className="w-full bg-red-500/20 hover:bg-red-500/30 text-red-100 border border-red-500/30 font-black tracking-tighter uppercase rounded-xl py-6 h-auto"
+                                            >
+                                                <RefreshCw className="w-4 h-4 mr-2" />
+                                                Retry Update
+                                            </Button>
+                                        </>
+                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>
