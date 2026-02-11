@@ -126,7 +126,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
                         <div className="font-bold text-foreground text-sm md:text-base flex items-center gap-2">
                           {u.name || "Anonymous User"}
                           {u.isSuspended && (
-                            <Badge className="bg-rose-500/10 text-rose-500 border-none h-4 px-1.5 text-[8px] font-black uppercase tracking-tighter">
+                            <Badge className="bg-rose-500/10 text-rose-500 border-none h-4 md:h-5 px-1.5 md:px-2 text-[8px] md:text-[10px] font-black uppercase tracking-tighter shadow-sm whitespace-nowrap">
                               Suspended
                             </Badge>
                           )}

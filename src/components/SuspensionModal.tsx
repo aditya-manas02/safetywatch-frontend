@@ -32,17 +32,17 @@ export const SuspensionModal = ({ isOpen, expiresAt, onLogout }: SuspensionModal
             <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                className="relative bg-card border border-border rounded-3xl p-8 max-w-md w-full shadow-2xl text-center space-y-6 overflow-hidden"
+                className="relative bg-card border border-border rounded-3xl p-6 md:p-10 max-w-md w-full shadow-2xl text-center space-y-6 md:space-y-8 overflow-hidden"
             >
                 <div className="absolute top-0 left-0 w-full h-2 bg-rose-500" />
 
-                <div className="mx-auto h-20 w-20 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
-                    <Ban className="h-10 w-10 text-rose-500" />
+                <div className="mx-auto h-16 w-16 md:h-20 md:w-20 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
+                    <Ban className="h-8 w-8 md:h-10 md:w-10 text-rose-500" />
                 </div>
 
                 <div>
-                    <h2 className="text-2xl font-black tracking-tight text-foreground mb-2">Account Restricted</h2>
-                    <p className="text-muted-foreground text-sm font-medium leading-relaxed">
+                    <h2 className="text-xl md:text-2xl font-black tracking-tight text-foreground mb-2">Account Restricted</h2>
+                    <p className="text-muted-foreground text-xs md:text-sm font-medium leading-relaxed px-2">
                         Your access to the SafetyWatch network has been suspended by an administrator due to a violation of community guidelines.
                     </p>
                 </div>

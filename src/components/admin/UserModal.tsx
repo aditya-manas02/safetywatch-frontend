@@ -60,7 +60,7 @@ export default function UserModal({
           </button>
         </div>
 
-        <div className="px-8 pb-8 -mt-12">
+        <div className="px-5 sm:px-8 pb-6 sm:pb-8 -mt-12">
           {/* Header with Icon and Roles */}
           <div className="flex justify-between items-end mb-8">
             <div className="h-24 w-24 rounded-3xl bg-card border-4 border-card shadow-xl flex items-center justify-center">
@@ -155,7 +155,7 @@ export default function UserModal({
                 {user.isSuspended && onUnsuspend && (
                   <Button
                     variant="outline"
-                    className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20 rounded-xl"
+                    className="flex-1 sm:flex-none bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20 rounded-xl"
                     onClick={() => onUnsuspend(user._id)}
                   >
                     <RefreshCw className="mr-2 h-4 w-4" /> Lift Suspension
