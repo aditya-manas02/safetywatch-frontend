@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Flag, User, MessageSquare, AlertTriangle, ShieldCheck, ShieldAlert, Clock, CheckCircle2, MoreVertical, Ban, Info } from "lucide-react";
+import { Loader2, Flag, User, MessageSquare, AlertTriangle, ShieldCheck, ShieldAlert, Clock, CheckCircle2, MoreVertical, Ban, Info, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -97,6 +97,43 @@ export default function ReportManager() {
         }
     };
 
+    const handleDeleteReport = async (id: string) => {
+        if (!window.confirm("Are you sure you want to delete this report?")) return;
+        try {
+            const res = await fetch(`${API_BASE}/incidents/admin/reports/${id}`, {
+                method: "DELETE",
+                headers: getAuthHeaders(token || "")
+            });
+            if (res.ok) {
+                toast.success("Report deleted successfully");
+                fetchReports();
+            } else {
+                toast.error("Failed to delete report");
+            }
+        } catch (err) {
+            toast.error("Error deleting report");
+        }
+    };
+
+    const handleDeleteAllResolved = async () => {
+        if (!window.confirm("Are you sure you want to delete ALL resolved reports? This action cannot be undone.")) return;
+        try {
+            const res = await fetch(`${API_BASE}/incidents/admin/reports/resolved`, {
+                method: "DELETE",
+                headers: getAuthHeaders(token || "")
+            });
+            if (res.ok) {
+                const data = await res.json();
+                toast.success(`Deleted ${data.count} resolved reports`);
+                fetchReports();
+            } else {
+                toast.error("Failed to delete resolved reports");
+            }
+        } catch (err) {
+            toast.error("Error deleting resolved reports");
+        }
+    };
+
     const openActionModal = (report: Report, type: "warn" | "suspend" | "dismiss") => {
         setSelectedReport(report);
         setActionType(type);
@@ -125,6 +162,16 @@ export default function ReportManager() {
                     <Badge variant="outline" className="h-8 rounded-lg px-3 flex items-center gap-1.5 border-amber-500/20 bg-amber-500/5 text-amber-500 font-bold">
                         <AlertTriangle className="h-3 w-3" /> {reports.filter(r => r.status === 'pending').length} Pending
                     </Badge>
+                    {reports.some(r => r.status === 'resolved') && (
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDeleteAllResolved}
+                            className="h-8 text-[10px] font-black uppercase tracking-widest bg-rose-500 hover:bg-rose-600 text-white rounded-lg shadow-lg shadow-rose-500/20"
+                        >
+                            <Trash2 className="h-3.5 w-3.5 mr-1" /> Clear All Resolved
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -234,6 +281,19 @@ export default function ReportManager() {
                                         className="h-8 text-[10px] font-black uppercase tracking-widest border-border/50 hover:bg-muted rounded-lg"
                                     >
                                         Dismiss
+                                    </Button>
+                                </div>
+                            )}
+
+                            {report.status === 'resolved' && (
+                                <div className="flex justify-end border-t border-border/50 pt-4 mt-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleDeleteReport(report._id)}
+                                        className="h-8 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-lg flex items-center gap-1.5"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5" /> Delete Log
                                     </Button>
                                 </div>
                             )}
