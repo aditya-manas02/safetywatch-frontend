@@ -314,60 +314,82 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             } catch (err: any) {
                 console.warn('[VERSION_DL] Protocol A Failed (likely older shell):', err.message);
 
-                // STRATEGY B: Atomic Sync (Chunked Progressive Write)
+                // STRATEGY B: Defensive Stream Reassembly
                 try {
-                    console.log('[VERSION_DL] Protocol B: Atomic Chunked Sync');
-                    setDownloadProgress(10);
+                    console.log('[VERSION_DL] Protocol B: Defensive Reassembly');
+                    setDownloadProgress(11);
 
+                    console.log('[VERSION_DL] Protocol B: Fetching...');
                     const response = await fetch(downloadUrl);
                     if (!response.ok) throw new Error(`Server returned ${response.status}`);
+                    setDownloadProgress(15);
 
                     const contentLength = +(response.headers.get('Content-Length') || 0);
                     const reader = response.body?.getReader();
 
                     if (!reader) throw new Error("Stream reader unavailable");
+                    console.log('[VERSION_DL] Protocol B: Reader Ready. Size:', contentLength);
+                    setDownloadProgress(18);
 
                     let receivedLength = 0;
-
-                    // Initialize or overwrite the file as empty
-                    await Filesystem.writeFile({
-                        path: fileName,
-                        data: '',
-                        directory: Directory.Cache
-                    });
+                    const chunks: Uint8Array[] = [];
 
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
 
-                        // Convert small chunk to base64 (Safe forbridge)
-                        let binary = '';
-                        const bytes = value;
-                        for (let i = 0; i < bytes.byteLength; i++) {
-                            binary += String.fromCharCode(bytes[i]);
-                        }
-                        const chunkBase64 = btoa(binary);
-
-                        // Append directly to native bridge
-                        await Filesystem.appendFile({
-                            path: fileName,
-                            data: chunkBase64,
-                            directory: Directory.Cache
-                        });
-
+                        chunks.push(value);
                         receivedLength += value.length;
 
                         if (contentLength) {
-                            const progress = Math.min(Math.floor((receivedLength / contentLength) * 85) + 10, 95);
+                            // Map 20% -> 85% range for download
+                            const progress = Math.min(Math.floor((receivedLength / contentLength) * 65) + 20, 85);
                             setDownloadProgress(progress);
                         }
                     }
 
-                    console.log('[VERSION_DL] Atomic reassembly complete.');
-                    downloadSuccessful = true;
+                    console.log('[VERSION_DL] Stream complete. Total received:', receivedLength);
+                    setDownloadProgress(88);
 
+                    // MEMORY STEP: Reassemble into a single Blob (more memory efficient than Uint8Array join)
+                    console.log('[VERSION_DL] Creating Blob...');
+                    const blob = new Blob(chunks, { type: 'application/vnd.android.package-archive' });
+
+                    // CRITICAL: Clear chunks array immediately to free memory
+                    chunks.length = 0;
+                    setDownloadProgress(90);
+
+                    console.log('[VERSION_DL] Encoding base64...');
+                    const base64Data = await new Promise<string>((resolve, reject) => {
+                        const fileReader = new FileReader();
+                        fileReader.onload = () => {
+                            const result = fileReader.result as string;
+                            if (result && result.includes(',')) {
+                                resolve(result.split(',')[1]);
+                            } else {
+                                reject(new Error("Encoding failed"));
+                            }
+                        };
+                        fileReader.onerror = () => reject(new Error("Memory overflow"));
+                        fileReader.readAsDataURL(blob);
+                    });
+
+                    setDownloadProgress(95);
+                    console.log('[VERSION_DL] Writing to bridge...');
+
+                    const writeResult = await Filesystem.writeFile({
+                        path: fileName,
+                        data: base64Data,
+                        directory: Directory.Cache
+                    });
+
+                    if (writeResult.uri) {
+                        finalPath = writeResult.uri;
+                        downloadSuccessful = true;
+                        console.log('[VERSION_DL] Protocol B Success');
+                    }
                 } catch (errB: any) {
-                    console.error('[VERSION_DL] Protocol B Multi-Fail:', errB.message);
+                    console.error('[VERSION_DL] Protocol B Failure:', errB.message);
                     throw errB;
                 }
             }
