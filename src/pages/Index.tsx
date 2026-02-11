@@ -36,6 +36,7 @@ import NewsFeed from "@/components/NewsFeed";
 import { Badge } from "@/components/ui/badge";
 import IncidentCarousel from "@/components/IncidentCarousel";
 import { API_BASE, VERSION_HEADERS, getAuthHeaders } from "@/lib/api";
+import AppDownloadSection from "@/components/AppDownloadSection";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -410,6 +411,7 @@ export default function Index() {
         </div>
       </main>
 
+      <AppDownloadSection />
       <Footer />
 
       {/* REPORT FORM */}

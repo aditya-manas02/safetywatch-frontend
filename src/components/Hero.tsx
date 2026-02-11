@@ -234,6 +234,18 @@ export default function Hero({
             >
               View Feed
             </motion.button>
+
+            {!isNative && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.open('https://safetywatch-backend.onrender.com/SafetyWatch.apk', '_blank')}
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl border-2 border-primary/30 bg-primary/10 backdrop-blur-md text-primary font-black hover:bg-primary/20 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Get the App
+              </motion.button>
+            )}
           </div>
 
         </motion.div>

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, CheckCircle2, MapPin, Bell, Users, Eye, EyeOff, LifeBuoy, Flag, Sparkles, HelpCircle } from "lucide-react";
+import { Mail, Lock, CheckCircle2, MapPin, Bell, Users, Eye, EyeOff, LifeBuoy, Flag, Sparkles, HelpCircle, Smartphone } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggle from "@/components/ThemeToggle";
 import { YetiAnimation } from "@/components/YetiAnimation";
 import { API_BASE, VERSION_HEADERS, BASE_URL } from "@/lib/api";
+import { Capacitor } from "@capacitor/core";
 
 import {
   Dialog,
@@ -694,6 +695,17 @@ const Auth = () => {
               </a>
               <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Lock className="h-3 w-3" />SECURE ACCESS</a>
               <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Flag className="h-3 w-3" />REPORT INCIDENTS</a>
+
+              {!Capacitor.isNativePlatform() && (
+                <a
+                  href="https://safetywatch-backend.onrender.com/SafetyWatch.apk"
+                  target="_blank"
+                  className="flex items-center gap-2 text-primary font-black hover:scale-105 transition-all ml-auto"
+                >
+                  <Smartphone className="h-3 w-3" />
+                  DOWNLOAD MOBILE SYNC
+                </a>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>
