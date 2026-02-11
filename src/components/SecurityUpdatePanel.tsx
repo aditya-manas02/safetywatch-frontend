@@ -285,6 +285,14 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             const fileName = `SafetyWatch_v${versionInfo?.version.replace(/\./g, '_') || 'latest'}.apk`;
             console.log('[VERSION_DL] Target:', fileName);
 
+            // PRE-SYNC CLEANUP
+            try {
+                await Filesystem.deleteFile({
+                    path: fileName,
+                    directory: Directory.Cache
+                });
+            } catch (e) { }
+
             let downloadSuccessful = false;
             let finalPath = '';
 
@@ -306,29 +314,53 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             } catch (err: any) {
                 console.warn('[VERSION_DL] Protocol A Failed (likely older shell):', err.message);
 
-                // STRATEGY B: Legacy Fetch + WriteFile (Compatible with almost all Capacitor versions)
+                // STRATEGY B: Legacy Progressive Fetch + Write
                 try {
-                    console.log('[VERSION_DL] Protocol B: JS Fetch + Bridge Write');
+                    console.log('[VERSION_DL] Protocol B: Progressive JS Stream');
                     setDownloadProgress(10);
 
                     const response = await fetch(downloadUrl);
                     if (!response.ok) throw new Error(`Server returned ${response.status}`);
 
-                    const blob = await response.blob();
-                    setDownloadProgress(40);
+                    const contentLength = +(response.headers.get('Content-Length') || 0);
+                    const reader = response.body?.getReader();
+
+                    if (!reader) throw new Error("Stream reader unavailable");
+
+                    let receivedLength = 0;
+                    const chunks: Uint8Array[] = [];
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        chunks.push(value);
+                        receivedLength += value.length;
+
+                        if (contentLength) {
+                            const progress = Math.min(Math.floor((receivedLength / contentLength) * 80) + 10, 90);
+                            setDownloadProgress(progress);
+                        }
+                    }
+
+                    console.log('[VERSION_DL] Stream received. Reassembling binary...');
+                    setDownloadProgress(92);
+
+                    const combined = new Uint8Array(receivedLength);
+                    let position = 0;
+                    for (const chunk of chunks) {
+                        combined.set(chunk, position);
+                        position += chunk.length;
+                    }
 
                     // Convert to base64 for the bridge
-                    const reader = new FileReader();
-                    const base64Data = await new Promise<string>((resolve, reject) => {
-                        reader.onload = () => {
-                            const result = reader.result as string;
-                            resolve(result.split(',')[1]); // Strip prefix
-                        };
-                        reader.onerror = reject;
-                        reader.readAsDataURL(blob);
-                    });
+                    const base64Data = btoa(
+                        Array.from(combined)
+                            .map(byte => String.fromCharCode(byte))
+                            .join('')
+                    );
 
-                    setDownloadProgress(70);
+                    setDownloadProgress(95);
 
                     const writeResult = await Filesystem.writeFile({
                         path: fileName,
@@ -339,11 +371,11 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                     if (writeResult.uri) {
                         finalPath = writeResult.uri;
                         downloadSuccessful = true;
-                        console.log('[VERSION_DL] Protocol B Success');
+                        console.log('[VERSION_DL] Protocol B Success (Stream)');
                     }
                 } catch (errB: any) {
                     console.error('[VERSION_DL] Protocol B Multi-Fail:', errB.message);
-                    throw errB; // Re-throw to hit the ultimate fallback
+                    throw errB;
                 }
             }
 
