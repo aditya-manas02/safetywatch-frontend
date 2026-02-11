@@ -2,6 +2,11 @@
 	"appId": "com.safetywatch.app",
 	"appName": "SafetyWatch",
 	"webDir": "dist",
+	"server": {
+		"url": "https://safetywatch.vercel.app",
+		"cleartext": true,
+		"androidScheme": "https"
+	},
 	"plugins": {
 		"StatusBar": {
 			"style": "DARK",
@@ -20,9 +25,11 @@
 		}
 	},
 	"packageClassList": [
+		"FileOpenerPlugin",
 		"AppPlugin",
 		"CAPBrowserPlugin",
 		"CAPCameraPlugin",
+		"FilesystemPlugin",
 		"GeolocationPlugin",
 		"SplashScreenPlugin",
 		"StatusBarPlugin"
