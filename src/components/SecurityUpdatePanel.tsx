@@ -283,18 +283,71 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
         try {
             const fileName = `SafetyWatch_v${versionInfo?.version.replace(/\./g, '_') || 'latest'}.apk`;
-            console.log('[VERSION_DL] Downloading via Filesystem bridge:', fileName);
+            console.log('[VERSION_DL] Target:', fileName);
 
-            // Using Directory.Documents for better visibility on Android if Cache is restricted
-            const downloadResult = await Filesystem.downloadFile({
-                url: downloadUrl,
-                path: fileName,
-                directory: Directory.Cache, // Switched to Cache for max compatibility
-                progress: true
-            });
+            let downloadSuccessful = false;
+            let finalPath = '';
 
-            if (downloadResult.path) {
-                console.log('[VERSION_DL] Bridge success -> Saved to:', downloadResult.path);
+            // STRATEGY A: Modern Capacitor Download (Best performance, uses native stream)
+            try {
+                console.log('[VERSION_DL] Protocol A: Native Direct Stream');
+                const downloadResult = await Filesystem.downloadFile({
+                    url: downloadUrl,
+                    path: fileName,
+                    directory: Directory.Cache,
+                    progress: true
+                });
+
+                if (downloadResult.path) {
+                    finalPath = downloadResult.path;
+                    downloadSuccessful = true;
+                    console.log('[VERSION_DL] Protocol A Success');
+                }
+            } catch (err: any) {
+                console.warn('[VERSION_DL] Protocol A Failed (likely older shell):', err.message);
+
+                // STRATEGY B: Legacy Fetch + WriteFile (Compatible with almost all Capacitor versions)
+                try {
+                    console.log('[VERSION_DL] Protocol B: JS Fetch + Bridge Write');
+                    setDownloadProgress(10);
+
+                    const response = await fetch(downloadUrl);
+                    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+
+                    const blob = await response.blob();
+                    setDownloadProgress(40);
+
+                    // Convert to base64 for the bridge
+                    const reader = new FileReader();
+                    const base64Data = await new Promise<string>((resolve, reject) => {
+                        reader.onload = () => {
+                            const result = reader.result as string;
+                            resolve(result.split(',')[1]); // Strip prefix
+                        };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+
+                    setDownloadProgress(70);
+
+                    const writeResult = await Filesystem.writeFile({
+                        path: fileName,
+                        data: base64Data,
+                        directory: Directory.Cache
+                    });
+
+                    if (writeResult.uri) {
+                        finalPath = writeResult.uri;
+                        downloadSuccessful = true;
+                        console.log('[VERSION_DL] Protocol B Success');
+                    }
+                } catch (errB: any) {
+                    console.error('[VERSION_DL] Protocol B Multi-Fail:', errB.message);
+                    throw errB; // Re-throw to hit the ultimate fallback
+                }
+            }
+
+            if (downloadSuccessful) {
                 setDownloadProgress(100);
 
                 const uriResult = await Filesystem.getUri({
@@ -302,29 +355,20 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                     directory: Directory.Cache
                 });
 
-                console.log('[VERSION_DL] Resolved native URI:', uriResult.uri);
+                console.log('[VERSION_DL] Binary verified at:', uriResult.uri);
                 setDownloadedFileUri(uriResult.uri);
                 setIsDownloaded(true);
                 setIsDownloading(false);
-                toast.success("Security Binary Received. Ready for local deployment.");
+                toast.success("Security Binary Received.");
 
-                // Auto-trigger installation
-                setTimeout(() => {
-                    handleInstall();
-                }, 1000);
+                setTimeout(() => handleInstall(), 800);
             }
         } catch (error: any) {
-            console.error('[VERSION_DL] NATIVE_BRIDGE_FAILURE:', error);
+            console.error('[VERSION_DL] ALL_PROTOCOLS_FAILED:', error);
             setIsDownloading(false);
 
-            const errorMsg = error?.message || "Protocol Bridge Interrupted";
-
-            if (errorMsg.includes("not implemented") || errorMsg.includes("plugin") || errorMsg.includes("not available")) {
-                console.warn('[VERSION_DL] Native plugins missing in this shell. Reverting to browser download.');
-                toast.info("Initializing system download fallback...");
-            } else {
-                toast.error("In-app update failed. Opening system browser...");
-            }
+            const errorMsg = error?.message || "Binary sync failure";
+            toast.error("In-app update failed. Opening secure browser fallback...");
 
             // Ultimate Fallback: Single trigger redirect
             setTimeout(() => {
