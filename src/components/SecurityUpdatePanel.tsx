@@ -314,80 +314,80 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             } catch (err: any) {
                 console.warn('[VERSION_DL] Protocol A Failed (likely older shell):', err.message);
 
-                // STRATEGY B: Defensive Stream Reassembly
+                // STRATEGY B: Batch-Sync (Memory-Stable Streaming)
                 try {
-                    console.log('[VERSION_DL] Protocol B: Defensive Reassembly');
+                    console.log('[VERSION_DL] Protocol B: Batch Sync');
                     setDownloadProgress(11);
 
-                    console.log('[VERSION_DL] Protocol B: Fetching...');
                     const response = await fetch(downloadUrl);
                     if (!response.ok) throw new Error(`Server returned ${response.status}`);
-                    setDownloadProgress(15);
 
                     const contentLength = +(response.headers.get('Content-Length') || 0);
                     const reader = response.body?.getReader();
-
                     if (!reader) throw new Error("Stream reader unavailable");
-                    console.log('[VERSION_DL] Protocol B: Reader Ready. Size:', contentLength);
-                    setDownloadProgress(18);
 
                     let receivedLength = 0;
-                    const chunks: Uint8Array[] = [];
+                    let batchChunks: Uint8Array[] = [];
+                    let batchSize = 0;
+                    const BATCH_THRESHOLD = 2 * 1024 * 1024; // 2MB Batches
+                    let isFirstWrite = true;
 
                     while (true) {
                         const { done, value } = await reader.read();
-                        if (done) break;
 
-                        chunks.push(value);
-                        receivedLength += value.length;
+                        // If we have data, add to batch
+                        if (value) {
+                            batchChunks.push(value);
+                            batchSize += value.length;
+                            receivedLength += value.length;
+                        }
+
+                        // Write to disk if we hit threshold OR we are finished
+                        if (batchSize >= BATCH_THRESHOLD || (done && batchSize > 0)) {
+                            console.log(`[VERSION_DL] Writing batch: ${Math.round(receivedLength / 1024 / 1024)}MB / ${Math.round(contentLength / 1024 / 1024)}MB`);
+
+                            const batchBlob = new Blob(batchChunks);
+                            const base64Data = await new Promise<string>((resolve, reject) => {
+                                const fr = new FileReader();
+                                fr.onload = () => {
+                                    const result = fr.result as string;
+                                    resolve(result.split(',')[1]);
+                                };
+                                fr.onerror = reject;
+                                fr.readAsDataURL(batchBlob);
+                            });
+
+                            if (isFirstWrite) {
+                                await Filesystem.writeFile({
+                                    path: fileName,
+                                    data: base64Data,
+                                    directory: Directory.Cache
+                                });
+                                isFirstWrite = false;
+                            } else {
+                                await Filesystem.appendFile({
+                                    path: fileName,
+                                    data: base64Data,
+                                    directory: Directory.Cache
+                                });
+                            }
+
+                            // CLEAR BATCH MEMORY
+                            batchChunks = [];
+                            batchSize = 0;
+                        }
 
                         if (contentLength) {
-                            // Map 20% -> 85% range for download
-                            const progress = Math.min(Math.floor((receivedLength / contentLength) * 65) + 20, 85);
+                            const progress = Math.min(Math.floor((receivedLength / contentLength) * 80) + 15, 95);
                             setDownloadProgress(progress);
                         }
+
+                        if (done) break;
                     }
 
-                    console.log('[VERSION_DL] Stream complete. Total received:', receivedLength);
-                    setDownloadProgress(88);
+                    console.log('[VERSION_DL] Batch Sync Complete.');
+                    downloadSuccessful = true;
 
-                    // MEMORY STEP: Reassemble into a single Blob (more memory efficient than Uint8Array join)
-                    console.log('[VERSION_DL] Creating Blob...');
-                    const blob = new Blob(chunks, { type: 'application/vnd.android.package-archive' });
-
-                    // CRITICAL: Clear chunks array immediately to free memory
-                    chunks.length = 0;
-                    setDownloadProgress(90);
-
-                    console.log('[VERSION_DL] Encoding base64...');
-                    const base64Data = await new Promise<string>((resolve, reject) => {
-                        const fileReader = new FileReader();
-                        fileReader.onload = () => {
-                            const result = fileReader.result as string;
-                            if (result && result.includes(',')) {
-                                resolve(result.split(',')[1]);
-                            } else {
-                                reject(new Error("Encoding failed"));
-                            }
-                        };
-                        fileReader.onerror = () => reject(new Error("Memory overflow"));
-                        fileReader.readAsDataURL(blob);
-                    });
-
-                    setDownloadProgress(95);
-                    console.log('[VERSION_DL] Writing to bridge...');
-
-                    const writeResult = await Filesystem.writeFile({
-                        path: fileName,
-                        data: base64Data,
-                        directory: Directory.Cache
-                    });
-
-                    if (writeResult.uri) {
-                        finalPath = writeResult.uri;
-                        downloadSuccessful = true;
-                        console.log('[VERSION_DL] Protocol B Success');
-                    }
                 } catch (errB: any) {
                     console.error('[VERSION_DL] Protocol B Failure:', errB.message);
                     throw errB;
