@@ -275,24 +275,8 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         // We no longer pre-emptively block based on isPluginAvailable.
         // We will attempt the download and only fall back on actual failure.
 
-        // Ensure we have permissions for storage on Android
-        if (Capacitor.getPlatform() === 'android') {
-            try {
-                const status = await Filesystem.checkPermissions();
-                console.log('[VERSION_CHECK] Storage permissions status:', status.publicStorage);
-                if (status.publicStorage !== 'granted') {
-                    const req = await Filesystem.requestPermissions();
-                    if (req.publicStorage !== 'granted') {
-                        throw new Error("Storage permission denied");
-                    }
-                }
-            } catch (e: any) {
-                console.warn('[VERSION_CHECK] Permission resolution failed:', e);
-                toast.error("Storage access required for in-app update.");
-                forceExternalDownload(downloadUrl);
-                return;
-            }
-        }
+        // Note: For internal storage (Cache/Data), explicit permissions are often not required on modern Android.
+        // We will proceed directly to download and handle any access errors during the operation.
 
         setIsDownloading(true);
         setDownloadProgress(5);
@@ -305,7 +289,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             const downloadResult = await Filesystem.downloadFile({
                 url: downloadUrl,
                 path: fileName,
-                directory: Directory.Data, // Switched to Data for permanence during install
+                directory: Directory.Cache, // Switched to Cache for max compatibility
                 progress: true
             });
 
@@ -315,7 +299,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
                 const uriResult = await Filesystem.getUri({
                     path: fileName,
-                    directory: Directory.Data
+                    directory: Directory.Cache
                 });
 
                 console.log('[VERSION_DL] Resolved native URI:', uriResult.uri);
