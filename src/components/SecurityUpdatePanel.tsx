@@ -35,6 +35,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
     const [downloadProgress, setDownloadProgress] = useState(0);
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [downloadedFileUri, setDownloadedFileUri] = useState<string | null>(null);
+    const [downloadError, setDownloadError] = useState<string | null>(null);
 
     useEffect(() => {
         checkForUpdates();
@@ -414,13 +415,10 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             console.error('[VERSION_DL] ALL_PROTOCOLS_FAILED:', error);
             setIsDownloading(false);
 
-            const errorMsg = error?.message || "Binary sync failure";
-            toast.error("In-app update failed. Opening secure browser fallback...");
+            const errorMsg = error?.message || "Sync Bridge Interrupted";
+            setDownloadError(errorMsg);
 
-            // Ultimate Fallback: Single trigger redirect
-            setTimeout(() => {
-                forceExternalDownload(downloadUrl);
-            }, 800);
+            toast.error("Security Binary Sync Interrupted.");
         }
     };
 
@@ -548,82 +546,129 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                             )}
                         </AnimatePresence>
 
-                        {/* Action Hub */}
-                        <div className="w-full space-y-4">
-                            {!isDownloaded ? (
-                                <button
+                        {/* Error Section */}
+                        <AnimatePresence>
+                            {downloadError && !isDownloading && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="w-full mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-left"
+                                >
+                                    <div className="flex items-start gap-3 mb-3">
+                                        <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-red-500 font-bold text-[13px] uppercase tracking-wider mb-1">
+                                                In-App Update Failed
+                                            </p>
+                                            <p className="text-red-200/70 text-[12px] leading-tight italic">
+                                                Reason: {downloadError}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <p className="text-slate-400 text-[11px] leading-relaxed mb-4">
+                                        Persistence error detected in native bridge. If retrying fails repeatedly, please use the
+                                        <span className="text-white font-semibold mx-1 text-[12px]">secondary browser option</span> below.
+                                    </p>
+                                    <Button
+                                        onClick={() => {
+                                            setDownloadError(null);
+                                            startDownload();
+                                        }}
+                                        className="w-full bg-red-500/20 hover:bg-red-500/30 text-red-100 border border-red-500/30 font-black tracking-tighter uppercase rounded-xl py-6 h-auto"
+                                    >
+                                        <RefreshCw className="w-4 h-4 mr-2" />
+                                        Retry Update
+                                    </Button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Action Buttons */}
+                        {!isDownloaded ? (
+                            <div className="w-full space-y-4">
+                                <Button
                                     onClick={startDownload}
                                     disabled={isDownloading}
-                                    className="relative w-full group overflow-hidden"
+                                    className={`w-full group relative overflow-hidden h-16 rounded-2xl text-white font-black text-lg tracking-tight shadow-2xl transition-all duration-500 ${isDownloading ? 'bg-slate-800' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-[1.02] hover:shadow-purple-500/25 active:scale-95'
+                                        }`}
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 transition-transform duration-300 group-hover:scale-105 rounded-2xl"></div>
-                                    <div className="relative bg-transparent hover:bg-white/5 text-white font-black text-lg py-5 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-[0_20px_40px_-10px_rgba(168,85,247,0.4)]">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rotate-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                    <span className="relative flex items-center justify-center gap-3 italic">
                                         {isDownloading ? (
                                             <>
                                                 <Loader2 className="w-6 h-6 animate-spin" />
-                                                Synchronizing...
+                                                SYNCING...
                                             </>
                                         ) : (
                                             <>
-                                                <Download className="w-6 h-6" />
-                                                Update Now
+                                                <Download className="w-6 h-6 group-hover:animate-bounce" />
+                                                UPDATE NOW
                                             </>
                                         )}
-                                    </div>
-                                </button>
-                            ) : (
+                                    </span>
+                                </Button>
+
                                 <button
-                                    onClick={handleInstall}
-                                    className="relative w-full group overflow-hidden"
+                                    onClick={() => forceExternalDownload(downloadUrl)}
+                                    className="w-full h-14 flex items-center justify-center gap-2 text-slate-500 hover:text-purple-400 font-bold text-[13px] hover:bg-purple-500/5 rounded-2xl border border-transparent hover:border-purple-500/20 transition-all duration-300 group"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 transition-transform duration-300 group-hover:scale-105 rounded-2xl"></div>
-                                    <div className="relative bg-transparent hover:bg-white/5 text-white font-black text-lg py-5 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all">
-                                        <CheckCircle2 className="w-6 h-6" />
-                                        Initialize Install
-                                    </div>
+                                    <ExternalLink className="w-4 h-4 group-hover:scale-110" />
+                                    SECONDARY OPTION: BROWSER SYNC
                                 </button>
-                            )}
+                            </div>
+                        ) : (
+                            <Button
+                                onClick={handleInstall}
+                                className="relative w-full group overflow-hidden h-16 rounded-2xl text-white font-black text-lg tracking-tight shadow-2xl transition-all duration-500 bg-gradient-to-r from-emerald-600 to-teal-600 hover:scale-[1.02] hover:shadow-emerald-500/25 active:scale-95"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rotate-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                <span className="relative flex items-center justify-center gap-3 italic">
+                                    <CheckCircle2 className="w-6 h-6" />
+                                    INITIALIZE INSTALL
+                                </span>
+                            </Button>
+                        )}
 
-                            {/* Fallback Option */}
-                            <div className="flex flex-col items-center gap-4 pt-2">
-                                <p className="text-[11px] text-slate-500 text-center uppercase tracking-widest font-bold">
-                                    Secure Build: v{versionInfo.version}-FINAL
-                                </p>
+                        {/* Fallback Option */}
+                        <div className="flex flex-col items-center gap-4 pt-2">
+                            <p className="text-[11px] text-slate-500 text-center uppercase tracking-widest font-bold">
+                                Secure Build: v{versionInfo.version}-FINAL
+                            </p>
 
-                                <div className="w-full space-y-3">
-                                    <a
-                                        href={downloadUrl}
-                                        className="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors py-3 px-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 no-underline cursor-pointer"
-                                    >
-                                        <ExternalLink className="w-3.5 h-3.5" />
-                                        Bypass Gate (Direct Browser Link)
-                                    </a>
+                            <div className="w-full space-y-3">
+                                <a
+                                    href={downloadUrl}
+                                    className="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors py-3 px-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 no-underline cursor-pointer"
+                                >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                    Bypass Gate (Direct Browser Link)
+                                </a>
 
-                                    <div className="p-3 bg-purple-950/20 border border-purple-500/20 rounded-xl">
-                                        <p className="text-[10px] text-purple-400 font-bold uppercase mb-2 tracking-widest">Manual Download URL (Copy & Paste)</p>
-                                        <input
-                                            readOnly
-                                            value={downloadUrl}
-                                            onClick={() => copyToClipboard(downloadUrl)}
-                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[10px] font-mono text-slate-300 focus:outline-none cursor-pointer"
-                                        />
-                                        <div className="mt-2 text-[9px] text-slate-500 font-bold text-center italic">
-                                            If the button fails, copy this link and open in Chrome.
-                                        </div>
+                                <div className="p-3 bg-purple-950/20 border border-purple-500/20 rounded-xl">
+                                    <p className="text-[10px] text-purple-400 font-bold uppercase mb-2 tracking-widest">Manual Download URL (Copy & Paste)</p>
+                                    <input
+                                        readOnly
+                                        value={downloadUrl}
+                                        onClick={() => copyToClipboard(downloadUrl)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[10px] font-mono text-slate-300 focus:outline-none cursor-pointer"
+                                    />
+                                    <div className="mt-2 text-[9px] text-slate-500 font-bold text-center italic">
+                                        If the button fails, copy this link and open in Chrome.
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Quantum Status */}
-                        <div className="w-full mt-10 pt-6 border-t border-white/5 flex justify-center">
-                            <span className="text-[9px] text-purple-500/40 font-mono tracking-widest uppercase flex items-center gap-2 italic">
-                                <Activity className="w-3 h-3" /> Binary Verification Protocols Active
-                            </span>
-                        </div>
                     </div>
-                </motion.div>
+
+                    {/* Quantum Status */}
+                    <div className="w-full mt-10 pt-6 border-t border-white/5 flex justify-center">
+                        <span className="text-[9px] text-purple-500/40 font-mono tracking-widest uppercase flex items-center gap-2 italic">
+                            <Activity className="w-3 h-3" /> Binary Verification Protocols Active
+                        </span>
+                    </div>
+                </div>
             </motion.div>
-        </AnimatePresence>
+        </motion.div>
+        </AnimatePresence >
     );
 }
