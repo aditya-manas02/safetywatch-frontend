@@ -415,10 +415,15 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             console.error('[VERSION_DL] ALL_PROTOCOLS_FAILED:', error);
             setIsDownloading(false);
 
-            const errorMsg = error?.message || "Sync Bridge Interrupted";
-            setDownloadError(errorMsg);
+            let errorMsg = error?.message || "Sync Bridge Interrupted";
 
-            toast.error("Security Binary Sync Interrupted.");
+            // Detect missing native plugin (Legacy v1.4.0 indicator)
+            if (errorMsg.toLowerCase().includes("not implemented") || errorMsg.toLowerCase().includes("plugin not found")) {
+                errorMsg = "LEGACY_SHELL_INCOMPATIBILITY";
+            }
+
+            setDownloadError(errorMsg);
+            toast.error("Bridge Connection Failed.");
         }
     };
 
