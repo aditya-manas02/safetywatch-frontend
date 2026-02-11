@@ -270,20 +270,10 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             return;
         }
 
-        console.log('[VERSION_CHECK] Update sequence initiated. Verifying protocols...');
+        console.log('[VERSION_CHECK] Update sequence initiated. Verifying native bridge...');
 
-        // PROACTIVE PLUGIN CHECK: Avoid attempting auto-sync if plugins are missing in old shells
-        const hasFilesystem = Capacitor.isPluginAvailable('Filesystem');
-        const hasFileOpener = Capacitor.isPluginAvailable('FileOpener');
-
-        console.log(`[VERSION_CHECK] Protocols: Filesystem=${hasFilesystem}, FileOpener=${hasFileOpener}`);
-
-        if (!hasFilesystem || !hasFileOpener) {
-            console.warn('[VERSION_CHECK] Native auto-sync protocols missing/unsupported. Reverting to browser download.');
-            toast.info("Legacy shell detected. Initializing secure browser fallback...");
-            forceExternalDownload(downloadUrl);
-            return;
-        }
+        // We no longer pre-emptively block based on isPluginAvailable.
+        // We will attempt the download and only fall back on actual failure.
 
         // Ensure we have permissions for storage on Android
         if (Capacitor.getPlatform() === 'android') {
@@ -340,19 +330,22 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 }, 1000);
             }
         } catch (error: any) {
-            console.error('[VERSION_DL] BRIDGE_FAILURE:', error);
+            console.error('[VERSION_DL] NATIVE_BRIDGE_FAILURE:', error);
             setIsDownloading(false);
 
             const errorMsg = error?.message || "Protocol Bridge Interrupted";
 
-            if (errorMsg.includes("not implemented")) {
-                toast.info("Switching to direct download protocol...");
+            if (errorMsg.includes("not implemented") || errorMsg.includes("plugin") || errorMsg.includes("not available")) {
+                console.warn('[VERSION_DL] Native plugins missing in this shell. Reverting to browser download.');
+                toast.info("Initializing system download fallback...");
             } else {
-                toast.error("In-app update failed. Opening secure browser link...");
+                toast.error("In-app update failed. Opening system browser...");
             }
 
             // Ultimate Fallback: Single trigger redirect
-            forceExternalDownload(downloadUrl);
+            setTimeout(() => {
+                forceExternalDownload(downloadUrl);
+            }, 800);
         }
     };
 
