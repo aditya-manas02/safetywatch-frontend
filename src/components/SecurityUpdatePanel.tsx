@@ -346,21 +346,24 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                     console.log('[VERSION_DL] Stream received. Reassembling binary...');
                     setDownloadProgress(92);
 
-                    const combined = new Uint8Array(receivedLength);
-                    let position = 0;
-                    for (const chunk of chunks) {
-                        combined.set(chunk, position);
-                        position += chunk.length;
-                    }
+                    const blob = new Blob(chunks, { type: 'application/vnd.android.package-archive' });
 
-                    // Convert to base64 for the bridge
-                    const base64Data = btoa(
-                        Array.from(combined)
-                            .map(byte => String.fromCharCode(byte))
-                            .join('')
-                    );
+                    // Convert to base64 using memory-optimized FileReader
+                    const base64Data = await new Promise<string>((resolve, reject) => {
+                        const fileReader = new FileReader();
+                        fileReader.onload = () => {
+                            const result = fileReader.result as string;
+                            if (result && result.includes(',')) {
+                                resolve(result.split(',')[1]);
+                            } else {
+                                reject(new Error("Base64 bridge encoding failed"));
+                            }
+                        };
+                        fileReader.onerror = () => reject(new Error("Memory overflow during encoding"));
+                        fileReader.readAsDataURL(blob);
+                    });
 
-                    setDownloadProgress(95);
+                    setDownloadProgress(97);
 
                     const writeResult = await Filesystem.writeFile({
                         path: fileName,
@@ -371,7 +374,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                     if (writeResult.uri) {
                         finalPath = writeResult.uri;
                         downloadSuccessful = true;
-                        console.log('[VERSION_DL] Protocol B Success (Stream)');
+                        console.log('[VERSION_DL] Protocol B Success (Streamed & Encoded)');
                     }
                 } catch (errB: any) {
                     console.error('[VERSION_DL] Protocol B Multi-Fail:', errB.message);
