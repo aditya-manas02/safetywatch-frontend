@@ -666,9 +666,8 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                             <Activity className="w-3 h-3" /> Binary Verification Protocols Active
                         </span>
                     </div>
-                </div>
+                </motion.div>
             </motion.div>
-        </motion.div>
-        </AnimatePresence >
+        </AnimatePresence>
     );
 }
