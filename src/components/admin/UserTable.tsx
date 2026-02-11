@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Calendar, Shield, ExternalLink, Users, UserCog } from "lucide-react";
+import { User, Mail, Calendar, Shield, ExternalLink, Users, UserCog, Ban } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 
@@ -12,7 +12,7 @@ export interface UserTableProps {
 }
 
 export default function UserTable({ users, onView }: UserTableProps) {
-  const [roleFilter, setRoleFilter] = useState<"all" | "citizens" | "admins">("all");
+  const [roleFilter, setRoleFilter] = useState<"all" | "citizens" | "admins" | "suspended">("all");
   const [areaCodeFilter, setAreaCodeFilter] = useState("");
 
   // Get unique area codes for filter dropdown
@@ -23,6 +23,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
     // Role Filter
     if (roleFilter === "citizens" && (u.roles?.includes("admin") || u.roles?.includes("superadmin"))) return false;
     if (roleFilter === "admins" && !u.roles?.includes("admin") && !u.roles?.includes("superadmin")) return false;
+    if (roleFilter === "suspended" && !u.isSuspended) return false;
 
     // Area Code Filter
     if (areaCodeFilter && u.areaCode !== areaCodeFilter) return false;
@@ -68,6 +69,16 @@ export default function UserTable({ users, onView }: UserTableProps) {
             <UserCog className="h-4 w-4" />
             Admins ({adminCount})
           </button>
+          <button
+            onClick={() => setRoleFilter("suspended")}
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm transition-all whitespace-nowrap min-w-[110px] ${roleFilter === "suspended"
+              ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20"
+              : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent shadow-sm"
+              }`}
+          >
+            <Ban className="h-4 w-4" />
+            Suspended ({users.filter(u => u.isSuspended).length})
+          </button>
         </div>
 
         {/* Area Code Filter */}
@@ -112,7 +123,14 @@ export default function UserTable({ users, onView }: UserTableProps) {
                         )}
                       </div>
                       <div>
-                        <div className="font-bold text-foreground text-sm md:text-base">{u.name || "Anonymous User"}</div>
+                        <div className="font-bold text-foreground text-sm md:text-base flex items-center gap-2">
+                          {u.name || "Anonymous User"}
+                          {u.isSuspended && (
+                            <Badge className="bg-rose-500/10 text-rose-500 border-none h-4 px-1.5 text-[8px] font-black uppercase tracking-tighter">
+                              Suspended
+                            </Badge>
+                          )}
+                        </div>
                         <div className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1.5 break-all font-medium opacity-80">
                           <Mail className="h-3 w-3 flex-shrink-0" /> {u.email}
                         </div>

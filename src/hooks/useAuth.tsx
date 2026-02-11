@@ -10,6 +10,8 @@ interface UserData {
   hasAreaCode?: boolean;
   areaCode?: string;
   profilePicture?: string;
+  isSuspended?: boolean;
+  suspensionExpiresAt?: string | Date;
 }
 
 export interface RateLimitInfo {

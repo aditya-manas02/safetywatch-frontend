@@ -7,6 +7,13 @@ export interface User {
     areaCode?: string;
     roles: string[];
     createdAt: string;
+    isSuspended?: boolean;
+    suspensionExpiresAt?: string | Date;
+    warnings?: {
+        reason: string;
+        date: string;
+        adminId?: string;
+    }[];
 }
 
 export interface Incident {

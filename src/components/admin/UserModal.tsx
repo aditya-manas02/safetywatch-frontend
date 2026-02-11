@@ -1,4 +1,4 @@
-import { X, Shield, Mail, Calendar, Phone, Trash2, Award, UserCheck, AlertTriangle } from "lucide-react";
+import { X, Shield, Mail, Calendar, Phone, Trash2, Award, UserCheck, AlertTriangle, Ban, RefreshCw, Clock, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ export interface UserModalProps {
   onPromote: (id: string) => void;
   onDemote: (id: string) => void;
   onDelete: (id: string) => void;
+  onUnsuspend?: (id: string) => void;
 }
 
 export default function UserModal({
@@ -20,7 +21,8 @@ export default function UserModal({
   onClose,
   onPromote,
   onDemote,
-  onDelete
+  onDelete,
+  onUnsuspend
 }: UserModalProps) {
   if (!user) return null;
 
@@ -99,6 +101,35 @@ export default function UserModal({
               </div>
             </div>
 
+            {/* Suspension Info */}
+            {user.isSuspended && (
+              <div className="p-5 rounded-2xl bg-rose-500/5 border border-rose-500/20 space-y-3 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Ban className="h-12 w-12 text-rose-500" />
+                </div>
+                <div className="flex items-center gap-2 text-rose-500">
+                  <ShieldAlert className="h-4 w-4" />
+                  <span className="text-xs font-black uppercase tracking-widest">Active Restriction</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                    <Clock className="h-3 w-3" /> Duration Policy
+                  </p>
+                  <p className="font-bold text-foreground">
+                    Suspended until {user.suspensionExpiresAt ? format(new Date(user.suspensionExpiresAt), "PPP p") : "Indefinite"}
+                  </p>
+                </div>
+                {user.warnings && user.warnings.length > 0 && (
+                  <div className="border-t border-rose-500/10 pt-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-rose-500/60 mb-1">Last Violation Note</p>
+                    <p className="text-xs font-medium italic opacity-80 leading-relaxed text-muted-foreground">
+                      "{user.warnings[user.warnings.length - 1].reason}"
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Privilege Management */}
             <div className="space-y-4">
               <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Privilege Management</h4>
@@ -118,6 +149,16 @@ export default function UserModal({
                 {isSuperAdmin && !isSelf && (
                   <Button variant="destructive" className="rounded-xl shadow-lg shadow-destructive/20" onClick={() => { if (window.confirm("Permanently delete user profile?")) onDelete(user._id); }}>
                     <Trash2 className="mr-2 h-4 w-4" /> Remove Profile
+                  </Button>
+                )}
+
+                {user.isSuspended && onUnsuspend && (
+                  <Button
+                    variant="outline"
+                    className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20 rounded-xl"
+                    onClick={() => onUnsuspend(user._id)}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" /> Lift Suspension
                   </Button>
                 )}
 
@@ -146,12 +187,12 @@ export default function UserModal({
                         <p className="text-[10px] text-muted-foreground italic font-medium">{(() => { try { return format(new Date(i.createdAt), "Pp"); } catch { return "N/A"; } })()}</p>
                       </div>
                       <Badge className={`capitalize py-0.5 px-3 text-[10px] font-black border-none shadow-sm ${i.status === 'approved'
-                          ? 'bg-emerald-500 text-white'
-                          : i.status === 'pending'
-                            ? 'bg-amber-500 text-white'
-                            : i.status === 'rejected'
-                              ? 'bg-red-500 text-white'
-                              : 'bg-blue-500 text-white'
+                        ? 'bg-emerald-500 text-white'
+                        : i.status === 'pending'
+                          ? 'bg-amber-500 text-white'
+                          : i.status === 'rejected'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-blue-500 text-white'
                         }`}>
                         {i.status}
                       </Badge>

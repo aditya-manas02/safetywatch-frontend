@@ -20,6 +20,7 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { SafetyWatchLoader } from "./components/SafetyWatchLoader";
 import { SecurityUpdatePanel } from "./components/SecurityUpdatePanel";
 import { AreaCodeSelector } from "./components/AreaCodeSelector";
+import { SuspensionModal } from "./components/SuspensionModal";
 
 // Lazy load pages for performance
 const Index = lazy(() => import("./pages/Index"));
@@ -39,7 +40,7 @@ const AppContent = () => {
   const location = useLocation();
   const hideNavbar = ["/admin", "/auth"].some(path => location.pathname.startsWith(path));
 
-  const { isLoading, user, refreshUser } = useAuth();
+  const { isLoading, user, refreshUser, signOut } = useAuth();
   const [minLoadTimePassed, setMinLoadTimePassed] = useState(false);
 
   // Check if user needs to set area code (not superadmin and hasAreaCode is false)
@@ -99,6 +100,11 @@ const AppContent = () => {
     <AnimatedBackground>
 
       {!hideNavbar && <Navbar />}
+      <SuspensionModal
+        isOpen={!!user?.isSuspended}
+        expiresAt={user?.suspensionExpiresAt}
+        onLogout={signOut}
+      />
       <main className={!hideNavbar
         ? "pt-[calc(80px+env(safe-area-inset-top))] md:pt-[96px]"
         : "pt-[env(safe-area-inset-top)]"

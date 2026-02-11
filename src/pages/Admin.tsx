@@ -429,6 +429,16 @@ export default function Admin() {
               const res = await fetch(`${API_BASE}/users/${id}`, { method: "DELETE", headers: getAuthHeaders(token) });
               if (res.ok) { toast({ title: "User Deleted" }); fetchUsers(); setSelectedUser(null); }
             }}
+            onUnsuspend={async (id: string) => {
+              const res = await fetch(`${API_BASE}/users/${id}/unsuspend`, { method: "PATCH", headers: getAuthHeaders(token) });
+              if (res.ok) {
+                toast({ title: "Suspension Lifted" });
+                fetchUsers();
+                setSelectedUser(null);
+              } else {
+                toast({ title: "Failed to unsuspend", variant: "destructive" });
+              }
+            }}
           />
         )
       }
