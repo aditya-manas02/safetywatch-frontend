@@ -100,7 +100,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 setCurrentVersion(current);
             } catch (e) {
                 console.warn('[VERSION_CHECK] Could not get app info, assuming very old version:', e);
-                current = "1.4.5"; // Match production version
+                current = "0.0.0"; // Force update for undetectable versions
                 setCurrentVersion(current);
             }
 
