@@ -193,36 +193,32 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         return false;
     };
 
-    const forceExternalDownload = (url: string) => {
-        // Try multiple methods in sequence to escape the webview
+    const forceExternalDownload = async (url: string) => {
+        console.log('[VERSION_DL] Initializing single-stream download fallback:', url);
+
         try {
-            // Method 1: System Browser Trigger (Most reliable for Capacitor)
-            try {
-                window.open(url, '_system');
-            } catch (e) {
-                console.warn('[VERSION_DL] _system open failed');
+            // Method 1: Capacitor Browser Plugin (Most reliable for modern shells)
+            if (Capacitor.isPluginAvailable('Browser')) {
+                try {
+                    await Browser.open({ url });
+                    return;
+                } catch (e) {
+                    console.warn('[VERSION_DL] Capacitor Browser.open failed, falling back...');
+                }
             }
 
-            // Method 2: Absolute Location Change
-            setTimeout(() => {
-                window.location.href = url;
-            }, 300);
-
-            // Method 3: Android Intent Escape (THE NUCLEAR OPTION)
-            if (url.includes('onrender.com') || url.includes('vercel.app')) {
-                const cleanUrl = url.replace(/^https?:\/\//, '');
-                const intentUrl = `intent://${cleanUrl}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
-                setTimeout(() => {
-                    console.log('[VERSION_DL] Triggering Android Intent Escape:', intentUrl);
-                    window.location.href = intentUrl;
-                }, 600);
+            // Method 2: System Browser Trigger (Standard Capacitor backup)
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    window.open(url, '_system');
+                    return;
+                } catch (e) {
+                    console.warn('[VERSION_DL] window.open _system failed');
+                }
             }
 
-            // Method 4: Fallback to direct redirect via Vercel if needed
-            const vercelFallback = `https://safetywatch.vercel.app/SafetyWatch.apk?t=${Date.now()}`;
-            setTimeout(() => {
-                window.open(vercelFallback, '_blank');
-            }, 1200);
+            // Method 3: Absolute Redirection (Web fallback)
+            window.location.href = url;
 
         } catch (e) {
             console.error('[VERSION_DL] Hyper-fallback failed:', e);
@@ -269,16 +265,22 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
     const startDownload = async () => {
         const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
-        if (!downloadUrl) return;
+        if (!downloadUrl) {
+            toast.error("Update source URL missing.");
+            return;
+        }
+
+        console.log('[VERSION_CHECK] Update sequence initiated. Verifying protocols...');
 
         // PROACTIVE PLUGIN CHECK: Avoid attempting auto-sync if plugins are missing in old shells
-        const canAutoSync = Capacitor.isPluginAvailable('Filesystem') &&
-            Capacitor.isPluginAvailable('FileOpener');
+        const hasFilesystem = Capacitor.isPluginAvailable('Filesystem');
+        const hasFileOpener = Capacitor.isPluginAvailable('FileOpener');
 
-        if (!canAutoSync) {
-            console.warn('[VERSION_CHECK] Native auto-sync protocols missing in this shell. Reverting to browser download.');
-            toast.info("Legacy shell detected. Initializing hyper-fallback...");
+        console.log(`[VERSION_CHECK] Protocols: Filesystem=${hasFilesystem}, FileOpener=${hasFileOpener}`);
 
+        if (!hasFilesystem || !hasFileOpener) {
+            console.warn('[VERSION_CHECK] Native auto-sync protocols missing/unsupported. Reverting to browser download.');
+            toast.info("Legacy shell detected. Initializing secure browser fallback...");
             forceExternalDownload(downloadUrl);
             return;
         }
@@ -287,59 +289,55 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         if (Capacitor.getPlatform() === 'android') {
             try {
                 const status = await Filesystem.checkPermissions();
+                console.log('[VERSION_CHECK] Storage permissions status:', status.publicStorage);
                 if (status.publicStorage !== 'granted') {
-                    await Filesystem.requestPermissions();
+                    const req = await Filesystem.requestPermissions();
+                    if (req.publicStorage !== 'granted') {
+                        throw new Error("Storage permission denied");
+                    }
                 }
-            } catch (e) {
-                console.warn('[VERSION_CHECK] Permission check failed:', e);
+            } catch (e: any) {
+                console.warn('[VERSION_CHECK] Permission resolution failed:', e);
+                toast.error("Storage access required for in-app update.");
+                forceExternalDownload(downloadUrl);
+                return;
             }
         }
 
         setIsDownloading(true);
-        setDownloadProgress(2); // Start at 2% for visual feedback
+        setDownloadProgress(5);
 
         try {
-            console.log('[VERSION_CHECK] Starting in-app download:', downloadUrl);
             const fileName = `SafetyWatch_v${versionInfo?.version.replace(/\./g, '_') || 'latest'}.apk`;
+            console.log('[VERSION_DL] Downloading via Filesystem bridge:', fileName);
 
+            // Using Directory.Documents for better visibility on Android if Cache is restricted
             const downloadResult = await Filesystem.downloadFile({
                 url: downloadUrl,
                 path: fileName,
-                directory: Directory.Cache,
+                directory: Directory.Data, // Switched to Data for permanence during install
                 progress: true
             });
 
-            // Simulated progress logic for smoother visual transition
-            let progress = 5;
-            const interval = setInterval(() => {
-                progress += Math.floor(Math.random() * 8) + 2;
-                if (progress > 95) {
-                    clearInterval(interval);
-                } else {
-                    setDownloadProgress(progress);
-                }
-            }, 400);
-
             if (downloadResult.path) {
-                console.log('[VERSION_DL] Bridge success -> cache:', downloadResult.path);
-                clearInterval(interval);
+                console.log('[VERSION_DL] Bridge success -> Saved to:', downloadResult.path);
                 setDownloadProgress(100);
 
-                // Get absolute URI for the native package installer
                 const uriResult = await Filesystem.getUri({
                     path: fileName,
-                    directory: Directory.Cache
+                    directory: Directory.Data
                 });
 
+                console.log('[VERSION_DL] Resolved native URI:', uriResult.uri);
                 setDownloadedFileUri(uriResult.uri);
                 setIsDownloaded(true);
                 setIsDownloading(false);
                 toast.success("Security Binary Received. Ready for local deployment.");
 
-                // Auto-trigger installation after verification buffer
+                // Auto-trigger installation
                 setTimeout(() => {
                     handleInstall();
-                }, 800);
+                }, 1000);
             }
         } catch (error: any) {
             console.error('[VERSION_DL] BRIDGE_FAILURE:', error);
@@ -347,19 +345,14 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
             const errorMsg = error?.message || "Protocol Bridge Interrupted";
 
-            // If it's a "not implemented" error, we don't show a scary message, just switch to browser
             if (errorMsg.includes("not implemented")) {
                 toast.info("Switching to direct download protocol...");
             } else {
-                toast.error(`Auto-sync failed: ${errorMsg.slice(0, 30)}. Opening browser...`);
+                toast.error("In-app update failed. Opening secure browser link...");
             }
 
-            // Ultimate Fallback: Direct window redirect. This is the "Nuclear" option.
-            // If the native bridge is broken, the browser will catch this.
-            setTimeout(() => {
-                console.log('[VERSION_DL] Executing Hyper-Fallback Redirect:', downloadUrl);
-                forceExternalDownload(downloadUrl);
-            }, 1000);
+            // Ultimate Fallback: Single trigger redirect
+            forceExternalDownload(downloadUrl);
         }
     };
 
