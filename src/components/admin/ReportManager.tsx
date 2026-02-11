@@ -27,6 +27,7 @@ interface Report {
     status: "pending" | "reviewed" | "resolved";
     adminAction: "none" | "warned" | "suspended";
     createdAt: string;
+    screenshot?: string;
 }
 
 export default function ReportManager() {
@@ -191,33 +192,51 @@ export default function ReportManager() {
                                     </div>
                                 </div>
 
-                                {report.status === 'pending' && (
-                                    <div className="flex flex-row md:flex-col gap-2 justify-end shrink-0 border-t md:border-t-0 md:border-l border-border/50 pt-4 md:pt-0 md:pl-6">
-                                        <Button
-                                            size="sm"
-                                            onClick={() => openActionModal(report, "warn")}
-                                            className="h-8 text-[10px] font-black uppercase tracking-widest bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-lg shadow-amber-500/20"
-                                        >
-                                            <AlertTriangle className="h-3.5 w-3.5 mr-1" /> Warn
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            onClick={() => openActionModal(report, "suspend")}
-                                            className="h-8 text-[10px] font-black uppercase tracking-widest bg-rose-500 hover:bg-rose-600 text-white rounded-lg shadow-lg shadow-rose-500/20"
-                                        >
-                                            <Ban className="h-3.5 w-3.5 mr-1" /> Suspend
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => openActionModal(report, "dismiss")}
-                                            className="h-8 text-[10px] font-black uppercase tracking-widest border-border/50 hover:bg-muted rounded-lg"
-                                        >
-                                            Dismiss
-                                        </Button>
+                                {report.screenshot && (
+                                    <div className="mt-4">
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1">
+                                            <ShieldAlert className="h-3 w-3" /> Evidence Screenshot
+                                        </p>
+                                        <a href={report.screenshot} target="_blank" rel="noopener noreferrer" className="block relative group overflow-hidden rounded-xl border border-border/50 max-w-sm">
+                                            <img
+                                                src={report.screenshot}
+                                                alt="Report Evidence"
+                                                className="w-full h-40 object-cover transition-transform group-hover:scale-105"
+                                            />
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <span className="text-white text-xs font-bold px-3 py-1 bg-black/50 rounded-full backdrop-blur-sm">View Full Size</span>
+                                            </div>
+                                        </a>
                                     </div>
                                 )}
                             </div>
+
+                            {report.status === 'pending' && (
+                                <div className="flex flex-row md:flex-col gap-2 justify-end shrink-0 border-t md:border-t-0 md:border-l border-border/50 pt-4 md:pt-0 md:pl-6">
+                                    <Button
+                                        size="sm"
+                                        onClick={() => openActionModal(report, "warn")}
+                                        className="h-8 text-[10px] font-black uppercase tracking-widest bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-lg shadow-amber-500/20"
+                                    >
+                                        <AlertTriangle className="h-3.5 w-3.5 mr-1" /> Warn
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => openActionModal(report, "suspend")}
+                                        className="h-8 text-[10px] font-black uppercase tracking-widest bg-rose-500 hover:bg-rose-600 text-white rounded-lg shadow-lg shadow-rose-500/20"
+                                    >
+                                        <Ban className="h-3.5 w-3.5 mr-1" /> Suspend
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => openActionModal(report, "dismiss")}
+                                        className="h-8 text-[10px] font-black uppercase tracking-widest border-border/50 hover:bg-muted rounded-lg"
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     ))
                 )}
@@ -285,6 +304,6 @@ export default function ReportManager() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }

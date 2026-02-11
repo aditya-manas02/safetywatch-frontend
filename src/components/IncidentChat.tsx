@@ -69,6 +69,7 @@ export function IncidentChat({ incidentId, incidentOwnerId, otherUserId, inciden
     const [reportTargetId, setReportTargetId] = useState<string | null>(null);
     const [reportReason, setReportReason] = useState("");
     const [reportCategory, setReportCategory] = useState("harassment");
+    const [reportScreenshot, setReportScreenshot] = useState<File | null>(null);
     const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
     const fetchMessages = async () => {
@@ -169,20 +170,29 @@ export function IncidentChat({ incidentId, incidentOwnerId, otherUserId, inciden
 
         setIsSubmittingReport(true);
         try {
+            const formData = new FormData();
+            formData.append("reportedUserId", reportType === "user" ? otherUserId! : messages.find(m => m._id === reportTargetId)?.senderId._id!);
+            if (reportType === "message") formData.append("messageId", reportTargetId!);
+            formData.append("reason", `${reportCategory.toUpperCase()}: ${reportReason}`);
+
+            if (reportScreenshot) {
+                formData.append("screenshot", reportScreenshot);
+            }
+
             const res = await fetch(`${API_BASE}/incidents/${incidentId}/report`, {
                 method: "POST",
-                headers: getAuthHeaders(token),
-                body: JSON.stringify({
-                    reportedUserId: reportType === "user" ? otherUserId : messages.find(m => m._id === reportTargetId)?.senderId._id,
-                    messageId: reportType === "message" ? reportTargetId : undefined,
-                    reason: `${reportCategory.toUpperCase()}: ${reportReason}`
-                })
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                    // Content-Type is handled automatically by browser for FormData
+                },
+                body: formData
             });
 
             if (res.ok) {
                 toast.success("Report submitted successfully. Admins will review it.");
                 setIsReportModalOpen(false);
                 setReportReason("");
+                setReportScreenshot(null);
             } else {
                 toast.error("Failed to submit report");
             }
@@ -196,6 +206,7 @@ export function IncidentChat({ incidentId, incidentOwnerId, otherUserId, inciden
     const openReportModal = (type: "user" | "message", id?: string) => {
         setReportType(type);
         setReportTargetId(id || null);
+        setReportScreenshot(null);
         setIsReportModalOpen(true);
     };
 
@@ -505,6 +516,16 @@ export function IncidentChat({ incidentId, incidentOwnerId, otherUserId, inciden
                                 value={reportReason}
                                 onChange={(e) => setReportReason(e.target.value)}
                                 className="min-h-[100px] bg-muted/30 border-border/50 rounded-2xl text-sm focus-visible:ring-rose-500/30"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Evidence (Optional)</Label>
+                            <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setReportScreenshot(e.target.files?.[0] || null)}
+                                className="bg-muted/30 border-border/50 rounded-xl text-sm file:mr-4 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-rose-500/10 file:text-rose-500 hover:file:bg-rose-500/20"
                             />
                         </div>
                     </div>
