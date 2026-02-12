@@ -22,7 +22,7 @@ import {
 export default function Profile() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { user, isLoading: authLoading } = useAuth();
+    const { user, isLoading: authLoading, signOut } = useAuth();
 
     const [myReports, setMyReports] = useState<any[]>([]);
     const [loadingReports, setLoadingReports] = useState(false);
@@ -417,9 +417,12 @@ export default function Profile() {
                 throw new Error(data.message || "Failed to leave area code");
             }
 
-            toast({ title: "Success", description: "You have left the area." });
-            // Reload to show AreaCodeSelector
-            window.location.reload();
+            toast({ title: "Success", description: "You have left the area. You will be logged out now." });
+
+            // Wait a moment for the toast to be seen
+            setTimeout(() => {
+                signOut();
+            }, 1000);
 
         } catch (err: any) {
             toast({ title: "Error", description: err.message, variant: "destructive" });
