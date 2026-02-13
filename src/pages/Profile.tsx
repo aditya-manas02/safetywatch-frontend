@@ -230,7 +230,7 @@ export default function Profile() {
             // 1. Upload Image
             const uploadRes = await fetch(`${API_BASE}/upload?folder=profiles`, {
                 method: "POST",
-                headers: getAuthHeaders(token),
+                headers: getAuthHeaders(token, true),
                 body: formData
             });
 
