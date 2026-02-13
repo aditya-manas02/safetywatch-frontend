@@ -1,0 +1,15 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Allow: /auth
+Allow: /privacy
+Allow: /terms
+Allow: /leaderboard
+
+# Disallow private/admin routes
+Disallow: /admin
+Disallow: /profile
+Disallow: /inbox
+Disallow: /support
+
+Sitemap: https://safetywatch.live/sitemap.xml

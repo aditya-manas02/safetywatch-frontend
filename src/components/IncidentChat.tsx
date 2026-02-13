@@ -181,7 +181,10 @@ export function IncidentChat({ incidentId, incidentOwnerId, otherUserId, inciden
 
             const res = await fetch(`${API_BASE}/incidents/${incidentId}/report`, {
                 method: "POST",
-                headers: getAuthHeaders(token, true),
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                    // Content-Type is handled automatically by browser for FormData
+                },
                 body: formData
             });
 

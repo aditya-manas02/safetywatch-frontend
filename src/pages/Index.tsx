@@ -203,7 +203,7 @@ export default function Index() {
         const token = localStorage.getItem("token");
         const uploadResp = await fetch(`${API_BASE}/upload`, {
           method: "POST",
-          headers: getAuthHeaders(token, true),
+          headers: getAuthHeaders(token),
           body: form,
         });
         const uploadData = await uploadResp.json();

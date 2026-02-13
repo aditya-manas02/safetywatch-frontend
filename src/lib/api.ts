@@ -11,8 +11,8 @@ export const VERSION_HEADERS = {
     "x-app-version": "1.4.5"
 };
 
-export const getAuthHeaders = (token: string | null, isFormData: boolean = false) => ({
+export const getAuthHeaders = (token: string | null) => ({
     ...VERSION_HEADERS,
     ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-    ...(!isFormData ? { "Content-Type": "application/json" } : {})
+    "Content-Type": "application/json"
 });
