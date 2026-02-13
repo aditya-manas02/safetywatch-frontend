@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Megaphone, Send, Loader2, History, ExternalLink, Calendar, Trash2 } from "lucide-react";
+import { Megaphone, Send, Loader2, History, ExternalLink, Calendar, Trash2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,8 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 export default function CreateAnnouncement() {
+    const { user, isSuperAdmin } = useAuth();
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
     const [link, setLink] = useState("");
@@ -18,6 +23,12 @@ export default function CreateAnnouncement() {
     const [history, setHistory] = useState<any[]>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+
+    // Area code filtering states
+    const [areaCodes, setAreaCodes] = useState<any[]>([]);
+    const [loadingAreaCodes, setLoadingAreaCodes] = useState(false);
+    const [broadcastType, setBroadcastType] = useState<"global" | "specific">("global");
+    const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
 
     const fetchHistory = useCallback(async () => {
         setLoadingHistory(true);
@@ -39,7 +50,27 @@ export default function CreateAnnouncement() {
 
     useEffect(() => {
         fetchHistory();
-    }, [fetchHistory]);
+        if (isSuperAdmin) {
+            fetchAreaCodes();
+        }
+    }, [fetchHistory, isSuperAdmin]);
+
+    const fetchAreaCodes = async () => {
+        setLoadingAreaCodes(true);
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE}/area-codes`, {
+                headers: getAuthHeaders(token || "")
+            });
+            if (!res.ok) throw new Error("Failed to fetch area codes");
+            const data = await res.json();
+            setAreaCodes(data.filter((ac: any) => ac.isActive));
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingAreaCodes(false);
+        }
+    };
 
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this announcement for everyone?")) return;
@@ -79,21 +110,42 @@ export default function CreateAnnouncement() {
                 }
             }
 
+            // Determine targetAreaCodes based on user role and selection
+            let targetAreaCodes: string[] = [];
+            if (isSuperAdmin && broadcastType === "specific") {
+                targetAreaCodes = selectedAreas;
+            }
+            // For normal admin, backend will handle forcing their area code
+
             const res = await fetch(`${API_BASE}/notifications/announcement`, {
                 method: "POST",
                 headers: getAuthHeaders(token || ""),
-                body: JSON.stringify({ title, message, link: normalizedLink || null })
+                body: JSON.stringify({
+                    title,
+                    message,
+                    link: normalizedLink || null,
+                    targetAreaCodes
+                })
             });
 
-            if (!res.ok) throw new Error("Failed to send announcement");
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || "Failed to send announcement");
+            }
 
-            toast({ title: "Announcement Sent", description: "All users have been notified." });
+            const successMsg = isSuperAdmin
+                ? (broadcastType === "global" ? "All users have been notified." : `Users in ${selectedAreas.length} area(s) have been notified.`)
+                : `Users in your area (${user?.areaCode}) have been notified.`;
+
+            toast({ title: "Announcement Sent", description: successMsg });
             setTitle("");
             setMessage("");
             setLink("");
+            setBroadcastType("global");
+            setSelectedAreas([]);
             fetchHistory(); // Refresh history
-        } catch (err) {
-            toast({ title: "Failed to send", variant: "destructive" });
+        } catch (err: any) {
+            toast({ title: "Failed to send", description: err.message || "Unknown error", variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -145,6 +197,81 @@ export default function CreateAnnouncement() {
                                     className="bg-muted/50 min-h-[100px] rounded-xl focus:ring-2 focus:ring-primary/50 p-4"
                                 />
                             </div>
+
+                            {/* Area Code Selection - Super Admin Only */}
+                            {isSuperAdmin && (
+                                <div className="md:col-span-2 space-y-4 p-4 bg-muted/30 rounded-xl border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="h-4 w-4 text-primary" />
+                                        <label className="text-sm font-bold text-foreground">Target Audience</label>
+                                    </div>
+
+                                    <RadioGroup value={broadcastType} onValueChange={(val: any) => setBroadcastType(val)}>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="global" id="global" />
+                                            <Label htmlFor="global" className="cursor-pointer">Global (All Users)</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="specific" id="specific" />
+                                            <Label htmlFor="specific" className="cursor-pointer">Specific Area Codes</Label>
+                                        </div>
+                                    </RadioGroup>
+
+                                    {broadcastType === "specific" && (
+                                        <div className="space-y-3 pl-6 border-l-2 border-primary/20">
+                                            {loadingAreaCodes ? (
+                                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    Loading area codes...
+                                                </div>
+                                            ) : areaCodes.length === 0 ? (
+                                                <p className="text-sm text-muted-foreground">No area codes available</p>
+                                            ) : (
+                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[200px] overflow-y-auto">
+                                                    {areaCodes.map((ac) => (
+                                                        <div key={ac.code} className="flex items-center space-x-2">
+                                                            <Checkbox
+                                                                id={ac.code}
+                                                                checked={selectedAreas.includes(ac.code)}
+                                                                onCheckedChange={(checked) => {
+                                                                    if (checked) {
+                                                                        setSelectedAreas([...selectedAreas, ac.code]);
+                                                                    } else {
+                                                                        setSelectedAreas(selectedAreas.filter(c => c !== ac.code));
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <Label
+                                                                htmlFor={ac.code}
+                                                                className="text-sm cursor-pointer font-medium"
+                                                            >
+                                                                {ac.code}
+                                                            </Label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {selectedAreas.length > 0 && (
+                                                <Badge variant="outline" className="bg-primary/10 text-primary">
+                                                    {selectedAreas.length} area(s) selected
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Normal Admin - Area Restriction Message */}
+                            {!isSuperAdmin && user?.areaCode && (
+                                <div className="md:col-span-2 p-4 bg-primary/5 rounded-xl border border-primary/20">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <MapPin className="h-4 w-4 text-primary" />
+                                        <span className="font-medium text-foreground">
+                                            📢 Broadcasting to your area: <strong className="text-primary">{user.areaCode}</strong>
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <Button
