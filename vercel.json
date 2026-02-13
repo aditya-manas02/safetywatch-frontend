@@ -13,7 +13,7 @@
     ],
     "rewrites": [
         {
-            "source": "/(.*)",
+            "source": "/((?!SafetyWatch\\.apk|sitemap\\.xml|robots\\.txt|version\\.json).*)",
             "destination": "/index.html"
         }
     ]
