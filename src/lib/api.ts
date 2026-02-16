@@ -8,7 +8,7 @@ export const BASE_URL = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 export const API_BASE = `${BASE_URL}/api`;
 
 export const VERSION_HEADERS = {
-    "x-app-version": "1.4.5"
+    "x-app-version": "1.4.6"
 };
 
 export const getAuthHeaders = (token: string | null) => ({
