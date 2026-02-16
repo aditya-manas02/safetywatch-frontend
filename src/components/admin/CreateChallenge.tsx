@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,11 @@ import { Target, Calendar, Award, Shield, Flame, Activity, Zap, Users } from "lu
 import { cn } from "@/lib/utils";
 
 export default function CreateChallenge() {
-    const { token, user } = useAuth();
+    const { token, user, isSuperAdmin } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [areas, setAreas] = useState<any[]>([]);
+    const [fetchingAreas, setFetchingAreas] = useState(false);
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -24,6 +27,25 @@ export default function CreateChallenge() {
         points: 100,
         areaCode: user?.areaCode || ""
     });
+
+    useEffect(() => {
+        if (isSuperAdmin) {
+            const fetchAreas = async () => {
+                setFetchingAreas(true);
+                try {
+                    const res = await fetch(`${API_BASE}/area-codes`, {
+                        headers: getAuthHeaders(token)
+                    });
+                    if (res.ok) setAreas(await res.json());
+                } catch (err) {
+                    console.error("Failed to fetch areas", err);
+                } finally {
+                    setFetchingAreas(false);
+                }
+            };
+            fetchAreas();
+        }
+    }, [isSuperAdmin, token]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -135,6 +157,25 @@ export default function CreateChallenge() {
                                 className="bg-white/5 border-white/10 rounded-xl"
                             />
                         </div>
+
+                        {isSuperAdmin && (
+                            <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Target Area</Label>
+                                <Select onValueChange={(v) => setFormData({ ...formData, areaCode: v })} value={formData.areaCode}>
+                                    <SelectTrigger className="bg-white/5 border-white/10 rounded-xl">
+                                        <SelectValue placeholder="Select Area" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="">GLOBAL (ALL AREAS)</SelectItem>
+                                        {areas.map(area => (
+                                            <SelectItem key={area.code} value={area.code}>
+                                                {area.name} ({area.code})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
 
                         <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Select Icon</Label>
