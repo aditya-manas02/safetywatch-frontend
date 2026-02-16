@@ -50,20 +50,24 @@ export default function AdManager() {
 
         setUploading(true);
         const data = new FormData();
-        data.append("file", file);
-        data.append("upload_preset", "safetywatch_unsigned");
+        data.append("image", file); // Must match backend key: "image"
 
         try {
-            const res = await fetch(`https://api.cloudinary.com/v1_1/dmod7m7v2/image/upload`, {
+            const res = await fetch(`${API_BASE}/upload?folder=ads`, {
                 method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
                 body: data
             });
             const result = await res.json();
-            setFormData({ ...formData, imageUrl: result.secure_url });
-            setImagePreview(result.secure_url);
+            if (!res.ok) throw new Error(result.error || "Upload failed");
+
+            setFormData({ ...formData, imageUrl: result.url });
+            setImagePreview(result.url);
             toast.success("Image uploaded successfully");
-        } catch (err) {
-            toast.error("Image upload failed");
+        } catch (err: any) {
+            toast.error(err.message || "Image upload failed");
         } finally {
             setUploading(false);
         }
