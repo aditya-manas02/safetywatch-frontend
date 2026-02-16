@@ -51,10 +51,15 @@ export default function CreateChallenge() {
         e.preventDefault();
         setLoading(true);
         try {
+            const payload = {
+                ...formData,
+                areaCode: formData.areaCode === "GLOBAL" ? "" : formData.areaCode
+            };
+
             const res = await fetch(`${API_BASE}/challenges`, {
                 method: "POST",
                 headers: getAuthHeaders(token),
-                body: JSON.stringify(formData)
+                body: JSON.stringify(payload)
             });
 
             if (!res.ok) throw new Error("Failed to create challenge");
@@ -166,7 +171,7 @@ export default function CreateChallenge() {
                                         <SelectValue placeholder="Select Area" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">GLOBAL (ALL AREAS)</SelectItem>
+                                        <SelectItem value="GLOBAL">GLOBAL (ALL AREAS)</SelectItem>
                                         {areas.map(area => (
                                             <SelectItem key={area.code} value={area.code}>
                                                 {area.name} ({area.code})
