@@ -32,7 +32,6 @@ import {
   ThumbsUp,
   Share2,
   Copy,
-  Twitter,
   Instagram,
   ExternalLink,
   MessageCircle,
@@ -463,19 +462,19 @@ export function IncidentCard({
                   variant="outline"
                   size="sm"
                   onClick={() => handleShare("whatsapp")}
-                  className="bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20 h-9 w-9 p-0 rounded-lg"
+                  className="bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20 h-9 w-9 p-0 rounded-lg group"
                   title="Share on WhatsApp"
                 >
-                  <MessageCircle className="h-4 w-4 fill-green-500/20" />
+                  <img src="/assets/whatsapp.svg" alt="WhatsApp" className="h-5 w-5 transition-transform group-hover:scale-110" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleShare("twitter")}
-                  className="bg-white/5 hover:bg-white/10 text-white border-white/10 h-9 w-9 p-0 rounded-lg"
+                  className="bg-white/5 hover:bg-white/10 text-white border-white/10 h-9 w-9 p-0 rounded-lg group"
                   title="Share on X"
                 >
-                  <XIcon className="h-4 w-4" />
+                  <img src="/assets/x.svg" alt="X" className="h-4 w-4 transition-transform group-hover:scale-110 invert dark:invert-0" />
                 </Button>
                 <Button
                   variant="outline"
