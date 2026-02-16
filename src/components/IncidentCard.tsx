@@ -28,7 +28,15 @@ import {
   Lock,
   Send,
   CornerDownRight,
-  ShieldCheck
+  ShieldCheck,
+  ThumbsUp,
+  Share2,
+  Copy,
+  Twitter,
+  Instagram,
+  ExternalLink,
+  Check,
+  X as XIcon
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -60,6 +68,11 @@ export interface Incident {
   isImportant?: boolean;
   allowMessages?: boolean;
   replies?: Message[];
+  helpfulUpvotes?: string[];
+  resolutionVotes?: {
+    yes: string[];
+    no: string[];
+  };
   [key: string]: any;
 }
 
@@ -100,6 +113,16 @@ export function IncidentCard({
   const [isDialogOpen, setIsDialogOpen] = useState(defaultOpen);
   const [isAcknowledged, setIsAcknowledged] = useState(false);
   const [isAcknowledgeLoading, setIsAcknowledgeLoading] = useState(false);
+  const [upvotes, setUpvotes] = useState(incident.helpfulUpvotes?.length || 0);
+  const [hasUpvoted, setHasUpvoted] = useState(incident.helpfulUpvotes?.includes(user?.id || ""));
+  const [resVotes, setResVotes] = useState({
+    yes: incident.resolutionVotes?.yes?.length || 0,
+    no: incident.resolutionVotes?.no?.length || 0
+  });
+  const [userResVote, setUserResVote] = useState<"yes" | "no" | null>(
+    incident.resolutionVotes?.yes?.includes(user?.id || "") ? "yes" :
+      incident.resolutionVotes?.no?.includes(user?.id || "") ? "no" : null
+  );
 
   const handleConfirm = async () => {
     if (!user) {
@@ -137,6 +160,74 @@ export function IncidentCard({
       });
     } finally {
       setIsAcknowledgeLoading(false);
+    }
+  };
+
+  const handleUpvote = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Please sign in to upvote reports");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/incidents/${incident.id}/upvote`, {
+        method: "PATCH",
+        headers: getAuthHeaders(token)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUpvotes(data.upvotes);
+        setHasUpvoted(!hasUpvoted);
+      }
+    } catch (err) {
+      console.error("Upvote failed:", err);
+    }
+  };
+
+  const handleResolutionVote = async (vote: "yes" | "no") => {
+    if (!user) {
+      toast.error("Please sign in to vote");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/incidents/${incident.id}/resolution-vote`, {
+        method: "PATCH",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ vote })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResVotes(data.resolutionVotes);
+        setUserResVote(vote);
+        toast.success(`You voted ${vote === "yes" ? "Yes" : "No"}`);
+      }
+    } catch (err) {
+      console.error("Resolution vote failed:", err);
+    }
+  };
+
+  const handleShare = (platform: string) => {
+    const url = `${window.location.origin}/?incident=${incident.id}`;
+    const text = `Safety Alert: ${incident.title} at ${incident.location}. Check details on SafetyWatch.`;
+
+    switch (platform) {
+      case "whatsapp":
+        window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`, "_blank");
+        break;
+      case "twitter":
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank");
+        break;
+      case "instagram":
+        // Instagram doesn't have a direct share URL for web links, so we copy and inform
+        navigator.clipboard.writeText(url);
+        toast.success("Link copied! You can now paste it in your Instagram story or bio.");
+        break;
+      case "copy":
+        navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard");
+        break;
     }
   };
 
@@ -231,6 +322,20 @@ export function IncidentCard({
               {/* Image Section */}
               <div className="px-5 pb-5">
                 <div className="relative w-full h-52 overflow-hidden rounded-[1.5rem] bg-muted/30">
+                  <div className="absolute top-4 right-4 z-20 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className={cn(
+                        "rounded-full h-8 px-3 text-[10px] font-bold backdrop-blur-md border-white/10 transition-all",
+                        hasUpvoted ? "bg-orange-500 text-white" : "bg-black/40 text-white/80 hover:bg-black/60"
+                      )}
+                      onClick={handleUpvote}
+                    >
+                      <ThumbsUp className={cn("h-3.5 w-3.5 mr-1.5", hasUpvoted && "fill-white")} />
+                      {upvotes}
+                    </Button>
+                  </div>
                   {incident.imageUrl ? (
                     <img
                       src={incident.imageUrl}
@@ -351,8 +456,47 @@ export function IncidentCard({
             </div>
 
             {/* QUICK ACTIONS BAR */}
-            {(incident.allowMessages !== false) && incident.status !== "problem solved" && (
-              <div className="mx-8 mb-2 flex justify-end">
+            <div className="mx-8 mb-2 flex items-center justify-between">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare("whatsapp")}
+                  className="bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20 h-9 w-9 p-0 rounded-lg"
+                  title="Share on WhatsApp"
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare("twitter")}
+                  className="bg-blue-400/10 hover:bg-blue-400/20 text-blue-400 border-blue-400/20 h-9 w-9 p-0 rounded-lg"
+                  title="Share on X"
+                >
+                  <Twitter className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare("instagram")}
+                  className="bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border-pink-500/20 h-9 w-9 p-0 rounded-lg"
+                  title="Share on Instagram"
+                >
+                  <Instagram className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare("copy")}
+                  className="bg-slate-400/10 hover:bg-slate-400/20 text-slate-400 border-slate-400/20 h-9 w-9 p-0 rounded-lg"
+                  title="Copy Link"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {(incident.allowMessages !== false) && incident.status !== "problem solved" && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -362,8 +506,8 @@ export function IncidentCard({
                   <MessageSquare className="h-3.5 w-3.5" />
                   Message Reporter
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* SCROLL AREA */}
             <div className="flex-1 overflow-y-auto p-8 pt-6 space-y-10 pb-32 custom-scrollbar">
@@ -402,6 +546,46 @@ export function IncidentCard({
                   "{typeof incident.description === 'string' ? incident.description : (incident.description ? JSON.stringify(incident.description) : "Official report analysis pending for this entry.")}"
                 </div>
               </div>
+
+              {/* RESOLUTION VOTING SECTION */}
+              {incident.status !== "problem solved" && incident.status !== "rejected" && (
+                <div className="space-y-6 bg-white/5 border border-white/10 p-8 rounded-3xl">
+                  <div className="flex items-center gap-2 text-primary/80 font-black text-[10px] uppercase tracking-[0.3em] pl-1">
+                    <Activity className="h-4 w-4" /> Community Resolution Verification
+                  </div>
+                  <h4 className="text-xl font-bold text-white">Was this incident resolved?</h4>
+                  <p className="text-sm text-slate-400">Help the community by confirming if the issue has been addressed.</p>
+
+                  <div className="flex gap-4">
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "flex-1 h-14 rounded-2xl gap-3 text-sm font-black transition-all",
+                        userResVote === "yes"
+                          ? "bg-emerald-500/20 border-emerald-500 text-emerald-400"
+                          : "bg-white/5 border-white/10 text-white hover:bg-emerald-500/10"
+                      )}
+                      onClick={() => handleResolutionVote("yes")}
+                    >
+                      <CheckCircle2 className="h-5 w-5" />
+                      YES ({resVotes.yes})
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "flex-1 h-14 rounded-2xl gap-3 text-sm font-black transition-all",
+                        userResVote === "no"
+                          ? "bg-rose-500/20 border-rose-500 text-rose-400"
+                          : "bg-white/5 border-white/10 text-white hover:bg-rose-500/10"
+                      )}
+                      onClick={() => handleResolutionVote("no")}
+                    >
+                      <XCircle className="h-5 w-5" />
+                      NO ({resVotes.no})
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* MESSAGING SECTION */}
               {(incident.allowMessages !== false) && user?.id !== incident.userId && (

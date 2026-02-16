@@ -13,7 +13,8 @@ import {
   MessageSquare,
   Megaphone,
   Flag,
-  MapPin
+  MapPin,
+  Vote
 } from "lucide-react";
 
 interface Props {
@@ -34,6 +35,7 @@ export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isS
     { id: "areacodes", label: "Area Codes", icon: MapPin },
     { id: "support", label: "Support", icon: LifeBuoy },
     { id: "reports", label: "Reports", icon: Flag },
+    { id: "polls", label: "Polls", icon: Vote },
     { id: "announcements", label: "Broadcast", icon: Megaphone },
     { id: "activity", label: "Activity", icon: Activity },
   ];

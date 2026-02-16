@@ -37,6 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import IncidentCarousel from "@/components/IncidentCarousel";
 import { API_BASE, VERSION_HEADERS, getAuthHeaders } from "@/lib/api";
 import AppDownloadSection from "@/components/AppDownloadSection";
+import PollsWidget from "@/components/PollsWidget";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -64,7 +65,9 @@ export default function Index() {
       });
       if (resp.ok) {
         const data = await resp.json();
-        setFocusedIncident(mapIncident(data));
+        const incident = mapIncident(data);
+        setFocusedIncident(incident);
+        updateMetaTags(incident);
       }
     } catch (err) {
       console.error("Failed to fetch focused incident:", err);
@@ -229,6 +232,35 @@ export default function Index() {
     }
   }
 
+  function updateMetaTags(incident: Incident) {
+    document.title = `${incident.title} | SafetyWatch`;
+    const metaTags = [
+      { property: 'og:title', content: incident.title },
+      { property: 'og:description', content: incident.description },
+      { property: 'og:image', content: incident.imageUrl || '/og-image.png' },
+      { property: 'og:url', content: window.location.href },
+      { name: 'twitter:title', content: incident.title },
+      { name: 'twitter:description', content: incident.description },
+      { name: 'twitter:image', content: incident.imageUrl || '/og-image.png' }
+    ];
+
+    metaTags.forEach(tag => {
+      let element = tag.property
+        ? document.querySelector(`meta[property="${tag.property}"]`)
+        : document.querySelector(`meta[name="${tag.name}"]`);
+
+      if (element) {
+        element.setAttribute('content', String(tag.content));
+      } else {
+        element = document.createElement('meta');
+        if (tag.property) element.setAttribute('property', tag.property);
+        if (tag.name) element.setAttribute('name', tag.name);
+        element.setAttribute('content', String(tag.content));
+        document.head.appendChild(element);
+      }
+    });
+  }
+
   return (
     <motion.div
       className="min-h-screen bg-background text-foreground"
@@ -355,6 +387,7 @@ export default function Index() {
 
           {/* RIGHT: ASIDE */}
           <aside className="space-y-10">
+            <PollsWidget />
             <NewsFeed />
 
             <div className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden relative group">
