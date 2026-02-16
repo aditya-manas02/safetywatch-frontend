@@ -32,6 +32,8 @@ const Support = lazy(() => import("./pages/Support"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const Circles = lazy(() => import("./pages/Circles"));
+const CircleDetails = lazy(() => import("./pages/CircleDetails"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 
@@ -148,6 +150,22 @@ const AppContent = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route
+              path="/circles"
+              element={
+                <ProtectedRoute>
+                  <Circles />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/circles/:id"
+              element={
+                <ProtectedRoute>
+                  <CircleDetails />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

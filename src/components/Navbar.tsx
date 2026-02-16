@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, LifeBuoy, User, LogOut, Settings, LogIn, MessageSquare } from "lucide-react";
+import { Shield, LifeBuoy, User, LogOut, Settings, LogIn, MessageSquare, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,6 +64,16 @@ export default function Navbar() {
                             >
                                 <User className="mr-2 h-4 w-4" />
                                 Profile
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => navigate("/circles")}
+                                className="text-muted-foreground hover:text-foreground font-bold hover:bg-muted/50 rounded-xl px-4 transition-all"
+                            >
+                                <Users className="mr-2 h-4 w-4" />
+                                Circles
                             </Button>
 
                             <Button
@@ -147,6 +157,15 @@ export default function Navbar() {
                             >
                                 <User className="mr-3 h-5 w-5" />
                                 My Profile
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                onClick={() => { navigate("/circles"); setIsMobileMenuOpen(false); }}
+                                className="justify-start h-12 text-foreground font-bold rounded-xl"
+                            >
+                                <Users className="mr-3 h-5 w-5" />
+                                My Circles
                             </Button>
 
                             <Button
