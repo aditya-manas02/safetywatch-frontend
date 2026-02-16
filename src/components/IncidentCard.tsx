@@ -400,13 +400,13 @@ export function IncidentCard({
           className="relative w-full h-full flex flex-col md:flex-row bg-[#020817]/95 backdrop-blur-3xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
         >
           {/* LEFT COLUMN: HERO IMAGE (Sticky on Desktop) */}
-          <div className="relative w-full md:w-[45%] h-[250px] md:h-auto overflow-hidden group border-b md:border-b-0 md:border-r border-white/10">
+          <div className="relative w-full md:w-[45%] h-[250px] md:h-auto overflow-hidden bg-[#020817] flex items-center justify-center border-b md:border-b-0 md:border-r border-white/10">
             <img
               src={incident.imageUrl || "https://images.unsplash.com/photo-1501854140801-50d01698950b"}
               alt={incident.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className="w-full h-full object-contain"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#020817] via-transparent to-transparent opacity-60"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#020817] via-transparent to-transparent opacity-40 pointer-events-none"></div>
 
             {/* FLOATING DOSSIER BADGE */}
             <div className="absolute top-6 left-6 z-20">
