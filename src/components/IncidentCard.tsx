@@ -35,6 +35,7 @@ import {
   Twitter,
   Instagram,
   ExternalLink,
+  MessageCircle,
   Check,
   X as XIcon
 } from "lucide-react";
@@ -465,16 +466,16 @@ export function IncidentCard({
                   className="bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20 h-9 w-9 p-0 rounded-lg"
                   title="Share on WhatsApp"
                 >
-                  <Share2 className="h-4 w-4" />
+                  <MessageCircle className="h-4 w-4 fill-green-500/20" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleShare("twitter")}
-                  className="bg-blue-400/10 hover:bg-blue-400/20 text-blue-400 border-blue-400/20 h-9 w-9 p-0 rounded-lg"
+                  className="bg-white/5 hover:bg-white/10 text-white border-white/10 h-9 w-9 p-0 rounded-lg"
                   title="Share on X"
                 >
-                  <Twitter className="h-4 w-4" />
+                  <XIcon className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
