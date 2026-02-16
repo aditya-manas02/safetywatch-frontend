@@ -15,7 +15,8 @@ import {
   Flag,
   MapPin,
   Vote,
-  Target
+  Target,
+  Image as ImageIcon
 } from "lucide-react";
 
 interface Props {
@@ -38,11 +39,15 @@ export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isS
     { id: "reports", label: "Reports", icon: Flag },
     { id: "polls", label: "Polls", icon: Vote },
     { id: "challenges", label: "Campaigns", icon: Target },
+    { id: "ads", label: "Ads", icon: ImageIcon },
     { id: "announcements", label: "Broadcast", icon: Megaphone },
     { id: "activity", label: "Activity", icon: Activity },
   ];
 
-  const filteredItems = items.filter(it => it.id !== "areacodes" || isSuperAdmin);
+  const filteredItems = items.filter(it => {
+    if (it.id === "areacodes" || it.id === "ads") return isSuperAdmin;
+    return true;
+  });
 
   return (
     <>

@@ -22,7 +22,8 @@ import PollManager from "@/components/admin/PollManager";
 import CreateChallenge from "@/components/admin/CreateChallenge";
 import CreateAnnouncement from "@/components/admin/CreateAnnouncement";
 import ReportManager from "@/components/admin/ReportManager";
-import { Megaphone, Flag, MapPin, Target, Vote } from "lucide-react";
+import AdManager from "@/components/admin/AdManager";
+import { Megaphone, Flag, MapPin, Target, Vote, Image as ImageIcon } from "lucide-react";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -210,6 +211,7 @@ export default function Admin() {
       case 'areacodes': return { title: 'Area Code Management', desc: 'Create and manage community area codes.', icon: <MapPin /> };
       case 'polls': return { title: 'Community Engagement', desc: 'Create and track neighborhood sentiment polls.', icon: <Target className="rotate-45" /> };
       case 'challenges': return { title: 'Community Challenges', desc: 'Launch and track community safety missions.', icon: <Target /> };
+      case 'ads': return { title: 'Broadcast Campaigns', desc: 'Manage promotional banners and advertisements.', icon: <ImageIcon /> };
       case 'support': return { title: 'Community Support', desc: 'Feedback resolutions and citizen helpdesk.', icon: <LifeBuoy /> };
       case 'reports': return { title: 'Citizen Reports', desc: 'Manage user violations and disciplinary actions.', icon: <Flag /> };
       case 'announcements': return { title: 'Broadcast Center', desc: 'Send community-wide alerts and news.', icon: <Megaphone /> };
@@ -401,6 +403,8 @@ export default function Admin() {
           {activeTab === "polls" && <PollManager />}
 
           {activeTab === "challenges" && <CreateChallenge />}
+
+          {activeTab === "ads" && <AdManager />}
 
           {activeTab === "activity" && <AuditLogViewer />}
         </main>

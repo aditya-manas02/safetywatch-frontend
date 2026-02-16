@@ -39,6 +39,7 @@ import { API_BASE, VERSION_HEADERS, getAuthHeaders } from "@/lib/api";
 import AppDownloadSection from "@/components/AppDownloadSection";
 import PollsWidget from "@/components/PollsWidget";
 import { ChallengesSection } from "@/components/ChallengesSection";
+import AdCarousel from "@/components/AdCarousel";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -279,7 +280,11 @@ export default function Index() {
 
       {/* MAIN */}
       <main className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        {user && <ChallengesSection />}
+
+        <AdCarousel />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* LEFT: MAIN CONTENT */}
           <div className="lg:col-span-2 space-y-12 sm:space-y-16">
