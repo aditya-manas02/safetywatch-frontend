@@ -10,6 +10,7 @@ import { MapPin, Plus, Edit, Trash2, Power, Loader2, Users, AlertTriangle } from
 import { API_BASE } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
+import { AreaDetailsModal } from "./AreaDetailsModal";
 
 interface AreaCode {
     _id: string;
@@ -28,6 +29,7 @@ export default function AreaCodeManager() {
     const [loading, setLoading] = useState(true);
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [editingAreaCode, setEditingAreaCode] = useState<AreaCode | null>(null);
+    const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -192,7 +194,11 @@ export default function AreaCodeManager() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {areaCodes.map((areaCode) => (
-                    <Card key={areaCode._id} className={!areaCode.isActive ? "opacity-60" : ""}>
+                    <Card
+                        key={areaCode._id}
+                        className={`transition-all duration-200 cursor-pointer hover:border-primary/50 hover:shadow-md ${!areaCode.isActive ? "opacity-60" : ""}`}
+                        onClick={() => setSelectedAreaId(areaCode._id)}
+                    >
                         <CardHeader>
                             <div className="flex justify-between items-start">
                                 <div>
@@ -227,7 +233,10 @@ export default function AreaCodeManager() {
                                 <Button
                                     size="sm"
                                     variant={areaCode.isActive ? "outline" : "default"}
-                                    onClick={() => handleToggleStatus(areaCode._id, areaCode.isActive)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleToggleStatus(areaCode._id, areaCode.isActive);
+                                    }}
                                     className="flex-1"
                                 >
                                     <Power className="h-3 w-3 mr-1" />
@@ -236,7 +245,10 @@ export default function AreaCodeManager() {
                                 <Button
                                     size="sm"
                                     variant="destructive"
-                                    onClick={() => handleDelete(areaCode._id, areaCode.code)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(areaCode._id, areaCode.code);
+                                    }}
                                     disabled={areaCode.code === "DEFAULT"}
                                 >
                                     <Trash2 className="h-3 w-3" />
@@ -309,6 +321,15 @@ export default function AreaCodeManager() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <AreaDetailsModal
+                areaId={selectedAreaId}
+                token={token}
+                onClose={() => {
+                    setSelectedAreaId(null);
+                    fetchAreaCodes(); // Refresh stats when closing
+                }}
+            />
         </div >
     );
 }
