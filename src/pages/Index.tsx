@@ -38,6 +38,7 @@ import IncidentCarousel from "@/components/IncidentCarousel";
 import { API_BASE, VERSION_HEADERS, getAuthHeaders } from "@/lib/api";
 import AppDownloadSection from "@/components/AppDownloadSection";
 import PollsWidget from "@/components/PollsWidget";
+import { ChallengesSection } from "@/components/ChallengesSection";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -282,6 +283,9 @@ export default function Index() {
 
           {/* LEFT: MAIN CONTENT */}
           <div className="lg:col-span-2 space-y-12 sm:space-y-16">
+
+            {/* 0. CHALLENGES & CAMPAIGNS */}
+            {user && <ChallengesSection />}
 
             {/* 1. POPULAR INCIDENTS */}
             <section id="popular-section" className="space-y-6 sm:space-y-8">

@@ -14,7 +14,8 @@ import {
   Megaphone,
   Flag,
   MapPin,
-  Vote
+  Vote,
+  Target
 } from "lucide-react";
 
 interface Props {
@@ -36,6 +37,7 @@ export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isS
     { id: "support", label: "Support", icon: LifeBuoy },
     { id: "reports", label: "Reports", icon: Flag },
     { id: "polls", label: "Polls", icon: Vote },
+    { id: "challenges", label: "Campaigns", icon: Target },
     { id: "announcements", label: "Broadcast", icon: Megaphone },
     { id: "activity", label: "Activity", icon: Activity },
   ];
