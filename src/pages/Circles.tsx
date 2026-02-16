@@ -40,7 +40,7 @@ import AnimatedBackground from "@/components/AnimatedBackground";
 interface Circle {
     _id: string;
     name: string;
-    type: 'Family' | 'Friends' | 'Hostel';
+    type: 'Family' | 'Friends' | 'Hostel' | 'Roommates' | 'Colleagues' | 'Travel' | 'Neighborhood' | 'Other';
     inviteCode: string;
     members: any[];
     creator: string;
@@ -154,6 +154,10 @@ export default function Circles() {
             case 'Family': return <Home className="h-4 w-4" />;
             case 'Friends': return <Users2 className="h-4 w-4" />;
             case 'Hostel': return <Shield className="h-4 w-4" />;
+            case 'Roommates': return <Users className="h-4 w-4" />;
+            case 'Colleagues': return <Users className="h-4 w-4" />;
+            case 'Travel': return <Users className="h-4 w-4" />;
+            case 'Neighborhood': return <Home className="h-4 w-4" />;
             default: return <Users className="h-4 w-4" />;
         }
     };
@@ -213,6 +217,11 @@ export default function Circles() {
                                             <SelectItem value="Family">Family</SelectItem>
                                             <SelectItem value="Friends">Friends</SelectItem>
                                             <SelectItem value="Hostel">Hostel</SelectItem>
+                                            <SelectItem value="Roommates">Roommates</SelectItem>
+                                            <SelectItem value="Colleagues">Colleagues</SelectItem>
+                                            <SelectItem value="Travel">Travel</SelectItem>
+                                            <SelectItem value="Neighborhood">Neighborhood</SelectItem>
+                                            <SelectItem value="Other">Other</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
