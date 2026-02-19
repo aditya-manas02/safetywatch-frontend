@@ -732,7 +732,7 @@ export default function Profile() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {badgeDefinitions.map((badge, idx) => {
                             const isOwned = badges.some(b => b.name === badge.name);
-                            const canAfford = rewardPoints >= badge.cost;
+                            const canAfford = isSuperAdmin || rewardPoints >= badge.cost;
                             const IconComp = (LucideIcons as any)[badge.icon] || Shield;
 
                             return (
