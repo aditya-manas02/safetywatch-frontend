@@ -47,6 +47,7 @@ export default function Profile() {
     const [isVerified, setIsVerified] = useState(false);
     const [rewardPoints, setRewardPoints] = useState(0);
     const [badges, setBadges] = useState<any[]>([]);
+    const [activeBadge, setActiveBadge] = useState<string | null>(null);
     const [profilePic, setProfilePic] = useState("");
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -108,21 +109,11 @@ export default function Profile() {
                     setEmail(data.email || "");
                     setOtpEmail(data.email || "");
                     setIsVerified(data.isVerified || false);
+                    setPhone(data.phone || "");
                     setRewardPoints(data.rewardPoints || 0);
                     setBadges(data.badges || []);
+                    setActiveBadge(data.activeBadge || null);
                     setProfilePic(data.profilePicture || "");
-
-                    if (data.createdAt) {
-                        setMemberSince(new Date(data.createdAt).toLocaleDateString(undefined, {
-                            month: 'long',
-                            year: 'numeric'
-                        }));
-                    } else {
-                        setMemberSince("2024");
-                    }
-
-                    setPhone(data.phone || "");
-
                 }
             } catch (err) {
                 console.error("Failed to fetch fresh profile data", err);
@@ -144,6 +135,9 @@ export default function Profile() {
             }
             if ((user as any).badges !== undefined) {
                 setBadges((user as any).badges);
+            }
+            if ((user as any).activeBadge !== undefined) {
+                setActiveBadge((user as any).activeBadge);
             }
 
             fetchProfile();
@@ -473,6 +467,36 @@ export default function Profile() {
         }
     };
 
+    const handleActiveBadgeChange = async (badgeName: string) => {
+        try {
+            const resp = await fetch(`${API_BASE}/users/active-badge`, {
+                method: 'PATCH',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ badgeName: badgeName === activeBadge ? null : badgeName })
+            });
+
+            const data = await resp.json();
+            if (resp.ok) {
+                setActiveBadge(data.activeBadge);
+                // Update local storage user
+                const savedUser = localStorage.getItem('user');
+                if (savedUser) {
+                    const parsed = JSON.parse(savedUser);
+                    parsed.activeBadge = data.activeBadge;
+                    localStorage.setItem('user', JSON.stringify(parsed));
+                }
+                toast.success(data.activeBadge ? `Selected ${data.activeBadge} as active badge` : "Cleared active badge");
+            } else {
+                toast.error(data.message || "Failed to update active badge");
+            }
+        } catch (error) {
+            toast.error("Error updating active badge");
+        }
+    };
+
+    const activeBadgeDef = badgeDefinitions.find(d => d.name === activeBadge);
+
+
     const passwordStrength = getPasswordStrength(passwordTab === "change" ? newPassword : newPasswordOtp);
 
 
@@ -556,6 +580,18 @@ export default function Profile() {
                                                 VERIFIED CITIZEN
                                             </Badge>
                                         )}
+                                        {activeBadgeDef && (
+                                            <div className={cn(
+                                                "px-3 py-1 rounded-lg border font-black text-[10px] uppercase tracking-widest shadow-lg flex items-center gap-1.5 animate-pulse",
+                                                activeBadgeDef.style
+                                            )}>
+                                                {(LucideIcons as any)[activeBadgeDef.icon] ?
+                                                    React.createElement((LucideIcons as any)[activeBadgeDef.icon], { className: "h-3 w-3" }) :
+                                                    <Shield className="h-3 w-3" />
+                                                }
+                                                {activeBadgeDef.name}
+                                            </div>
+                                        )}
                                     </div>
                                     <p className="text-muted-foreground font-bold text-base flex items-center gap-2">
                                         <Mail className="h-4 w-4 text-primary/60" />
@@ -587,19 +623,24 @@ export default function Profile() {
                         <div className="flex flex-wrap gap-4">
                             {badges.map((b: any, i: number) => {
                                 const def = badgeDefinitions.find(d => d.name === b.name);
+                                const isActive = activeBadge === b.name;
+                                const IconComp = (LucideIcons as any)[def?.icon || ''] || Shield;
                                 return (
                                     <motion.div
                                         key={i}
                                         initial={{ scale: 0.8, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: i * 0.1 }}
+                                        onClick={() => handleActiveBadgeChange(b.name)}
                                         className={cn(
-                                            "px-4 py-2 rounded-2xl border font-black text-xs uppercase tracking-widest shadow-lg flex items-center gap-2",
-                                            def?.style || "border-border text-muted-foreground"
+                                            "px-4 py-2 rounded-2xl border font-black text-xs uppercase tracking-widest shadow-lg flex items-center gap-2 cursor-pointer transition-all hover:scale-105",
+                                            def?.style || "border-border text-muted-foreground",
+                                            isActive && "ring-2 ring-primary ring-offset-4 ring-offset-background scale-110"
                                         )}
                                     >
-                                        <Shield className="h-3.5 w-3.5" />
+                                        <IconComp className="h-3.5 w-3.5" />
                                         {b.name}
+                                        {isActive && <CheckCircle2 className="h-3.5 w-3.5 ml-1" />}
                                     </motion.div>
                                 );
                             })}
