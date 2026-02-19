@@ -24,7 +24,7 @@ import {
 export default function Profile() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { user, isLoading: authLoading, signOut } = useAuth();
+    const { user, isSuperAdmin, isLoading: authLoading, signOut } = useAuth();
 
     const [myReports, setMyReports] = useState<any[]>([]);
     const [loadingReports, setLoadingReports] = useState(false);
@@ -568,7 +568,7 @@ export default function Profile() {
                                 </div>
                                 <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary bg-primary/10 backdrop-blur-md px-4 py-2 rounded-xl border border-primary/20 mb-1 shadow-lg shadow-primary/5">
                                     <Trophy className="h-3.5 w-3.5" />
-                                    <span>{(user as any)?.roles?.includes("super_admin") ? "Unlimited" : rewardPoints} Reward Points</span>
+                                    <span>{isSuperAdmin ? "Unlimited" : rewardPoints} Reward Points</span>
                                 </div>
                             </div>
                         </div>
@@ -725,7 +725,7 @@ export default function Profile() {
                             </div>
                         </div>
                         <div className="inline-flex items-center rounded-full border border-indigo-500/20 bg-indigo-500/5 px-4 py-1.5 text-[10px] font-black uppercase tracking-tighter text-indigo-500 shadow-sm shadow-indigo-500/5 backdrop-blur-md h-10">
-                            Points Available: {(user as any)?.roles?.includes("super_admin") ? "Unlimited" : rewardPoints}
+                            Points Available: {isSuperAdmin ? "Unlimited" : rewardPoints}
                         </div>
                     </div>
 
