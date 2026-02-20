@@ -28,6 +28,54 @@ export default function PollsWidget() {
     const [loading, setLoading] = useState(true);
     const [votingId, setVotingId] = useState<string | null>(null);
 
+    const translatePolls = async (pollsToTranslate: Poll[], targetLang: string) => {
+        setLoading(true);
+        try {
+            const translated = await Promise.all(
+                pollsToTranslate.map(async (poll) => {
+                    const questionRes = await fetch(`${API_BASE}/translate`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: poll.question, targetLanguage: targetLang })
+                    });
+                    const questionData = await questionRes.json();
+
+                    const options = await Promise.all(
+                        poll.options.map(async (opt) => {
+                            const optRes = await fetch(`${API_BASE}/translate`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ text: opt.text, targetLanguage: targetLang })
+                            });
+                            const optData = await optRes.json();
+                            return { ...opt, text: optData.translatedText || opt.text };
+                        })
+                    );
+
+                    return { ...poll, question: questionData.translatedText || poll.question, options };
+                })
+            );
+            setPolls(translated);
+        } catch (err) {
+            console.error("Poll translation fail:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const handleLangChange = (e: any) => {
+            const targetLang = e.detail.lang;
+            if (targetLang === "en") {
+                fetchPolls();
+            } else {
+                translatePolls(polls, targetLang);
+            }
+        };
+        window.addEventListener("languageChanged", handleLangChange);
+        return () => window.removeEventListener("languageChanged", handleLangChange);
+    }, [polls]);
+
     const fetchPolls = async () => {
         if (!user) return;
         try {

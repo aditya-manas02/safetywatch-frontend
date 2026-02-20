@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import NotificationCenter from "./NotificationCenter";
+import { LanguageSelector } from "./LanguageSelector";
 
 
 export default function Navbar() {
@@ -39,6 +40,7 @@ export default function Navbar() {
 
                 {/* Desktop Actions */}
                 <div className="hidden md:flex items-center gap-4">
+                    <LanguageSelector />
                     <ThemeToggle />
 
                     {isAdmin && (
@@ -111,6 +113,7 @@ export default function Navbar() {
 
                 {/* Mobile Actions */}
                 <div className="flex md:hidden items-center gap-2">
+                    <LanguageSelector />
                     <ThemeToggle />
                     {user && <NotificationCenter />}
                     <button

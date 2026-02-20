@@ -40,6 +40,7 @@ import AppDownloadSection from "@/components/AppDownloadSection";
 import PollsWidget from "@/components/PollsWidget";
 import { ChallengesSection } from "@/components/ChallengesSection";
 import AdCarousel from "@/components/AdCarousel";
+import SafetyContentPanel from "@/components/SafetyContentPanel";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -381,9 +382,11 @@ export default function Index() {
                       <Button size="sm" onClick={() => setShowReportForm(true)}>File Your First Report</Button>
                     </div>
                   ) : (
-                    <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                       {myReports.slice(0, 2).map((inc) => (
-                        <IncidentCard key={inc.id} incident={inc} />
+                        <div key={inc.id}>
+                          <IncidentCard incident={inc} />
+                        </div>
                       ))}
                     </div>
                   )}
@@ -396,6 +399,7 @@ export default function Index() {
 
           {/* RIGHT: ASIDE */}
           <aside className="space-y-10">
+            <SafetyContentPanel />
             <PollsWidget />
             <NewsFeed />
 

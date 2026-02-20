@@ -45,6 +45,12 @@ export default function NewsFeed() {
                 const data = await res.json();
                 setArticles(data.articles.slice(0, 5));
                 setLastUpdated(new Date());
+
+                // If a language other than English is selected, auto-translate
+                const currentLang = localStorage.getItem("app_lang") || "en";
+                if (currentLang !== "en") {
+                    translateAll(data.articles.slice(0, 5), currentLang);
+                }
             }
         } catch (err) {
             console.error("Failed to load news:", err);
@@ -52,6 +58,51 @@ export default function NewsFeed() {
             setLoading(false);
         }
     }
+
+    async function translateAll(articlesToTranslate: NewsArticle[], targetLang: string) {
+        try {
+            const translatedArticles = await Promise.all(
+                articlesToTranslate.map(async (article) => {
+                    const titleRes = await fetch(`${API_BASE}/translate`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                        body: JSON.stringify({ text: article.title, targetLanguage: targetLang })
+                    });
+                    const descRes = await fetch(`${API_BASE}/translate`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                        body: JSON.stringify({ text: article.description, targetLanguage: targetLang })
+                    });
+
+                    const titleData = await titleRes.json();
+                    const descData = await descRes.json();
+
+                    return {
+                        ...article,
+                        title: titleData.translatedText || article.title,
+                        description: descData.translatedText || article.description
+                    };
+                })
+            );
+            setArticles(translatedArticles);
+        } catch (err) {
+            console.error("Translation error in NewsFeed:", err);
+        }
+    }
+
+    useEffect(() => {
+        const handleLangChange = (e: any) => {
+            const newLang = e.detail.lang;
+            if (newLang === "en") {
+                loadNews(); // Reload original news
+            } else {
+                translateAll(articles, newLang);
+            }
+        };
+
+        window.addEventListener("languageChanged", handleLangChange);
+        return () => window.removeEventListener("languageChanged", handleLangChange);
+    }, [articles]);
 
     function formatTime(dateString: string) {
         const date = new Date(dateString);
