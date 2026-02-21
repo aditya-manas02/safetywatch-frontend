@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
+import { Capacitor, CapacitorHttp } from "@capacitor/core";
 
 const CACHE_KEY = "translation_cache_v1";
 
@@ -30,20 +31,37 @@ export const translateText = async (text: string, targetLang: string): Promise<s
     }
 
     try {
-        const res = await fetch(`${API_BASE}/translate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
-            body: JSON.stringify({ text, targetLanguage: targetLang })
-        });
-        if (!res.ok) return text;
-        const data = await res.json();
-        const translatedText = data.translatedText || text;
+        let translatedText = text;
+        const isNative = Capacitor.isNativePlatform();
 
-        // Save to cache
-        const newCache = getCache();
-        if (!newCache[targetLang]) newCache[targetLang] = {};
-        newCache[targetLang][text] = translatedText;
-        saveCache(newCache);
+        if (isNative) {
+            const res = await CapacitorHttp.post({
+                url: `${API_BASE}/translate`,
+                headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                data: { text, targetLanguage: targetLang }
+            });
+            if (res.status >= 200 && res.status < 300 && res.data) {
+                translatedText = res.data.translatedText || text;
+            }
+        } else {
+            const res = await fetch(`${API_BASE}/translate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                body: JSON.stringify({ text, targetLanguage: targetLang })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                translatedText = data.translatedText || text;
+            }
+        }
+
+        if (translatedText !== text) {
+            // Save to cache
+            const newCache = getCache();
+            if (!newCache[targetLang]) newCache[targetLang] = {};
+            newCache[targetLang][text] = translatedText;
+            saveCache(newCache);
+        }
 
         return translatedText;
     } catch (err) {
@@ -73,22 +91,37 @@ export const translateBatch = async (texts: string[], targetLang: string): Promi
     if (missingTexts.length === 0) return result;
 
     try {
-        const res = await fetch(`${API_BASE}/translate/batch`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
-            body: JSON.stringify({ texts: missingTexts, targetLanguage: targetLang })
-        });
+        let translatedTexts = null;
+        const isNative = Capacitor.isNativePlatform();
 
-        if (!res.ok) {
+        if (isNative) {
+            const res = await CapacitorHttp.post({
+                url: `${API_BASE}/translate/batch`,
+                headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                data: { texts: missingTexts, targetLanguage: targetLang }
+            });
+            if (res.status >= 200 && res.status < 300 && res.data) {
+                translatedTexts = res.data.translatedTexts;
+            }
+        } else {
+            const res = await fetch(`${API_BASE}/translate/batch`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                body: JSON.stringify({ texts: missingTexts, targetLanguage: targetLang })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                translatedTexts = data.translatedTexts;
+            }
+        }
+
+        if (!translatedTexts) {
             // Fill missing with originals on failure
             missingIndices.forEach((idx, i) => {
                 result[idx] = missingTexts[i];
             });
             return result;
         }
-
-        const data = await res.json();
-        const translatedTexts = data.translatedTexts || missingTexts;
 
         // Update result and cache
         const finalCache = getCache();
