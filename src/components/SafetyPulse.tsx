@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
+import { translateText } from "@/hooks/useTranslation";
 
 type SignalClass = "ALPHA" | "SIGMA" | "PULSE" | "INTEL";
 
@@ -24,57 +25,76 @@ const SafetyPulse = () => {
     const [announcements, setAnnouncements] = useState<any[]>([]);
     const [latestIncidents, setLatestIncidents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [t, setT] = useState({
+        intelFeed: "Intelligence Feed",
+        intel: "INTEL"
+    });
+
+    const fetchPulse = async () => {
+        try {
+            const [pulseRes, statsRes] = await Promise.all([
+                fetch(`${API_BASE}/stats/pulse`, { headers: VERSION_HEADERS }),
+                fetch(`${API_BASE}/stats/public`, { headers: VERSION_HEADERS })
+            ]);
+
+            if (pulseRes.ok && statsRes.ok) {
+                const pulseData = await pulseRes.json();
+                const statsData = await statsRes.json();
+                setStats({
+                    incidentsToday: pulseData.incidentsToday || 0,
+                    safeScore: pulseData.safetyScore || 100,
+                    activeUsers: statsData.activeUsers || 0
+                });
+            }
+
+            const annRes = await fetch(`${API_BASE}/notifications/public`, { headers: VERSION_HEADERS });
+            if (annRes.ok) {
+                const data = await annRes.json();
+                setAnnouncements((data || []).filter((a: any) =>
+                    !a.title.toLowerCase().includes("tell me about yourself")
+                ));
+            }
+
+            const incRes = await fetch(`${API_BASE}/incidents/latest`, { headers: VERSION_HEADERS });
+            if (incRes.ok) {
+                const data = await incRes.json();
+                setLatestIncidents(data || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch pulse intelligence", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const translateUI = async (lang: string) => {
+        const intelFeed = await translateText("Intelligence Feed", lang);
+        const intel = await translateText("INTEL", lang);
+        setT({ intelFeed, intel });
+    };
 
     useEffect(() => {
-        const fetchPulse = async () => {
-            try {
-                // 1. Fetch Stats & Pulse
-                const [pulseRes, statsRes] = await Promise.all([
-                    fetch(`${API_BASE}/stats/pulse`, { headers: VERSION_HEADERS }),
-                    fetch(`${API_BASE}/stats/public`, { headers: VERSION_HEADERS })
-                ]);
-
-                if (pulseRes.ok && statsRes.ok) {
-                    const pulseData = await pulseRes.json();
-                    const statsData = await statsRes.json();
-                    setStats({
-                        incidentsToday: pulseData.incidentsToday || 0,
-                        safeScore: pulseData.safetyScore || 100,
-                        activeUsers: statsData.activeUsers || 0
-                    });
-                }
-
-                // 2. Fetch Real Announcements
-                const annRes = await fetch(`${API_BASE}/notifications/public`, { headers: VERSION_HEADERS });
-                if (annRes.ok) {
-                    const data = await annRes.json();
-                    setAnnouncements((data || []).filter((a: any) =>
-                        !a.title.toLowerCase().includes("tell me about yourself")
-                    ));
-                }
-
-                // 3. Fetch Latest Incidents
-                const incRes = await fetch(`${API_BASE}/incidents/latest`, { headers: VERSION_HEADERS });
-                if (incRes.ok) {
-                    const data = await incRes.json();
-                    setLatestIncidents(data || []);
-                }
-            } catch (err) {
-                console.error("Failed to fetch pulse intelligence", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchPulse();
-        const interval = setInterval(fetchPulse, 45000); // 45s refresh for higher fidelity
-        return () => clearInterval(interval);
+        const lang = localStorage.getItem("app_lang") || "en";
+        translateUI(lang);
+
+        const handleLangChange = (e: any) => {
+            translateUI(e.detail.lang);
+        };
+        window.addEventListener("languageChanged", handleLangChange);
+
+        const interval = setInterval(fetchPulse, 45000);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("languageChanged", handleLangChange);
+        };
     }, []);
 
-    const signals = useMemo(() => {
-        const list: Signal[] = [];
+    const [translatedSignals, setTranslatedSignals] = useState<Signal[]>([]);
+    const currentLang = localStorage.getItem("app_lang") || "en";
 
-        // ALPHA: Critical/Recent Incidents
+    const baseSignals = useMemo(() => {
+        const list: Signal[] = [];
         latestIncidents.forEach(inc => {
             list.push({
                 class: "ALPHA",
@@ -85,7 +105,6 @@ const SafetyPulse = () => {
             });
         });
 
-        // INTEL: Official Announcements
         announcements.forEach(ann => {
             list.push({
                 class: "INTEL",
@@ -95,7 +114,6 @@ const SafetyPulse = () => {
             });
         });
 
-        // SIGMA: System Metrics
         list.push({
             class: "SIGMA",
             location: "NETWORK",
@@ -103,7 +121,6 @@ const SafetyPulse = () => {
             priority: 3
         });
 
-        // PULSE: Live Community Heatbeat
         list.push({
             class: "PULSE",
             location: "GUARDIANS",
@@ -111,7 +128,6 @@ const SafetyPulse = () => {
             priority: 4
         });
 
-        // Fallback Tips if low data
         if (list.length < 5) {
             list.push({
                 class: "SIGMA",
@@ -126,9 +142,26 @@ const SafetyPulse = () => {
                 priority: 6
             });
         }
-
         return list.sort((a, b) => a.priority - b.priority);
     }, [latestIncidents, announcements, stats]);
+
+    useEffect(() => {
+        const translateSignals = async () => {
+            const lang = localStorage.getItem("app_lang") || "en";
+            if (lang === "en") {
+                setTranslatedSignals(baseSignals);
+                return;
+            }
+
+            const translated = await Promise.all(baseSignals.map(async (sig) => ({
+                ...sig,
+                text: await translateText(sig.text, lang),
+                location: await translateText(sig.location, lang)
+            })));
+            setTranslatedSignals(translated);
+        };
+        translateSignals();
+    }, [baseSignals]);
 
     const getSignalStyle = (cls: SignalClass) => {
         switch (cls) {
@@ -153,29 +186,26 @@ const SafetyPulse = () => {
     return (
         <div className="w-full bg-background/95 text-foreground backdrop-blur-3xl border-b border-border overflow-hidden py-2 relative z-30 transition-colors duration-500 shadow-sm">
             <div className="container mx-auto flex items-center gap-2 md:gap-6">
-                {/* Master Badge */}
                 <div className="flex items-center gap-1.5 md:gap-2.5 px-2 md:px-4 py-1.5 bg-primary/10 text-primary rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap border border-primary/20 shadow-[0_0_20px_rgba(255,107,0,0.1)] bg-gradient-to-r from-primary/5 to-transparent flex-shrink-0">
                     <div className="relative">
                         <Activity className="h-3 w-3 md:h-3.5 md:w-3.5 animate-pulse" />
                         <div className="absolute inset-0 bg-primary/20 blur-md animate-pulse" />
                     </div>
-                    <span className="hidden sm:inline">Intelligence Feed</span>
-                    <span className="sm:hidden">INTEL</span>
+                    <span className="hidden sm:inline">{t.intelFeed}</span>
+                    <span className="sm:hidden">{t.intel}</span>
                 </div>
 
-                {/* Animated Intelligence Flow */}
                 <div className="flex-1 overflow-hidden relative">
                     <motion.div
                         className="flex items-center gap-16 whitespace-nowrap pl-4"
                         animate={{ x: ["0%", "-50%"] }}
                         transition={{
-                            duration: 60, // Slower, calmer movement
+                            duration: 60,
                             repeat: Infinity,
                             ease: "linear",
                         }}
                     >
-                        {/* Combine original and duplicate for seamless loop */}
-                        {[...signals, ...signals].map((sig, idx) => (
+                        {[...translatedSignals, ...translatedSignals].map((sig, idx) => (
                             <div key={idx} className="flex items-center gap-4 group cursor-default">
                                 <div className={cn(
                                     "flex items-center gap-2 px-2 py-0.5 rounded-md border text-[9px] font-black tracking-widest transition-all group-hover:scale-105 hover:shadow-lg",

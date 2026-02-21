@@ -41,6 +41,7 @@ import PollsWidget from "@/components/PollsWidget";
 import { ChallengesSection } from "@/components/ChallengesSection";
 import AdCarousel from "@/components/AdCarousel";
 import SafetyContentPanel from "@/components/SafetyContentPanel";
+import { translateText } from "@/hooks/useTranslation";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -57,6 +58,75 @@ export default function Index() {
 
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [focusedIncident, setFocusedIncident] = useState<Incident | null>(null);
+
+  const [t, setT] = useState({
+    adminAlerts: "Administrative Alerts",
+    popularIncidents: "Popular Incidents",
+    popularDesc: "Critical reports verified and highlighted by local authorities.",
+    neighborhoodWatch: "Neighborhood Watch",
+    nearLocation: "Near Your Location",
+    nearDesc: "Incidents reported within a 10km radius of your current position.",
+    locationRequired: "Location services are required to see nearby incidents.",
+    enableLocation: "Enable Location",
+    noNearby: "No incidents reported near you. Stay safe!",
+    liveUpdates: "Live Updates",
+    reportTracking: "Report Tracking",
+    viewAllReports: "View All Reports",
+    noReportsYet: "You haven't reported any incidents yet.",
+    fileFirstReport: "File Your First Report",
+    liveHeatmap: "Live Heatmap",
+    heatmapDesc: "Interactive Density Analysis",
+    strategicCenter: "Strategic Center",
+    strategicDesc: "Access critical safety tools or contribute to the community safety network.",
+    instantReport: "Instant Report",
+    trackStatus: "Track Status",
+    communityFirst: "Community First",
+    communityDesc: "Join thousands of citizens keeping their neighborhoods safe through collaborative vigilance and real-time reporting."
+  });
+
+  const translateUI = async (lang: string) => {
+    if (lang === "en") return;
+    const adminAlerts = await translateText("Administrative Alerts", lang);
+    const popularIncidents = await translateText("Popular Incidents", lang);
+    const popularDesc = await translateText("Critical reports verified and highlighted by local authorities.", lang);
+    const neighborhoodWatch = await translateText("Neighborhood Watch", lang);
+    const nearLocation = await translateText("Near Your Location", lang);
+    const nearDesc = await translateText("Incidents reported within a 10km radius of your current position.", lang);
+    const locationRequired = await translateText("Location services are required to see nearby incidents.", lang);
+    const enableLocation = await translateText("Enable Location", lang);
+    const noNearby = await translateText("No incidents reported near you. Stay safe!", lang);
+    const liveUpdates = await translateText("Live Updates", lang);
+    const reportTracking = await translateText("Report Tracking", lang);
+    const viewAllReports = await translateText("View All Reports", lang);
+    const noReportsYet = await translateText("You haven't reported any incidents yet.", lang);
+    const fileFirstReport = await translateText("File Your First Report", lang);
+    const liveHeatmap = await translateText("Live Heatmap", lang);
+    const heatmapDesc = await translateText("Interactive Density Analysis", lang);
+    const strategicCenter = await translateText("Strategic Center", lang);
+    const strategicDesc = await translateText("Access critical safety tools or contribute to the community safety network.", lang);
+    const instantReport = await translateText("Instant Report", lang);
+    const trackStatus = await translateText("Track Status", lang);
+    const communityFirst = await translateText("Community First", lang);
+    const communityDesc = await translateText("Join thousands of citizens keeping their neighborhoods safe through collaborative vigilance and real-time reporting.", lang);
+
+    setT({
+      adminAlerts, popularIncidents, popularDesc, neighborhoodWatch, nearLocation, nearDesc,
+      locationRequired, enableLocation, noNearby, liveUpdates, reportTracking, viewAllReports,
+      noReportsYet, fileFirstReport, liveHeatmap, heatmapDesc, strategicCenter, strategicDesc,
+      instantReport, trackStatus, communityFirst, communityDesc
+    });
+  };
+
+  useEffect(() => {
+    const lang = localStorage.getItem("app_lang") || "en";
+    translateUI(lang);
+
+    const handleLangChange = (e: any) => {
+      translateUI(e.detail.lang);
+    };
+    window.addEventListener("languageChanged", handleLangChange);
+    return () => window.removeEventListener("languageChanged", handleLangChange);
+  }, []);
 
   /* ---------------------------
      FETCH FOCUSED INCIDENT
@@ -298,10 +368,10 @@ export default function Index() {
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 text-orange-500 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-1">
-                    <Star className="h-3.5 w-3.5 fill-orange-500" /> Administrative Alerts
+                    <Star className="h-3.5 w-3.5 fill-orange-500" /> {t.adminAlerts}
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-black">Popular Incidents</h3>
-                  <p className="text-muted-foreground text-sm sm:text-base mt-2">Critical reports verified and highlighted by local authorities.</p>
+                  <h3 className="text-2xl sm:text-3xl font-black">{t.popularIncidents}</h3>
+                  <p className="text-muted-foreground text-sm sm:text-base mt-2">{t.popularDesc}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground/20" />
               </div>
@@ -324,18 +394,18 @@ export default function Index() {
               <div className="flex items-end justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-blue-600 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-1">
-                    <MapPin className="h-3.5 w-3.5" /> Neighborhood Watch
+                    <MapPin className="h-3.5 w-3.5" /> {t.neighborhoodWatch}
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-black">Near Your Location</h3>
-                  <p className="text-muted-foreground text-sm sm:text-base mt-2">Incidents reported within a 10km radius of your current position.</p>
+                  <h3 className="text-2xl sm:text-3xl font-black">{t.nearLocation}</h3>
+                  <p className="text-muted-foreground text-sm sm:text-base mt-2">{t.nearDesc}</p>
                 </div>
               </div>
 
               {!userLocation ? (
                 <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-6 sm:p-10 text-center">
                   <MapPin className="h-10 w-10 sm:h-12 sm:w-12 text-blue-500/30 mx-auto mb-4" />
-                  <p className="text-muted-foreground text-sm sm:text-base font-medium mb-6">Location services are required to see nearby incidents.</p>
-                  <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Enable Location</Button>
+                  <p className="text-muted-foreground text-sm sm:text-base font-medium mb-6">{t.locationRequired}</p>
+                  <Button variant="outline" size="sm" onClick={() => window.location.reload()}>{t.enableLocation}</Button>
                 </div>
               ) : loadingNearby ? (
                 <div className="grid gap-4 sm:gap-6 md:grid-cols-2 animate-pulse">
@@ -343,7 +413,7 @@ export default function Index() {
                 </div>
               ) : nearbyIncidents.length === 0 ? (
                 <div className="text-center py-12 sm:py-16 bg-muted/10 rounded-2xl border">
-                  <p className="text-muted-foreground text-sm">No incidents reported near you. Stay safe!</p>
+                  <p className="text-muted-foreground text-sm">{t.noNearby}</p>
                 </div>
               ) : (
                 <IncidentCarousel incidents={nearbyIncidents} />
@@ -358,9 +428,9 @@ export default function Index() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                     <div>
                       <div className="flex items-center gap-2 text-primary font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-1">
-                        <Clock className="h-3.5 w-3.5" /> Live Updates
+                        <Clock className="h-3.5 w-3.5" /> {t.liveUpdates}
                       </div>
-                      <h3 className="text-2xl sm:text-3xl font-black">Report Tracking</h3>
+                      <h3 className="text-2xl sm:text-3xl font-black">{t.reportTracking}</h3>
                     </div>
                     <Button
                       variant="ghost"
@@ -368,7 +438,7 @@ export default function Index() {
                       onClick={() => navigate("/profile")}
                       className="text-muted-foreground hover:text-primary w-fit p-0 sm:p-2"
                     >
-                      View All Reports <ChevronRight className="ml-1 h-4 w-4" />
+                      {t.viewAllReports} <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </div>
 
@@ -378,8 +448,8 @@ export default function Index() {
                     </div>
                   ) : myReports.length === 0 ? (
                     <div className="text-center py-12 bg-muted/20 border border-dashed rounded-xl">
-                      <p className="text-muted-foreground text-sm font-medium mb-4">You haven't reported any incidents yet.</p>
-                      <Button size="sm" onClick={() => setShowReportForm(true)}>File Your First Report</Button>
+                      <p className="text-muted-foreground text-sm font-medium mb-4">{t.noReportsYet}</p>
+                      <Button size="sm" onClick={() => setShowReportForm(true)}>{t.fileFirstReport}</Button>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -413,21 +483,21 @@ export default function Index() {
               </div>
               <h4 className="text-xl font-black mb-6 flex items-center gap-2">
                 <LayoutDashboard className="h-5 w-5 text-primary" />
-                Live Heatmap
+                {t.liveHeatmap}
               </h4>
               <div className="rounded-xl overflow-hidden border">
                 <RealHeatmap />
               </div>
               <p className="text-[10px] text-muted-foreground mt-4 text-center font-bold tracking-widest uppercase">
-                Interactive Density Analysis
+                {t.heatmapDesc}
               </p>
             </div>
 
             <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 text-white rounded-2xl p-8 shadow-2xl relative overflow-hidden group">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent)] opacity-50"></div>
-              <h4 className="text-2xl font-black relative z-10">Strategic Center</h4>
+              <h4 className="text-2xl font-black relative z-10">{t.strategicCenter}</h4>
               <p className="text-sm text-balance my-4 opacity-90 relative z-10 leading-relaxed">
-                Access critical safety tools or contribute to the community safety network.
+                {t.strategicDesc}
               </p>
 
               <div className="flex flex-col gap-3 mt-6 relative z-10">
@@ -435,11 +505,11 @@ export default function Index() {
                   className="bg-white text-blue-600 hover:bg-white/90 font-bold h-12 rounded-xl border-none shadow-lg"
                   onClick={() => user ? setShowReportForm(true) : navigate("/auth")}
                 >
-                  Instant Report
+                  {t.instantReport}
                 </Button>
 
                 <Button variant="ghost" className="text-white hover:bg-white/10 font-bold h-12 rounded-xl" onClick={scrollToMyReports}>
-                  Track Status
+                  {t.trackStatus}
                 </Button>
               </div>
             </div>
@@ -448,9 +518,9 @@ export default function Index() {
               <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
                 <Users className="h-5 w-5 text-primary" />
               </div>
-              <h4 className="text-xl font-black mb-2">Community First</h4>
+              <h4 className="text-xl font-black mb-2">{t.communityFirst}</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Join thousands of citizens keeping their neighborhoods safe through collaborative vigilance and real-time reporting.
+                {t.communityDesc}
               </p>
             </div>
           </aside>

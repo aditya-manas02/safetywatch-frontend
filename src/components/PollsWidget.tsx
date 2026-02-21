@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +8,12 @@ import { API_BASE, getAuthHeaders } from "@/lib/api";
 import { toast } from "sonner";
 import { Vote, Users, Clock, Loader2, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { translateText } from "@/hooks/useTranslation";
 
 interface PollOption {
     text: string;
     votes: string[];
+    originalText?: string;
 }
 
 interface Poll {
@@ -20,39 +22,62 @@ interface Poll {
     options: PollOption[];
     areaCode: string;
     expiresAt?: string;
+    originalQuestion?: string;
 }
 
 export default function PollsWidget() {
     const { user, token } = useAuth();
     const [polls, setPolls] = useState<Poll[]>([]);
+    const originalPolls = useRef<Poll[]>([]);
     const [loading, setLoading] = useState(true);
     const [votingId, setVotingId] = useState<string | null>(null);
+    const [t, setT] = useState({
+        communityPulse: "Community Pulse",
+        activePolls: "Active Polls",
+        participants: "Participants",
+        voteRegistered: "Vote Registered",
+        signInToVote: "Please sign in to vote",
+        voteRecorded: "Vote recorded!",
+        failedToVote: "Failed to vote",
+        networkError: "Network error"
+    });
 
-    const translatePolls = async (pollsToTranslate: Poll[], targetLang: string) => {
+    const translateUI = async (lang: string) => {
+        const communityPulse = await translateText("Community Pulse", lang);
+        const activePolls = await translateText("Active Polls", lang);
+        const participants = await translateText("Participants", lang);
+        const voteRegistered = await translateText("Vote Registered", lang);
+        const signInToVote = await translateText("Please sign in to vote", lang);
+        const voteRecorded = await translateText("Vote recorded!", lang);
+        const failedToVote = await translateText("Failed to vote", lang);
+        const networkError = await translateText("Network error", lang);
+
+        setT({
+            communityPulse, activePolls, participants, voteRegistered,
+            signInToVote, voteRecorded, failedToVote, networkError
+        });
+    };
+
+    const translateAll = async (pollsToTranslate: Poll[], targetLang: string) => {
+        if (targetLang === "en") return;
         setLoading(true);
         try {
             const translated = await Promise.all(
                 pollsToTranslate.map(async (poll) => {
-                    const questionRes = await fetch(`${API_BASE}/translate`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ text: poll.question, targetLanguage: targetLang })
-                    });
-                    const questionData = await questionRes.json();
-
                     const options = await Promise.all(
                         poll.options.map(async (opt) => {
-                            const optRes = await fetch(`${API_BASE}/translate`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ text: opt.text, targetLanguage: targetLang })
-                            });
-                            const optData = await optRes.json();
-                            return { ...opt, text: optData.translatedText || opt.text };
+                            return {
+                                ...opt,
+                                text: await translateText(opt.originalText || opt.text, targetLang)
+                            };
                         })
                     );
 
-                    return { ...poll, question: questionData.translatedText || poll.question, options };
+                    return {
+                        ...poll,
+                        question: await translateText(poll.originalQuestion || poll.question, targetLang),
+                        options
+                    };
                 })
             );
             setPolls(translated);
@@ -64,17 +89,21 @@ export default function PollsWidget() {
     };
 
     useEffect(() => {
+        const lang = localStorage.getItem("app_lang") || "en";
+        translateUI(lang);
+
         const handleLangChange = (e: any) => {
             const targetLang = e.detail.lang;
+            translateUI(targetLang);
             if (targetLang === "en") {
-                fetchPolls();
+                setPolls(originalPolls.current);
             } else {
-                translatePolls(polls, targetLang);
+                translateAll(originalPolls.current, targetLang);
             }
         };
         window.addEventListener("languageChanged", handleLangChange);
         return () => window.removeEventListener("languageChanged", handleLangChange);
-    }, [polls]);
+    }, []);
 
     const fetchPolls = async () => {
         if (!user) return;
@@ -84,7 +113,19 @@ export default function PollsWidget() {
             });
             if (res.ok) {
                 const data = await res.json();
-                setPolls(data);
+                const fresh = data.map((p: any) => ({
+                    ...p,
+                    originalQuestion: p.question,
+                    options: p.options.map((o: any) => ({ ...o, originalText: o.text }))
+                }));
+                originalPolls.current = fresh;
+
+                const lang = localStorage.getItem("app_lang") || "en";
+                if (lang !== "en") {
+                    translateAll(fresh, lang);
+                } else {
+                    setPolls(fresh);
+                }
             }
         } catch (err) {
             console.error("Failed to fetch polls:", err);
@@ -99,7 +140,7 @@ export default function PollsWidget() {
 
     const handleVote = async (pollId: string, optionIndex: number) => {
         if (!user) {
-            toast.error("Please sign in to vote");
+            toast.error(t.signInToVote);
             return;
         }
         setVotingId(pollId);
@@ -111,20 +152,20 @@ export default function PollsWidget() {
             });
             const data = await res.json();
             if (res.ok) {
-                toast.success("Vote recorded!");
-                fetchPolls(); // Refresh to see results
+                toast.success(t.voteRecorded);
+                fetchPolls();
             } else {
-                toast.error(data.message || "Failed to vote");
+                toast.error(data.message || t.failedToVote);
             }
         } catch (err) {
-            toast.error("Network error");
+            toast.error(t.networkError);
         } finally {
             setVotingId(null);
         }
     };
 
     if (!user) return null;
-    if (loading) return (
+    if (loading && polls.length === 0) return (
         <Card className="border-none bg-card/50 backdrop-blur-3xl rounded-[2rem] overflow-hidden shadow-xl animate-pulse">
             <div className="h-40 bg-muted/20" />
         </Card>
@@ -137,9 +178,9 @@ export default function PollsWidget() {
             <div className="flex items-center justify-between px-2">
                 <div>
                     <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest mb-1">
-                        <Vote className="h-3.5 w-3.5" /> Community Pulse
+                        <Vote className="h-3.5 w-3.5" /> {t.communityPulse}
                     </div>
-                    <h3 className="text-xl font-black">Active Polls</h3>
+                    <h3 className="text-xl font-black">{t.activePolls}</h3>
                 </div>
             </div>
 
@@ -208,11 +249,11 @@ export default function PollsWidget() {
                                     <div className="flex items-center justify-between pt-2">
                                         <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">
                                             <Users className="h-3.5 w-3.5" />
-                                            {totalVotes} Participants
+                                            {totalVotes} {t.participants}
                                         </div>
                                         {hasVoted && (
                                             <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 border-none text-[8px] font-black uppercase tracking-widest px-2 py-0.5">
-                                                Vote Registered
+                                                {t.voteRegistered}
                                             </Badge>
                                         )}
                                     </div>

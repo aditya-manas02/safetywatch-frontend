@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Newspaper, ChevronLeft, ChevronRight, X, ExternalLink, Calendar, Globe } from "lucide-react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
+import { translateText } from "@/hooks/useTranslation";
 
 interface NewsArticle {
     title: string;
@@ -14,11 +15,27 @@ interface NewsArticle {
 
 export default function NewsFeed() {
     const [articles, setArticles] = useState<NewsArticle[]>([]);
+    const originalArticles = useRef<NewsArticle[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [direction, setDirection] = useState(0); // -1 for left, 1 for right
+    const [direction, setDirection] = useState(0);
     const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const [t, setT] = useState({
+        recentNews: "RECENT NEWS",
+        updated: "UPDATED",
+        intel: "INTEL",
+        broadcastDate: "Broadcast Date",
+        protocolStatus: "Protocol Status",
+        verifiedIntel: "VERIFIED INTEL",
+        originNetwork: "Origin Network",
+        globalSafety: "Global Safety",
+        intelDirective: "Intelligence Directive",
+        accessTerminal: "Access Source Terminal",
+        justNow: "Just now",
+        hAgo: "h ago",
+        dAgo: "d ago"
+    });
 
     useEffect(() => {
         loadNews();
@@ -35,22 +52,47 @@ export default function NewsFeed() {
         return () => clearInterval(slideInterval);
     }, [articles.length, selectedArticle]);
 
+    const translateUI = async (lang: string) => {
+        const recentNews = await translateText("RECENT NEWS", lang);
+        const updated = await translateText("UPDATED", lang);
+        const intel = await translateText("INTEL", lang);
+        const broadcastDate = await translateText("Broadcast Date", lang);
+        const protocolStatus = await translateText("Protocol Status", lang);
+        const verifiedIntel = await translateText("VERIFIED INTEL", lang);
+        const originNetwork = await translateText("Origin Network", lang);
+        const globalSafety = await translateText("Global Safety", lang);
+        const intelDirective = await translateText("Intelligence Directive", lang);
+        const accessTerminal = await translateText("Access Source Terminal", lang);
+        const justNow = await translateText("Just now", lang);
+        const hAgo = await translateText("h ago", lang);
+        const dAgo = await translateText("d ago", lang);
+
+        setT({
+            recentNews, updated, intel, broadcastDate, protocolStatus,
+            verifiedIntel, originNetwork, globalSafety, intelDirective,
+            accessTerminal, justNow, hAgo, dAgo
+        });
+    };
+
     async function loadNews() {
         try {
-            // Add timestamp to bust cache
             const res = await fetch(`${API_BASE}/news?t=${Date.now()}`, {
                 headers: VERSION_HEADERS
             });
             if (res.ok) {
                 const data = await res.json();
-                setArticles(data.articles.slice(0, 5));
-                setLastUpdated(new Date());
+                const fresh = data.articles.slice(0, 5);
+                originalArticles.current = fresh;
 
-                // If a language other than English is selected, auto-translate
                 const currentLang = localStorage.getItem("app_lang") || "en";
+                translateUI(currentLang);
+
                 if (currentLang !== "en") {
-                    translateAll(data.articles.slice(0, 5), currentLang);
+                    await translateAll(fresh, currentLang);
+                } else {
+                    setArticles(fresh);
                 }
+                setLastUpdated(new Date());
             }
         } catch (err) {
             console.error("Failed to load news:", err);
@@ -60,27 +102,17 @@ export default function NewsFeed() {
     }
 
     async function translateAll(articlesToTranslate: NewsArticle[], targetLang: string) {
+        if (targetLang === "en") {
+            setArticles(originalArticles.current);
+            return;
+        }
         try {
             const translatedArticles = await Promise.all(
                 articlesToTranslate.map(async (article) => {
-                    const titleRes = await fetch(`${API_BASE}/translate`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
-                        body: JSON.stringify({ text: article.title, targetLanguage: targetLang })
-                    });
-                    const descRes = await fetch(`${API_BASE}/translate`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
-                        body: JSON.stringify({ text: article.description, targetLanguage: targetLang })
-                    });
-
-                    const titleData = await titleRes.json();
-                    const descData = await descRes.json();
-
                     return {
                         ...article,
-                        title: titleData.translatedText || article.title,
-                        description: descData.translatedText || article.description
+                        title: await translateText(article.title, targetLang),
+                        description: await translateText(article.description, targetLang)
                     };
                 })
             );
@@ -93,25 +125,22 @@ export default function NewsFeed() {
     useEffect(() => {
         const handleLangChange = (e: any) => {
             const newLang = e.detail.lang;
-            if (newLang === "en") {
-                loadNews(); // Reload original news
-            } else {
-                translateAll(articles, newLang);
-            }
+            translateUI(newLang);
+            translateAll(originalArticles.current, newLang);
         };
 
         window.addEventListener("languageChanged", handleLangChange);
         return () => window.removeEventListener("languageChanged", handleLangChange);
-    }, [articles]);
+    }, []);
 
     function formatTime(dateString: string) {
         const date = new Date(dateString);
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        if (diffHours < 1) return "Just now";
-        if (diffHours < 24) return `${diffHours}h ago`;
-        return `${Math.floor(diffHours / 24)}d ago`;
+        if (diffHours < 1) return t.justNow;
+        if (diffHours < 24) return `${diffHours}${t.hAgo}`;
+        return `${Math.floor(diffHours / 24)}${t.dAgo}`;
     }
 
     const variants = {
@@ -177,13 +206,12 @@ export default function NewsFeed() {
     return (
         <>
             <div className="group relative bg-card/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-500 hover:shadow-primary/10">
-                {/* Futuristic Header */}
                 <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-primary/10 to-transparent">
                     <div className="flex items-center gap-2">
                         <div className="p-1.5 bg-primary/20 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)]">
                             <Newspaper className="h-4 w-4 text-primary" />
                         </div>
-                        <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">RECENT NEWS</h4>
+                        <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
                         <div className="flex gap-1">
@@ -196,13 +224,12 @@ export default function NewsFeed() {
                         </div>
                         {lastUpdated && (
                             <span className="text-[9px] text-muted-foreground/60 font-mono tracking-tighter uppercase whitespace-nowrap">
-                                UPDATED: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {t.updated}: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                         )}
                     </div>
                 </div>
 
-                {/* 3D Carousel Container */}
                 <div className="relative h-[240px] sm:h-[190px] w-full perspective-[1000px] overflow-hidden touch-pan-y">
                     <AnimatePresence initial={false} custom={direction} mode="popLayout">
                         <motion.div
@@ -246,7 +273,6 @@ export default function NewsFeed() {
                                     <h5 className="font-black text-sm sm:text-base leading-tight text-foreground group-hover/item:text-primary transition-colors line-clamp-2 mb-2 tracking-tight">
                                         {currentArticle.title}
                                     </h5>
-                                    {/* MINIMALIST SCALE: Description removed from slider to focus on Intelligence Summary in Modal */}
                                 </div>
 
                                 <div className="flex items-center justify-between mt-auto">
@@ -262,14 +288,13 @@ export default function NewsFeed() {
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-1 text-primary text-[10px] font-black tracking-widest opacity-0 group-hover/item:opacity-100 transition-all translate-x-2 group-hover/item:translate-x-0">
-                                        INTEL <ChevronRight className="h-3 w-3" />
+                                        {t.intel} <ChevronRight className="h-3 w-3" />
                                     </div>
                                 </div>
                             </div>
                         </motion.div>
                     </AnimatePresence>
 
-                    {/* Highly Refined Navigation Controls */}
                     <div className="absolute inset-y-0 left-3 flex items-center z-20 pointer-events-none">
                         <button
                             onClick={(e) => { e.stopPropagation(); prevSlide(); }}
@@ -291,7 +316,6 @@ export default function NewsFeed() {
                 </div>
             </div>
 
-            {/* INTEGRATED INTELLIGENCE MODAL */}
             <AnimatePresence>
                 {selectedArticle && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10">
@@ -309,7 +333,6 @@ export default function NewsFeed() {
                             exit={{ opacity: 0, scale: 0.95, y: 30 }}
                             className="relative w-full max-w-4xl bg-background border border-border/50 rounded-[32px] shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col"
                         >
-                            {/* Modal Header/Hero Section */}
                             <div className="relative h-72 sm:h-96 w-full overflow-hidden shrink-0">
                                 {selectedArticle.imageUrl ? (
                                     <img
@@ -323,11 +346,9 @@ export default function NewsFeed() {
                                     </div>
                                 )}
 
-                                {/* Professional Overlays */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
                                 <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-transparent to-transparent opacity-20" />
 
-                                {/* Floating Close Button */}
                                 <button
                                     onClick={() => setSelectedArticle(null)}
                                     className="absolute top-6 right-6 p-2.5 bg-background/40 hover:bg-primary text-foreground hover:text-white rounded-full backdrop-blur-md border border-border/50 transition-all z-30 group shadow-lg"
@@ -335,7 +356,6 @@ export default function NewsFeed() {
                                     <X className="h-5 w-5 transition-transform group-hover:rotate-90" />
                                 </button>
 
-                                {/* Metadata Hub */}
                                 <div className="absolute bottom-8 left-8 right-8 z-20">
                                     <motion.div
                                         initial={{ opacity: 0, x: -20 }}
@@ -360,7 +380,6 @@ export default function NewsFeed() {
                                 </div>
                             </div>
 
-                            {/* Deep Intel Scroller */}
                             <div className="p-8 sm:p-12 overflow-y-auto flex-1 bg-gradient-to-b from-background to-muted/20 custom-scrollbar selection:bg-primary/30">
                                 <div className="max-w-3xl mx-auto space-y-10">
                                     <motion.div
@@ -370,7 +389,7 @@ export default function NewsFeed() {
                                         className="grid grid-cols-2 sm:grid-cols-3 gap-6 py-6 border-y border-border/50"
                                     >
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Broadcast Date</p>
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t.broadcastDate}</p>
                                             <div className="flex items-center gap-2 text-foreground/80 font-bold">
                                                 <Calendar className="h-4 w-4 text-foreground/30" />
                                                 {new Date(selectedArticle.publishedAt).toLocaleDateString(undefined, {
@@ -379,17 +398,17 @@ export default function NewsFeed() {
                                             </div>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Protocol Status</p>
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t.protocolStatus}</p>
                                             <div className="flex items-center gap-2 text-emerald-500 font-black italic">
                                                 <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                VERIFIED INTEL
+                                                {t.verifiedIntel}
                                             </div>
                                         </div>
                                         <div className="hidden sm:block space-y-1">
-                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Origin Network</p>
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t.originNetwork}</p>
                                             <div className="flex items-center gap-2 text-foreground/80 font-bold">
                                                 <Globe className="h-4 w-4 text-foreground/30" />
-                                                Global Safety
+                                                {t.globalSafety}
                                             </div>
                                         </div>
                                     </motion.div>
@@ -409,7 +428,7 @@ export default function NewsFeed() {
                                                 <ExternalLink className="h-24 w-24 text-primary" />
                                             </div>
                                             <div className="relative z-10">
-                                                <h6 className="font-black text-primary text-xs uppercase tracking-[0.2em] mb-3">Intelligence Directive</h6>
+                                                <h6 className="font-black text-primary text-xs uppercase tracking-[0.2em] mb-3">{t.intelDirective}</h6>
                                                 <p className="text-sm text-foreground/60 leading-relaxed mb-8 italic max-w-xl">
                                                     "This intelligence brief is synthesized from the Guardian Network's verified data conduits. For the exhaustive investigative file and original documentation from <span className="text-primary font-bold">{selectedArticle.source}</span>, please proceed to the source terminal below."
                                                 </p>
@@ -419,7 +438,7 @@ export default function NewsFeed() {
                                                     rel="noopener noreferrer"
                                                     className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/50 group/btn active:scale-95"
                                                 >
-                                                    Access Source Terminal
+                                                    {t.accessTerminal}
                                                     <ExternalLink className="h-4 w-4 transition-transform group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
                                                 </a>
                                             </div>

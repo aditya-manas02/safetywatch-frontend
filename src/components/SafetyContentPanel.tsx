@@ -1,21 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Lightbulb, BookOpen, AlertCircle, ChevronRight, Globe } from "lucide-react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
+import { translateText } from "@/hooks/useTranslation";
 
 interface SafetyContent {
     _id: string;
     title: string;
     body: string;
-    category: "Tip" | "Guideline" | "Announcement";
+    category: string;
     author: string;
     icon: string;
+    originalCategory?: string;
 }
 
 export default function SafetyContentPanel() {
     const [contents, setContents] = useState<SafetyContent[]>([]);
+    const originalContents = useRef<SafetyContent[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentLang, setCurrentLang] = useState(localStorage.getItem("app_lang") || "en");
+    const [t, setT] = useState({
+        safetyDirectives: "SAFETY DIRECTIVES",
+        aiTranslated: "AI TRANSLATED",
+        noDirectives: "No safety directives available at this time."
+    });
 
     useEffect(() => {
         loadContent();
@@ -27,12 +35,20 @@ export default function SafetyContentPanel() {
     }, []);
 
     useEffect(() => {
+        translateUI(currentLang);
         if (currentLang !== "en") {
-            translateContent(currentLang);
+            translateAll(originalContents.current, currentLang);
         } else {
-            loadContent(); // Reset to original
+            setContents(originalContents.current);
         }
     }, [currentLang]);
+
+    const translateUI = async (lang: string) => {
+        const safetyDirectives = await translateText("SAFETY DIRECTIVES", lang);
+        const aiTranslated = await translateText("AI TRANSLATED", lang);
+        const noDirectives = await translateText("No safety directives available at this time.", lang);
+        setT({ safetyDirectives, aiTranslated, noDirectives });
+    };
 
     async function loadContent() {
         try {
@@ -41,7 +57,15 @@ export default function SafetyContentPanel() {
             });
             if (res.ok) {
                 const data = await res.json();
-                setContents(data.content);
+                const fresh = data.content.map((c: any) => ({ ...c, originalCategory: c.category }));
+                originalContents.current = fresh;
+
+                const lang = localStorage.getItem("app_lang") || "en";
+                if (lang !== "en") {
+                    translateAll(fresh, lang);
+                } else {
+                    setContents(fresh);
+                }
             }
         } catch (err) {
             console.error("Failed to load safety content:", err);
@@ -50,28 +74,17 @@ export default function SafetyContentPanel() {
         }
     }
 
-    async function translateContent(targetLang: string) {
+    async function translateAll(items: SafetyContent[], targetLang: string) {
+        if (targetLang === "en") return;
         setLoading(true);
         try {
             const translated = await Promise.all(
-                contents.map(async (item) => {
-                    const titleRes = await fetch(`${API_BASE}/translate`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
-                        body: JSON.stringify({ text: item.title, targetLanguage: targetLang })
-                    });
-                    const bodyRes = await fetch(`${API_BASE}/translate`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
-                        body: JSON.stringify({ text: item.body, targetLanguage: targetLang })
-                    });
-                    const titleData = await titleRes.json();
-                    const bodyData = await bodyRes.json();
-
+                items.map(async (item) => {
                     return {
                         ...item,
-                        title: titleData.translatedText || item.title,
-                        body: bodyData.translatedText || item.body
+                        title: await translateText(item.title, targetLang),
+                        body: await translateText(item.body, targetLang),
+                        category: await translateText(item.originalCategory || item.category, targetLang)
                     };
                 })
             );
@@ -83,13 +96,13 @@ export default function SafetyContentPanel() {
         }
     }
 
-    const getIcon = (iconName: string) => {
-        switch (iconName) {
-            case "Tip": return <Lightbulb className="h-5 w-5 text-amber-500" />;
-            case "Guideline": return <BookOpen className="h-5 w-5 text-blue-500" />;
-            case "Announcement": return <AlertCircle className="h-5 w-5 text-rose-500" />;
-            default: return <Shield className="h-5 w-5 text-primary" />;
-        }
+    const getIcon = (category: string) => {
+        // Use original category for icon matching if available
+        const search = category.toLowerCase();
+        if (search.includes("tip")) return <Lightbulb className="h-5 w-5 text-amber-500" />;
+        if (search.includes("guide")) return <BookOpen className="h-5 w-5 text-blue-500" />;
+        if (search.includes("announce")) return <AlertCircle className="h-5 w-5 text-rose-500" />;
+        return <Shield className="h-5 w-5 text-primary" />;
     };
 
     if (loading && contents.length === 0) {
@@ -107,12 +120,12 @@ export default function SafetyContentPanel() {
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-primary" />
-                    <h3 className="font-black text-xs tracking-[0.3em] uppercase opacity-60">SAFETY DIRECTIVES</h3>
+                    <h3 className="font-black text-xs tracking-[0.3em] uppercase opacity-60">{t.safetyDirectives}</h3>
                 </div>
                 {currentLang !== "en" && (
                     <div className="flex items-center gap-2 px-2 py-1 bg-primary/10 rounded-lg border border-primary/20">
                         <Globe className="h-3 w-3 text-primary animate-pulse" />
-                        <span className="text-[9px] font-black text-primary uppercase">AI TRANSLATED</span>
+                        <span className="text-[9px] font-black text-primary uppercase">{t.aiTranslated}</span>
                     </div>
                 )}
             </div>
@@ -130,7 +143,7 @@ export default function SafetyContentPanel() {
                         >
                             <div className="flex gap-4">
                                 <div className="p-3 bg-white/5 rounded-xl border border-white/5 group-hover:scale-110 transition-transform duration-300">
-                                    {getIcon(item.category)}
+                                    {getIcon(item.originalCategory || item.category)}
                                 </div>
                                 <div className="flex-1 space-y-2">
                                     <div className="flex items-center justify-between">
@@ -152,7 +165,7 @@ export default function SafetyContentPanel() {
 
                 {contents.length === 0 && !loading && (
                     <div className="p-8 text-center bg-white/5 rounded-3xl border border-dashed border-white/10">
-                        <p className="text-sm text-muted-foreground italic">No safety directives available at this time.</p>
+                        <p className="text-sm text-muted-foreground italic">{t.noDirectives}</p>
                     </div>
                 )}
             </div>
