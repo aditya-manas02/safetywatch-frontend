@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 
-const CACHE_KEY = "translation_cache_v1";
+const CACHE_KEY = "translation_cache_v2";
 
 interface Cache {
     [lang: string]: {

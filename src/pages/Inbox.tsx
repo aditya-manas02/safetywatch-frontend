@@ -31,6 +31,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import PullToRefresh from "@/components/PullToRefresh";
 
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -234,156 +235,158 @@ export default function Inbox() {
                 "w-full md:w-[320px] lg:w-[380px] flex flex-col border-r bg-background/50 backdrop-blur-xl transition-all z-20",
                 selectedThreadId && isMobile ? "hidden" : "flex"
             )}>
-                {/* Header */}
-                <div className="p-4 space-y-4">
-                    <div className="flex items-center gap-3">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-full"
-                            onClick={() => navigate("/")}
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                        </Button>
-                        <h1 className="text-xl font-black tracking-tight flex items-center gap-2.5">
-                            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center shadow-lg shadow-primary/20">
-                                <MessageSquare className="h-4 w-4 text-white" />
-                            </div>
-                            Secure Inbox
-                        </h1>
-                    </div>
-
-                    <div className="relative group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                        <Input
-                            placeholder="Search channels..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 bg-muted/50 border-input rounded-xl focus-visible:ring-primary/30 transition-all hover:bg-muted"
-                        />
-                    </div>
-
-                    <Tabs defaultValue="all" value={filter} onValueChange={(v: any) => setFilter(v)} className="w-full">
-                        <TabsList className="w-full grid grid-cols-3 bg-muted/50 p-1 rounded-xl">
-                            <TabsTrigger value="all" className="rounded-lg text-xs font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All</TabsTrigger>
-                            <TabsTrigger value="active" className="rounded-lg text-xs font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Active</TabsTrigger>
-                            <TabsTrigger value="resolved" className="rounded-lg text-xs font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Archived</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                </div>
-
-                {/* List */}
-                <ScrollArea className="flex-1 px-2">
-                    <div className="space-y-1 pb-4">
-                        {loading ? (
-                            [...Array(5)].map((_, i) => (
-                                <div key={i} className="flex gap-3 p-3 mx-2 rounded-xl animate-pulse">
-                                    <div className="h-10 w-10 rounded-full bg-muted" />
-                                    <div className="flex-1 space-y-2">
-                                        <div className="h-3 w-24 bg-muted rounded" />
-                                        <div className="h-2 w-full bg-muted rounded" />
-                                    </div>
+                <PullToRefresh onRefresh={fetchConversations}>
+                    {/* Header */}
+                    <div className="p-4 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-full"
+                                onClick={() => navigate("/")}
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                            </Button>
+                            <h1 className="text-xl font-black tracking-tight flex items-center gap-2.5">
+                                <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center shadow-lg shadow-primary/20">
+                                    <MessageSquare className="h-4 w-4 text-white" />
                                 </div>
-                            ))
-                        ) : filteredConversations.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-12 text-center opacity-40 px-6">
-                                <Filter className="h-8 w-8 mb-3" />
-                                <p className="text-sm font-bold">No active feeds found</p>
-                                <p className="text-xs">Try adjusting your filters.</p>
-                            </div>
-                        ) : (
-                            filteredConversations.map((conv) => (
-                                <div
-                                    key={`${conv._id}_${conv.otherParty._id}`}
-                                    onClick={() => setSelectedThreadId(`${conv._id}_${conv.otherParty._id}`)}
-                                    className={cn(
-                                        "group flex gap-3 p-3 mx-2 rounded-2xl cursor-pointer border transition-all duration-200 relative overflow-hidden active:scale-[0.98]",
-                                        selectedThreadId === `${conv._id}_${conv.otherParty._id}`
-                                            ? "bg-primary/10 border-primary/20 shadow-md"
-                                            : "bg-transparent border-transparent hover:bg-muted/50 hover:border-border/50"
-                                    )}
-                                >
-                                    <div className={cn(
-                                        "absolute left-0 top-0 bottom-0 w-1 transition-all duration-300",
-                                        selectedThreadId === `${conv._id}_${conv.otherParty._id}` ? "bg-primary" : "bg-transparent"
-                                    )} />
+                                Secure Inbox
+                            </h1>
+                        </div>
 
-                                    <div className="h-10 w-10 relative shrink-0 group-hover:scale-110 transition-transform">
-                                        <Avatar className="h-10 w-10 border border-white/10 shadow-inner">
-                                            <AvatarImage
-                                                src={conv.otherParty.profilePicture?.startsWith('http')
-                                                    ? conv.otherParty.profilePicture
-                                                    : conv.otherParty.profilePicture
-                                                        ? `${API_BASE.replace('/api', '')}${conv.otherParty.profilePicture}`
-                                                        : undefined}
-                                                className="object-cover"
-                                            />
-                                            <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-800 text-[10px] font-bold text-white">
-                                                {conv.otherParty.name.substring(0, 2).toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
+                        <div className="relative group">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Input
+                                placeholder="Search channels..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-9 bg-muted/50 border-input rounded-xl focus-visible:ring-primary/30 transition-all hover:bg-muted"
+                            />
+                        </div>
 
-                                        {/* Status Indicator Overlay */}
-                                        <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-background flex items-center justify-center p-0.5">
-                                            {conv.status === "problem solved" ? (
-                                                <div className="bg-emerald-500 rounded-full p-0.5">
-                                                    <CheckCircle2 className="h-2.5 w-2.5 text-white" />
-                                                </div>
-                                            ) : (
-                                                <div className="bg-amber-500 rounded-full p-0.5">
-                                                    <AlertTriangle className="h-2.5 w-2.5 text-white" />
-                                                </div>
-                                            )}
+                        <Tabs defaultValue="all" value={filter} onValueChange={(v: any) => setFilter(v)} className="w-full">
+                            <TabsList className="w-full grid grid-cols-3 bg-muted/50 p-1 rounded-xl">
+                                <TabsTrigger value="all" className="rounded-lg text-xs font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All</TabsTrigger>
+                                <TabsTrigger value="active" className="rounded-lg text-xs font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Active</TabsTrigger>
+                                <TabsTrigger value="resolved" className="rounded-lg text-xs font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Archived</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </div>
+
+                    {/* List */}
+                    <ScrollArea className="flex-1 px-2">
+                        <div className="space-y-1 pb-4">
+                            {loading ? (
+                                [...Array(5)].map((_, i) => (
+                                    <div key={i} className="flex gap-3 p-3 mx-2 rounded-xl animate-pulse">
+                                        <div className="h-10 w-10 rounded-full bg-muted" />
+                                        <div className="flex-1 space-y-2">
+                                            <div className="h-3 w-24 bg-muted rounded" />
+                                            <div className="h-2 w-full bg-muted rounded" />
                                         </div>
                                     </div>
+                                ))
+                            ) : filteredConversations.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 text-center opacity-40 px-6">
+                                    <Filter className="h-8 w-8 mb-3" />
+                                    <p className="text-sm font-bold">No active feeds found</p>
+                                    <p className="text-xs">Try adjusting your filters.</p>
+                                </div>
+                            ) : (
+                                filteredConversations.map((conv) => (
+                                    <div
+                                        key={`${conv._id}_${conv.otherParty._id}`}
+                                        onClick={() => setSelectedThreadId(`${conv._id}_${conv.otherParty._id}`)}
+                                        className={cn(
+                                            "group flex gap-3 p-3 mx-2 rounded-2xl cursor-pointer border transition-all duration-200 relative overflow-hidden active:scale-[0.98]",
+                                            selectedThreadId === `${conv._id}_${conv.otherParty._id}`
+                                                ? "bg-primary/10 border-primary/20 shadow-md"
+                                                : "bg-transparent border-transparent hover:bg-muted/50 hover:border-border/50"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "absolute left-0 top-0 bottom-0 w-1 transition-all duration-300",
+                                            selectedThreadId === `${conv._id}_${conv.otherParty._id}` ? "bg-primary" : "bg-transparent"
+                                        )} />
 
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start mb-0.5">
-                                            <h3 className={cn("font-bold text-sm truncate pr-2", selectedThreadId === `${conv._id}_${conv.otherParty._id}` ? "text-primary" : "text-muted-foreground group-hover:text-foreground transition-colors")}>
-                                                {conv.otherParty.name}
-                                            </h3>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[9px] font-bold text-muted-foreground/60 whitespace-nowrap">
-                                                    {new Date(conv.lastMessage?.createdAt || conv.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                                </span>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDeleteChat(conv._id, conv.otherParty._id);
-                                                    }}
-                                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-500/10 rounded-md text-muted-foreground hover:text-rose-500 transition-all"
-                                                    title="Delete Chat"
-                                                >
-                                                    <Trash2 className="h-3 w-3" />
-                                                </button>
+                                        <div className="h-10 w-10 relative shrink-0 group-hover:scale-110 transition-transform">
+                                            <Avatar className="h-10 w-10 border border-white/10 shadow-inner">
+                                                <AvatarImage
+                                                    src={conv.otherParty.profilePicture?.startsWith('http')
+                                                        ? conv.otherParty.profilePicture
+                                                        : conv.otherParty.profilePicture
+                                                            ? `${API_BASE.replace('/api', '')}${conv.otherParty.profilePicture}`
+                                                            : undefined}
+                                                    className="object-cover"
+                                                />
+                                                <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-800 text-[10px] font-bold text-white">
+                                                    {conv.otherParty.name.substring(0, 2).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+
+                                            {/* Status Indicator Overlay */}
+                                            <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-background flex items-center justify-center p-0.5">
+                                                {conv.status === "problem solved" ? (
+                                                    <div className="bg-emerald-500 rounded-full p-0.5">
+                                                        <CheckCircle2 className="h-2.5 w-2.5 text-white" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="bg-amber-500 rounded-full p-0.5">
+                                                        <AlertTriangle className="h-2.5 w-2.5 text-white" />
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        <p className="text-xs text-muted-foreground truncate flex items-center gap-1.5 h-4">
-                                            {conv.lastMessage ? (
-                                                <>
-                                                    <span className="text-primary/70 font-medium text-[10px]">
-                                                        {(conv.lastMessage.senderId?.name || "User").split(' ')[0]}:
-                                                    </span>
-                                                    <span className="truncate opacity-80">{conv.lastMessage.content}</span>
-                                                </>
-                                            ) : (
-                                                <span className="italic flex items-center gap-1 text-[10px] opacity-60"><Lock className="h-2.5 w-2.5" /> Secure Channel</span>
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </ScrollArea>
 
-                {/* User Status Footer */}
-                <div className="p-3 border-t bg-background/30 backdrop-blur-md">
-                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-muted/50 border border-border/50">
-                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">System Online • Encrypted</span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start mb-0.5">
+                                                <h3 className={cn("font-bold text-sm truncate pr-2", selectedThreadId === `${conv._id}_${conv.otherParty._id}` ? "text-primary" : "text-muted-foreground group-hover:text-foreground transition-colors")}>
+                                                    {conv.otherParty.name}
+                                                </h3>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[9px] font-bold text-muted-foreground/60 whitespace-nowrap">
+                                                        {new Date(conv.lastMessage?.createdAt || conv.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                    </span>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteChat(conv._id, conv.otherParty._id);
+                                                        }}
+                                                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-500/10 rounded-md text-muted-foreground hover:text-rose-500 transition-all"
+                                                        title="Delete Chat"
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground truncate flex items-center gap-1.5 h-4">
+                                                {conv.lastMessage ? (
+                                                    <>
+                                                        <span className="text-primary/70 font-medium text-[10px]">
+                                                            {(conv.lastMessage.senderId?.name || "User").split(' ')[0]}:
+                                                        </span>
+                                                        <span className="truncate opacity-80">{conv.lastMessage.content}</span>
+                                                    </>
+                                                ) : (
+                                                    <span className="italic flex items-center gap-1 text-[10px] opacity-60"><Lock className="h-2.5 w-2.5" /> Secure Channel</span>
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </ScrollArea>
+
+                    {/* User Status Footer */}
+                    <div className="p-3 border-t bg-background/30 backdrop-blur-md">
+                        <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-muted/50 border border-border/50">
+                            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">System Online • Encrypted</span>
+                        </div>
                     </div>
-                </div>
+                </PullToRefresh>
             </div>
 
             {/* --- CENTER PANEL: CHAT --- */}
