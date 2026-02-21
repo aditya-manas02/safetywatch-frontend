@@ -6,7 +6,7 @@ import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
-import { translateText } from "@/hooks/useTranslation";
+import { translateText, translateBatch } from "@/hooks/useTranslation";
 
 function AnimatedCounter({ value }: { value: number }) {
   const count = useMotionValue(0);
@@ -54,7 +54,7 @@ export default function Hero({
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
-  const [t, setT] = useState({
+  const DEFAULT_T = {
     empowering: "Empowering Communities",
     safetyIn: "Safety in Every",
     neighborhood: "Neighborhood.",
@@ -72,7 +72,9 @@ export default function Hero({
     latestSignals: "LATEST SIGNALS",
     commonType: "",
     latestIncidents: [] as any[]
-  });
+  };
+
+  const [t, setT] = useState(DEFAULT_T);
 
   const isFetching = useRef(false);
 
@@ -83,37 +85,65 @@ export default function Hero({
   }, []);
 
   const translateUI = async (lang: string, currentStats: Stats | null, currentLatest: Incident[]) => {
-    const empowering = await translateText("Empowering Communities", lang);
-    const safetyIn = await translateText("Safety in Every", lang);
-    const neighborhood = await translateText("Neighborhood.", lang);
-    const heroDesc = await translateText("SafetyWatch provides real-time community insights, incident reporting, and neighborhood transparency to help you stay protected and connected.", lang);
-    const reportBtn = await translateText("Report Incident", lang);
-    const viewFeedBtn = await translateText("View Feed", lang);
-    const getApp = await translateText("Get the App", lang);
-    const liveOverview = await translateText("LIVE OVERVIEW", lang);
-    const liveUplink = await translateText("Live Uplink", lang);
-    const reports = await translateText("Reports", lang);
-    const alerts = await translateText("Alerts", lang);
-    const members = await translateText("Members", lang);
-    const primaryConcern = await translateText("Primary Concern", lang);
-    const mostReported = await translateText("Most reported in your area", lang);
-    const latestSignals = await translateText("LATEST SIGNALS", lang);
+    if (lang === "en") {
+      setT({
+        ...DEFAULT_T,
+        commonType: currentStats?.mostCommonType || "",
+        latestIncidents: currentLatest
+      });
+      return;
+    }
 
-    const commonType = currentStats?.mostCommonType ? await translateText(currentStats.mostCommonType, lang) : "";
-    const latestIncidents = await Promise.all(
-      currentLatest.map(async (inc) => ({
-        ...inc,
-        translatedTitle: await translateText(inc.title, lang),
-        translatedType: await translateText(inc.type, lang)
-      }))
-    );
+    const staticLabels = [
+      "Empowering Communities", "Safety in Every", "Neighborhood.",
+      "SafetyWatch provides real-time community insights, incident reporting, and neighborhood transparency to help you stay protected and connected.",
+      "Report Incident", "View Feed", "Get the App", "LIVE OVERVIEW", "Live Uplink",
+      "Reports", "Alerts", "Members", "Primary Concern", "Most reported in your area", "LATEST SIGNALS"
+    ];
 
-    setT({
-      empowering, safetyIn, neighborhood, heroDesc, reportBtn, viewFeedBtn,
-      getApp, liveOverview, liveUplink, reports, alerts, members,
-      primaryConcern, mostReported, latestSignals,
-      commonType, latestIncidents
-    });
+    if (currentStats?.mostCommonType) staticLabels.push(currentStats.mostCommonType);
+
+    const incidentTexts = currentLatest.flatMap(inc => [inc.title, inc.type]);
+    const allToTranslate = [...staticLabels, ...incidentTexts];
+
+    try {
+      const translated = await translateBatch(allToTranslate, lang);
+
+      let ptr = 0;
+      const staticTranslated = translated.slice(0, staticLabels.length);
+      ptr = staticLabels.length;
+
+      const latestTranslated = [];
+      for (let i = 0; i < currentLatest.length; i++) {
+        latestTranslated.push({
+          ...currentLatest[i],
+          translatedTitle: translated[ptr++],
+          translatedType: translated[ptr++]
+        });
+      }
+
+      setT({
+        empowering: staticTranslated[0],
+        safetyIn: staticTranslated[1],
+        neighborhood: staticTranslated[2],
+        heroDesc: staticTranslated[3],
+        reportBtn: staticTranslated[4],
+        viewFeedBtn: staticTranslated[5],
+        getApp: staticTranslated[6],
+        liveOverview: staticTranslated[7],
+        liveUplink: staticTranslated[8],
+        reports: staticTranslated[9],
+        alerts: staticTranslated[10],
+        members: staticTranslated[11],
+        primaryConcern: staticTranslated[12],
+        mostReported: staticTranslated[13],
+        latestSignals: staticTranslated[14],
+        commonType: currentStats?.mostCommonType ? staticTranslated[15] : "",
+        latestIncidents: latestTranslated
+      });
+    } catch (err) {
+      console.error("Hero translation failed:", err);
+    }
   };
 
   useEffect(() => {

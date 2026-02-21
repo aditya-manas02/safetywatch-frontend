@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
-import { translateText } from "@/hooks/useTranslation";
+import { translateText, translateBatch } from "@/hooks/useTranslation";
 
 type SignalClass = "ALPHA" | "SIGMA" | "PULSE" | "INTEL";
 
@@ -153,12 +153,25 @@ const SafetyPulse = () => {
                 return;
             }
 
-            const translated = await Promise.all(baseSignals.map(async (sig) => ({
-                ...sig,
-                text: await translateText(sig.text, lang),
-                location: await translateText(sig.location, lang)
-            })));
-            setTranslatedSignals(translated);
+            try {
+                const signalTexts = baseSignals.map(sig => sig.text);
+                const signalLocations = baseSignals.map(sig => sig.location);
+
+                const [translatedTexts, translatedLocations] = await Promise.all([
+                    translateBatch(signalTexts, lang),
+                    translateBatch(signalLocations, lang)
+                ]);
+
+                const translated = baseSignals.map((sig, i) => ({
+                    ...sig,
+                    text: translatedTexts[i],
+                    location: translatedLocations[i]
+                }));
+                setTranslatedSignals(translated);
+            } catch (err) {
+                console.error("SafetyPulse translation failed:", err);
+                setTranslatedSignals(baseSignals);
+            }
         };
         translateSignals();
     }, [baseSignals]);

@@ -52,6 +52,65 @@ export const translateText = async (text: string, targetLang: string): Promise<s
     }
 };
 
+export const translateBatch = async (texts: string[], targetLang: string): Promise<string[]> => {
+    if (!texts.length || targetLang === "en") return texts;
+
+    const cache = getCache();
+    const result: string[] = new Array(texts.length);
+    const missingIndices: number[] = [];
+    const missingTexts: string[] = [];
+
+    // Check cache first
+    texts.forEach((text, i) => {
+        if (cache[targetLang] && cache[targetLang][text]) {
+            result[i] = cache[targetLang][text];
+        } else {
+            missingIndices.push(i);
+            missingTexts.push(text);
+        }
+    });
+
+    if (missingTexts.length === 0) return result;
+
+    try {
+        const res = await fetch(`${API_BASE}/translate/batch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+            body: JSON.stringify({ texts: missingTexts, targetLanguage: targetLang })
+        });
+
+        if (!res.ok) {
+            // Fill missing with originals on failure
+            missingIndices.forEach((idx, i) => {
+                result[idx] = missingTexts[i];
+            });
+            return result;
+        }
+
+        const data = await res.json();
+        const translatedTexts = data.translatedTexts || missingTexts;
+
+        // Update result and cache
+        const finalCache = getCache();
+        if (!finalCache[targetLang]) finalCache[targetLang] = {};
+
+        missingIndices.forEach((originalIdx, i) => {
+            const translated = translatedTexts[i] || missingTexts[i];
+            result[originalIdx] = translated;
+            finalCache[targetLang][missingTexts[i]] = translated;
+        });
+
+        saveCache(finalCache);
+        return result;
+    } catch (err) {
+        console.error("Batch translation error:", err);
+        missingIndices.forEach((idx, i) => {
+            result[idx] = missingTexts[i];
+        });
+        return result;
+    }
+};
+
 export function useTranslation() {
     const [currentLang, setCurrentLang] = useState(localStorage.getItem("app_lang") || "en");
 

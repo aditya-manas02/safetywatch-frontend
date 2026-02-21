@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Lightbulb, BookOpen, AlertCircle, ChevronRight, Globe } from "lucide-react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
-import { translateText } from "@/hooks/useTranslation";
+import { translateText, translateBatch } from "@/hooks/useTranslation";
 
 interface SafetyContent {
     _id: string;
@@ -19,11 +19,12 @@ export default function SafetyContentPanel() {
     const originalContents = useRef<SafetyContent[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentLang, setCurrentLang] = useState(localStorage.getItem("app_lang") || "en");
-    const [t, setT] = useState({
+    const DEFAULT_T = {
         safetyDirectives: "SAFETY DIRECTIVES",
         aiTranslated: "AI TRANSLATED",
         noDirectives: "No safety directives available at this time."
-    });
+    };
+    const [t, setT] = useState(DEFAULT_T);
 
     useEffect(() => {
         loadContent();
@@ -44,11 +45,17 @@ export default function SafetyContentPanel() {
     }, [currentLang]);
 
     const translateUI = async (lang: string) => {
-        const safetyDirectives = await translateText("SAFETY DIRECTIVES", lang);
-        const aiTranslated = await translateText("AI TRANSLATED", lang);
-        const noDirectives = await translateText("No safety directives available at this time.", lang);
-        setT({ safetyDirectives, aiTranslated, noDirectives });
+        if (lang === "en") { setT(DEFAULT_T); return; }
+        try {
+            const labels = Object.values(DEFAULT_T);
+            const keys = Object.keys(DEFAULT_T);
+            const translated = await translateBatch(labels, lang);
+            const newT = { ...DEFAULT_T };
+            keys.forEach((key, i) => { (newT as any)[key] = translated[i]; });
+            setT(newT);
+        } catch (err) { console.error("SafetyContentPanel UI translation failed:", err); }
     };
+
 
     async function loadContent() {
         try {
@@ -75,22 +82,30 @@ export default function SafetyContentPanel() {
     }
 
     async function translateAll(items: SafetyContent[], targetLang: string) {
-        if (targetLang === "en") return;
+        if (targetLang === "en") {
+            setContents(originalContents.current);
+            return;
+        }
         setLoading(true);
+
+        const textsToTranslate = items.flatMap(item => [
+            item.title,
+            item.body,
+            item.originalCategory || item.category
+        ]);
+
         try {
-            const translated = await Promise.all(
-                items.map(async (item) => {
-                    return {
-                        ...item,
-                        title: await translateText(item.title, targetLang),
-                        body: await translateText(item.body, targetLang),
-                        category: await translateText(item.originalCategory || item.category, targetLang)
-                    };
-                })
-            );
-            setContents(translated);
+            const translated = await translateBatch(textsToTranslate, targetLang);
+            const translatedContents = items.map((item, i) => ({
+                ...item,
+                title: translated[i * 3],
+                body: translated[i * 3 + 1],
+                category: translated[i * 3 + 2]
+            }));
+            setContents(translatedContents);
         } catch (err) {
-            console.error("Translation fail:", err);
+            console.error("SafetyContentPanel items translation failed:", err);
+            setContents(items);
         } finally {
             setLoading(false);
         }

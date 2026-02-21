@@ -41,7 +41,7 @@ import PollsWidget from "@/components/PollsWidget";
 import { ChallengesSection } from "@/components/ChallengesSection";
 import AdCarousel from "@/components/AdCarousel";
 import SafetyContentPanel from "@/components/SafetyContentPanel";
-import { translateText } from "@/hooks/useTranslation";
+import { translateText, translateBatch } from "@/hooks/useTranslation";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ export default function Index() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [focusedIncident, setFocusedIncident] = useState<Incident | null>(null);
 
-  const [t, setT] = useState({
+  const DEFAULT_T = {
     adminAlerts: "Administrative Alerts",
     popularIncidents: "Popular Incidents",
     popularDesc: "Critical reports verified and highlighted by local authorities.",
@@ -82,39 +82,29 @@ export default function Index() {
     trackStatus: "Track Status",
     communityFirst: "Community First",
     communityDesc: "Join thousands of citizens keeping their neighborhoods safe through collaborative vigilance and real-time reporting."
-  });
+  };
+
+  const [t, setT] = useState(DEFAULT_T);
 
   const translateUI = async (lang: string) => {
-    if (lang === "en") return;
-    const adminAlerts = await translateText("Administrative Alerts", lang);
-    const popularIncidents = await translateText("Popular Incidents", lang);
-    const popularDesc = await translateText("Critical reports verified and highlighted by local authorities.", lang);
-    const neighborhoodWatch = await translateText("Neighborhood Watch", lang);
-    const nearLocation = await translateText("Near Your Location", lang);
-    const nearDesc = await translateText("Incidents reported within a 10km radius of your current position.", lang);
-    const locationRequired = await translateText("Location services are required to see nearby incidents.", lang);
-    const enableLocation = await translateText("Enable Location", lang);
-    const noNearby = await translateText("No incidents reported near you. Stay safe!", lang);
-    const liveUpdates = await translateText("Live Updates", lang);
-    const reportTracking = await translateText("Report Tracking", lang);
-    const viewAllReports = await translateText("View All Reports", lang);
-    const noReportsYet = await translateText("You haven't reported any incidents yet.", lang);
-    const fileFirstReport = await translateText("File Your First Report", lang);
-    const liveHeatmap = await translateText("Live Heatmap", lang);
-    const heatmapDesc = await translateText("Interactive Density Analysis", lang);
-    const strategicCenter = await translateText("Strategic Center", lang);
-    const strategicDesc = await translateText("Access critical safety tools or contribute to the community safety network.", lang);
-    const instantReport = await translateText("Instant Report", lang);
-    const trackStatus = await translateText("Track Status", lang);
-    const communityFirst = await translateText("Community First", lang);
-    const communityDesc = await translateText("Join thousands of citizens keeping their neighborhoods safe through collaborative vigilance and real-time reporting.", lang);
+    if (lang === "en") {
+      setT(DEFAULT_T);
+      return;
+    }
 
-    setT({
-      adminAlerts, popularIncidents, popularDesc, neighborhoodWatch, nearLocation, nearDesc,
-      locationRequired, enableLocation, noNearby, liveUpdates, reportTracking, viewAllReports,
-      noReportsYet, fileFirstReport, liveHeatmap, heatmapDesc, strategicCenter, strategicDesc,
-      instantReport, trackStatus, communityFirst, communityDesc
-    });
+    const labels = Object.values(DEFAULT_T);
+    const keys = Object.keys(DEFAULT_T);
+
+    try {
+      const translated = await translateBatch(labels, lang);
+      const newT = { ...DEFAULT_T };
+      keys.forEach((key, i) => {
+        (newT as any)[key] = translated[i];
+      });
+      setT(newT);
+    } catch (err) {
+      console.error("Index translation failed:", err);
+    }
   };
 
   useEffect(() => {

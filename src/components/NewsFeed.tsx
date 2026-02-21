@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Newspaper, ChevronLeft, ChevronRight, X, ExternalLink, Calendar, Globe } from "lucide-react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
-import { translateText } from "@/hooks/useTranslation";
+import { translateText, translateBatch } from "@/hooks/useTranslation";
 
 interface NewsArticle {
     title: string;
@@ -21,7 +21,7 @@ export default function NewsFeed() {
     const [direction, setDirection] = useState(0);
     const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-    const [t, setT] = useState({
+    const DEFAULT_T = {
         recentNews: "RECENT NEWS",
         updated: "UPDATED",
         intel: "INTEL",
@@ -35,7 +35,9 @@ export default function NewsFeed() {
         justNow: "Just now",
         hAgo: "h ago",
         dAgo: "d ago"
-    });
+    };
+
+    const [t, setT] = useState(DEFAULT_T);
 
     useEffect(() => {
         loadNews();
@@ -53,25 +55,24 @@ export default function NewsFeed() {
     }, [articles.length, selectedArticle]);
 
     const translateUI = async (lang: string) => {
-        const recentNews = await translateText("RECENT NEWS", lang);
-        const updated = await translateText("UPDATED", lang);
-        const intel = await translateText("INTEL", lang);
-        const broadcastDate = await translateText("Broadcast Date", lang);
-        const protocolStatus = await translateText("Protocol Status", lang);
-        const verifiedIntel = await translateText("VERIFIED INTEL", lang);
-        const originNetwork = await translateText("Origin Network", lang);
-        const globalSafety = await translateText("Global Safety", lang);
-        const intelDirective = await translateText("Intelligence Directive", lang);
-        const accessTerminal = await translateText("Access Source Terminal", lang);
-        const justNow = await translateText("Just now", lang);
-        const hAgo = await translateText("h ago", lang);
-        const dAgo = await translateText("d ago", lang);
+        if (lang === "en") {
+            setT(DEFAULT_T);
+            return;
+        }
 
-        setT({
-            recentNews, updated, intel, broadcastDate, protocolStatus,
-            verifiedIntel, originNetwork, globalSafety, intelDirective,
-            accessTerminal, justNow, hAgo, dAgo
-        });
+        const labels = Object.values(DEFAULT_T);
+        const keys = Object.keys(DEFAULT_T);
+
+        try {
+            const translated = await translateBatch(labels, lang);
+            const newT = { ...DEFAULT_T };
+            keys.forEach((key, i) => {
+                (newT as any)[key] = translated[i];
+            });
+            setT(newT);
+        } catch (err) {
+            console.error("NewsFeed UI translation failed:", err);
+        }
     };
 
     async function loadNews() {
@@ -106,19 +107,20 @@ export default function NewsFeed() {
             setArticles(originalArticles.current);
             return;
         }
+
+        const textsToTranslate = articlesToTranslate.flatMap(a => [a.title, a.description]);
+
         try {
-            const translatedArticles = await Promise.all(
-                articlesToTranslate.map(async (article) => {
-                    return {
-                        ...article,
-                        title: await translateText(article.title, targetLang),
-                        description: await translateText(article.description, targetLang)
-                    };
-                })
-            );
+            const translated = await translateBatch(textsToTranslate, targetLang);
+            const translatedArticles = articlesToTranslate.map((article, i) => ({
+                ...article,
+                title: translated[i * 2],
+                description: translated[i * 2 + 1]
+            }));
             setArticles(translatedArticles);
         } catch (err) {
-            console.error("Translation error in NewsFeed:", err);
+            console.error("NewsFeed articles translation failed:", err);
+            setArticles(articlesToTranslate);
         }
     }
 
