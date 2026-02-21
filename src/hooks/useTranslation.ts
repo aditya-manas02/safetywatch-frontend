@@ -35,20 +35,35 @@ export const translateText = async (text: string, targetLang: string): Promise<s
         const isNative = Capacitor.isNativePlatform();
 
         if (isNative) {
-            const res = await CapacitorHttp.post({
-                url: `${API_BASE}/translate`,
-                headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
-                data: { text, targetLanguage: targetLang }
-            });
+            try {
+                const res = await CapacitorHttp.post({
+                    url: `${API_BASE}/translate`,
+                    headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                    data: { text, targetLanguage: targetLang },
+                    connectTimeout: 10000,
+                    readTimeout: 10000
+                });
 
-            console.log("[TRANSLATE] Native response:", res.status, typeof res.data);
+                console.log("[TRANSLATE] Native response:", res.status, typeof res.data);
 
-            if (res.status >= 200 && res.status < 300 && res.data) {
-                // CapacitorHttp data might be a string even for JSON
-                const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-                translatedText = data.translatedText || text;
-            } else if (res.status === 426) {
-                console.warn("[TRANSLATE] Version block on native.");
+                if (res.status >= 200 && res.status < 300 && res.data) {
+                    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+                    translatedText = data.translatedText || text;
+                } else {
+                    console.warn(`[TRANSLATE] Native failure: ${res.status}`);
+                }
+            } catch (nativeErr) {
+                console.error("[TRANSLATE] CapacitorHttp failed, trying fetch fallback:", nativeErr);
+                // Last ditch effort
+                const fRes = await fetch(`${API_BASE}/translate`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                    body: JSON.stringify({ text, targetLanguage: targetLang })
+                });
+                if (fRes.ok) {
+                    const fData = await fRes.json();
+                    translatedText = fData.translatedText || text;
+                }
             }
         } else {
             const res = await fetch(`${API_BASE}/translate`, {
@@ -102,19 +117,23 @@ export const translateBatch = async (texts: string[], targetLang: string): Promi
         const isNative = Capacitor.isNativePlatform();
 
         if (isNative) {
-            const res = await CapacitorHttp.post({
-                url: `${API_BASE}/translate/batch`,
-                headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
-                data: { texts: missingTexts, targetLanguage: targetLang }
-            });
+            try {
+                const res = await CapacitorHttp.post({
+                    url: `${API_BASE}/translate/batch`,
+                    headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
+                    data: { texts: missingTexts, targetLanguage: targetLang },
+                    connectTimeout: 15000,
+                    readTimeout: 15000
+                });
 
-            console.log("[TRANSLATE/batch] Native response:", res.status, typeof res.data);
+                console.log("[TRANSLATE/batch] Native response:", res.status, typeof res.data);
 
-            if (res.status >= 200 && res.status < 300 && res.data) {
-                const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-                translatedTexts = data.translatedTexts;
-            } else if (res.status === 426) {
-                console.warn("[TRANSLATE/batch] Version block on native.");
+                if (res.status >= 200 && res.status < 300 && res.data) {
+                    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+                    translatedTexts = data.translatedTexts;
+                }
+            } catch (nativeErr) {
+                console.error("[TRANSLATE/batch] CapacitorHttp failed:", nativeErr);
             }
         } else {
             const res = await fetch(`${API_BASE}/translate/batch`, {
