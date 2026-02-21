@@ -222,6 +222,7 @@ export default function Index() {
       const resp = await fetch(`${API_BASE}/incidents/my-reports`, {
         headers: getAuthHeaders(token)
       });
+      const data = await resp.json();
       const mapped = (data || []).map(mapIncident);
       rawMyReports.current = mapped;
       const lang = localStorage.getItem("app_lang") || "en";
