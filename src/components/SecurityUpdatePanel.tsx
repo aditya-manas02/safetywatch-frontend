@@ -264,6 +264,10 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         }
     };
 
+    const getFileName = () => {
+        return `SafetyWatch_v${versionInfo?.version.replace(/\./g, '_') || 'latest'}.apk`;
+    };
+
     const startDownload = async () => {
         const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
         if (!downloadUrl) {
@@ -272,18 +276,11 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         }
 
         console.log('[VERSION_CHECK] Update sequence initiated. Verifying native bridge...');
-
-        // We no longer pre-emptively block based on isPluginAvailable.
-        // We will attempt the download and only fall back on actual failure.
-
-        // Note: For internal storage (Cache/Data), explicit permissions are often not required on modern Android.
-        // We will proceed directly to download and handle any access errors during the operation.
-
         setIsDownloading(true);
         setDownloadProgress(5);
 
         try {
-            const fileName = `SafetyWatch_v${versionInfo?.version.replace(/\./g, '_') || 'latest'}.apk`;
+            const fileName = getFileName();
             console.log('[VERSION_DL] Target:', fileName);
 
             // PRE-SYNC CLEANUP
@@ -315,78 +312,29 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             } catch (err: any) {
                 console.warn('[VERSION_DL] Protocol A Failed (likely older shell):', err.message);
 
-                // STRATEGY B: Batch-Sync (Memory-Stable Streaming)
+                // STRATEGY B: Single-Shot Sync (Avoids base64 corruption)
                 try {
-                    console.log('[VERSION_DL] Protocol B: Batch Sync');
+                    console.log('[VERSION_DL] Protocol B: Single-Shot Sync');
                     setDownloadProgress(11);
 
                     const response = await fetch(downloadUrl);
                     if (!response.ok) throw new Error(`Server returned ${response.status}`);
 
-                    const contentLength = +(response.headers.get('Content-Length') || 0);
-                    const reader = response.body?.getReader();
-                    if (!reader) throw new Error("Stream reader unavailable");
+                    const blob = await response.blob();
+                    const base64Data = await new Promise<string>((resolve, reject) => {
+                        const fr = new FileReader();
+                        fr.onload = () => resolve((fr.result as string).split(',')[1]);
+                        fr.onerror = reject;
+                        fr.readAsDataURL(blob);
+                    });
 
-                    let receivedLength = 0;
-                    let batchChunks: Uint8Array[] = [];
-                    let batchSize = 0;
-                    const BATCH_THRESHOLD = 2 * 1024 * 1024; // 2MB Batches
-                    let isFirstWrite = true;
+                    await Filesystem.writeFile({
+                        path: fileName,
+                        data: base64Data,
+                        directory: Directory.Cache
+                    });
 
-                    while (true) {
-                        const { done, value } = await reader.read();
-
-                        // If we have data, add to batch
-                        if (value) {
-                            batchChunks.push(value);
-                            batchSize += value.length;
-                            receivedLength += value.length;
-                        }
-
-                        // Write to disk if we hit threshold OR we are finished
-                        if (batchSize >= BATCH_THRESHOLD || (done && batchSize > 0)) {
-                            console.log(`[VERSION_DL] Writing batch: ${Math.round(receivedLength / 1024 / 1024)}MB / ${Math.round(contentLength / 1024 / 1024)}MB`);
-
-                            const batchBlob = new Blob(batchChunks);
-                            const base64Data = await new Promise<string>((resolve, reject) => {
-                                const fr = new FileReader();
-                                fr.onload = () => {
-                                    const result = fr.result as string;
-                                    resolve(result.split(',')[1]);
-                                };
-                                fr.onerror = reject;
-                                fr.readAsDataURL(batchBlob);
-                            });
-
-                            if (isFirstWrite) {
-                                await Filesystem.writeFile({
-                                    path: fileName,
-                                    data: base64Data,
-                                    directory: Directory.Cache
-                                });
-                                isFirstWrite = false;
-                            } else {
-                                await Filesystem.appendFile({
-                                    path: fileName,
-                                    data: base64Data,
-                                    directory: Directory.Cache
-                                });
-                            }
-
-                            // CLEAR BATCH MEMORY
-                            batchChunks = [];
-                            batchSize = 0;
-                        }
-
-                        if (contentLength) {
-                            const progress = Math.min(Math.floor((receivedLength / contentLength) * 80) + 15, 95);
-                            setDownloadProgress(progress);
-                        }
-
-                        if (done) break;
-                    }
-
-                    console.log('[VERSION_DL] Batch Sync Complete.');
+                    console.log('[VERSION_DL] Single-Shot Sync Complete.');
                     downloadSuccessful = true;
 
                 } catch (errB: any) {
@@ -430,35 +378,65 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
 
     const handleInstall = async () => {
-        if (!downloadedFileUri) {
-            toast.error("Installation file target lost. Please retry download.");
+        let installUri = downloadedFileUri;
+
+        // SELF-HEALING: If URI is lost, re-resolve from multiple directories (Cache first for v1.4.6)
+        if (!installUri) {
+            console.log('[VERSION_CHECK] URI missing from state. Searching directories...');
+            const fileName = getFileName();
+            const directories = [Directory.Cache, Directory.Data, Directory.Documents];
+
+            for (const dir of directories) {
+                try {
+                    const stat = await Filesystem.stat({ path: fileName, directory: dir });
+                    if (stat) {
+                        const result = await Filesystem.getUri({ path: fileName, directory: dir });
+                        installUri = result.uri;
+                        console.log(`[VERSION_CHECK] Found at ${dir}:`, installUri);
+                        setDownloadedFileUri(installUri);
+                        toast.info(`Recovered binary from ${dir}`);
+                        break;
+                    }
+                } catch (e) { }
+            }
+        }
+
+        const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
+
+        if (!installUri) {
+            console.warn('[VERSION_CHECK] LOCAL_FILE_NOT_FOUND. Failing forward to browser.');
+            toast.error("Local package lost. Bridging to browser sync...");
+            if (downloadUrl) window.open(downloadUrl, '_system');
             return;
         }
 
         try {
-            console.log('[VERSION_CHECK] Triggering native installation:', downloadedFileUri);
+            console.log('[VERSION_CHECK] Triggering native installation:', installUri);
+            toast.info("Launching system installer...");
 
             // Robust installer trigger
             await FileOpener.open({
-                filePath: downloadedFileUri,
+                filePath: installUri,
                 contentType: 'application/vnd.android.package-archive',
                 openWithDefault: true // Force system installer
             });
 
-            toast.info("Preparing system installer package...");
+            toast.success("Installer package handed to system.");
         } catch (error: any) {
             console.error('[VERSION_CHECK] Installation failed:', error);
             const msg = error?.message || "Unknown Error";
-            toast.error(`Installer Error: ${msg.slice(0, 40)}`);
 
             // Check if it's a permission issue or file access issue
-            if (msg.includes("permission") || msg.includes("File provider")) {
-                toast.info("Trying manual install fallback...");
+            if (msg.includes("permission") || msg.includes("File provider") || msg.includes("not find") || msg.includes("ActivityNotFound")) {
+                toast.error("System block or missing provider. Falling back to browser.");
+            } else {
+                toast.error(`Installer Error: ${msg.slice(0, 40)}`);
             }
 
-            // Final safety fallback
+            // FINAL SAFETY FALLBACK: Trigger browser download if native fails
             const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
             if (downloadUrl) {
+                console.log('[VERSION_CHECK] Falling back to system browser...');
                 window.open(downloadUrl, '_system');
             }
         }
