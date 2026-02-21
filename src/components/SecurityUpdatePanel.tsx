@@ -576,7 +576,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                     {downloadError === "LEGACY_SHELL_INCOMPATIBILITY" ? (
                                         <div className="space-y-4">
                                             <p className="text-slate-400 text-[11px] leading-relaxed">
-                                                This is a one-time requirement. Please perform a **manual upgrade** to v1.4.6 using the
+                                                This is a one-time requirement. Please perform a **manual upgrade** to v1.4.7 using the
                                                 secondary button below. This will enable the automatic update engine for all future versions.
                                             </p>
                                             <Button
@@ -584,7 +584,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                                 className="w-full bg-purple-600 hover:bg-purple-700 text-white font-black tracking-tighter uppercase rounded-xl py-6 h-auto shadow-[0_0_20px_rgba(168,85,247,0.3)]"
                                             >
                                                 <ExternalLink className="w-4 h-4 mr-2" />
-                                                Manual Upgrade to v1.4.6
+                                                Manual Upgrade to v1.4.7
                                             </Button>
                                         </div>
                                     ) : (
