@@ -252,28 +252,27 @@ export default function Index() {
 
   const handleRefresh = async () => {
     console.log('[INDEX] Manual refresh triggered...');
-    await Promise.all([
-      fetchPopular(),
-      fetchMyReports(),
-      // Re-trigger location check for nearby
-      new Promise<void>((resolve) => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-              setUserLocation(loc);
-              fetchNearby(loc.lat, loc.lng).then(() => resolve());
-            },
-            () => {
-              console.log("Location access denied");
-              resolve();
-            }
-          );
-        } else {
-          resolve();
-        }
-      })
-    ]);
+
+    // Trigger nearby incidents update non-blockingly
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setUserLocation(loc);
+          fetchNearby(loc.lat, loc.lng);
+        },
+        () => console.log("Location access denied"),
+        { timeout: 5000 }
+      );
+    } else if (userLocation) {
+      fetchNearby(userLocation.lat, userLocation.lng);
+    }
+
+    // Force pull-to-refresh spinner to stop after 3 seconds max
+    // even if translation or data fetch is still hanging in the background.
+    const fetchPromises = Promise.all([fetchPopular(), fetchMyReports()]);
+    const timeoutPromise = new Promise(resolve => setTimeout(resolve, 3000));
+    await Promise.race([fetchPromises, timeoutPromise]);
   };
 
   useEffect(() => {
