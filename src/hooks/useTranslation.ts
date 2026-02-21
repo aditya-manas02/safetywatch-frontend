@@ -40,8 +40,15 @@ export const translateText = async (text: string, targetLang: string): Promise<s
                 headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
                 data: { text, targetLanguage: targetLang }
             });
+
+            console.log("[TRANSLATE] Native response:", res.status, typeof res.data);
+
             if (res.status >= 200 && res.status < 300 && res.data) {
-                translatedText = res.data.translatedText || text;
+                // CapacitorHttp data might be a string even for JSON
+                const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+                translatedText = data.translatedText || text;
+            } else if (res.status === 426) {
+                console.warn("[TRANSLATE] Version block on native.");
             }
         } else {
             const res = await fetch(`${API_BASE}/translate`, {
@@ -100,8 +107,14 @@ export const translateBatch = async (texts: string[], targetLang: string): Promi
                 headers: { "Content-Type": "application/json", ...VERSION_HEADERS },
                 data: { texts: missingTexts, targetLanguage: targetLang }
             });
+
+            console.log("[TRANSLATE/batch] Native response:", res.status, typeof res.data);
+
             if (res.status >= 200 && res.status < 300 && res.data) {
-                translatedTexts = res.data.translatedTexts;
+                const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+                translatedTexts = data.translatedTexts;
+            } else if (res.status === 426) {
+                console.warn("[TRANSLATE/batch] Version block on native.");
             }
         } else {
             const res = await fetch(`${API_BASE}/translate/batch`, {
