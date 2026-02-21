@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ import PollsWidget from "@/components/PollsWidget";
 import { ChallengesSection } from "@/components/ChallengesSection";
 import AdCarousel from "@/components/AdCarousel";
 import SafetyContentPanel from "@/components/SafetyContentPanel";
-import { translateText, translateBatch } from "@/hooks/useTranslation";
+import { translateBatch } from "@/hooks/useTranslation";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -58,6 +58,25 @@ export default function Index() {
 
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [focusedIncident, setFocusedIncident] = useState<Incident | null>(null);
+
+  const rawPopular = useRef<Incident[]>([]);
+  const rawNearby = useRef<Incident[]>([]);
+  const rawMyReports = useRef<Incident[]>([]);
+
+  const translateIncidents = async (incidents: Incident[], lang: string) => {
+    if (lang === "en" || !incidents.length) return [...incidents];
+    try {
+      const texts = incidents.flatMap(i => [i.title, i.description]);
+      const translated = await translateBatch(texts, lang);
+      return incidents.map((inc, i) => ({
+        ...inc,
+        translatedTitle: translated[i * 2] || inc.title,
+        translatedDesc: translated[i * 2 + 1] || inc.description
+      }));
+    } catch {
+      return [...incidents];
+    }
+  };
 
   const DEFAULT_T = {
     adminAlerts: "Administrative Alerts",
@@ -111,12 +130,24 @@ export default function Index() {
     const lang = localStorage.getItem("app_lang") || "en";
     translateUI(lang);
 
-    const handleLangChange = (e: any) => {
-      translateUI(e.detail.lang);
+    const handleLangChange = async (e: any) => {
+      const newLang = e.detail.lang;
+      translateUI(newLang);
+
+      // Re-translate all stored raw incidents
+      if (rawPopular.current.length) setPopularIncidents(await translateIncidents(rawPopular.current, newLang));
+      if (rawNearby.current.length) setNearbyIncidents(await translateIncidents(rawNearby.current, newLang));
+      if (rawMyReports.current.length) setMyReports(await translateIncidents(rawMyReports.current, newLang));
+
+      if (focusedIncident) {
+        const translated = await translateIncidents([focusedIncident], newLang);
+        setFocusedIncident(translated[0]);
+      }
     };
+
     window.addEventListener("languageChanged", handleLangChange);
     return () => window.removeEventListener("languageChanged", handleLangChange);
-  }, []);
+  }, [focusedIncident]);
 
   /* ---------------------------
      FETCH FOCUSED INCIDENT
@@ -128,9 +159,11 @@ export default function Index() {
       });
       if (resp.ok) {
         const data = await resp.json();
-        const incident = mapIncident(data);
-        setFocusedIncident(incident);
-        updateMetaTags(incident);
+        const baseIncident = mapIncident(data);
+        const lang = localStorage.getItem("app_lang") || "en";
+        const translated = await translateIncidents([baseIncident], lang);
+        setFocusedIncident(translated[0]);
+        updateMetaTags(translated[0]);
       }
     } catch (err) {
       console.error("Failed to fetch focused incident:", err);
@@ -146,7 +179,9 @@ export default function Index() {
       const filtered = (data || []).map(mapIncident).filter((i: Incident) =>
         (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
       );
-      setPopularIncidents(filtered);
+      rawPopular.current = filtered;
+      const lang = localStorage.getItem("app_lang") || "en";
+      setPopularIncidents(await translateIncidents(filtered, lang));
     } catch (err) {
       console.error("Failed to fetch popular incidents:", err);
     } finally {
@@ -167,7 +202,9 @@ export default function Index() {
       const filtered = (data || []).map(mapIncident).filter((i: Incident) =>
         (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
       );
-      setNearbyIncidents(filtered);
+      rawNearby.current = filtered;
+      const lang = localStorage.getItem("app_lang") || "en";
+      setNearbyIncidents(await translateIncidents(filtered, lang));
     } catch (err) {
       console.error("Failed to fetch nearby incidents:", err);
     } finally {
@@ -185,8 +222,10 @@ export default function Index() {
       const resp = await fetch(`${API_BASE}/incidents/my-reports`, {
         headers: getAuthHeaders(token)
       });
-      const data = await resp.json();
-      setMyReports((data || []).map(mapIncident));
+      const mapped = (data || []).map(mapIncident);
+      rawMyReports.current = mapped;
+      const lang = localStorage.getItem("app_lang") || "en";
+      setMyReports(await translateIncidents(mapped, lang));
     } catch (err) {
       console.error("Failed to fetch my reports:", err);
     } finally {

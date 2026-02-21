@@ -124,58 +124,6 @@ export function IncidentCard({
       incident.resolutionVotes?.no?.includes(user?.id || "") ? "no" : null
   );
 
-  const [translatedTitle, setTranslatedTitle] = useState(incident.title);
-  const [translatedDesc, setTranslatedDesc] = useState(incident.description);
-  const [isTranslating, setIsTranslating] = useState(false);
-
-  useEffect(() => {
-    const handleLangChange = async (e: any) => {
-      const targetLang = e.detail.lang;
-      if (targetLang === "en") {
-        setTranslatedTitle(incident.title);
-        setTranslatedDesc(incident.description);
-      } else {
-        translateContent(targetLang);
-      }
-    };
-
-    const currentLang = localStorage.getItem("app_lang") || "en";
-    if (currentLang !== "en") {
-      translateContent(currentLang);
-    }
-
-    window.addEventListener("languageChanged", handleLangChange);
-    return () => window.removeEventListener("languageChanged", handleLangChange);
-  }, [incident.title, incident.description]);
-
-  const translateContent = async (targetLang: string) => {
-    setIsTranslating(true);
-    try {
-      const [titleRes, descRes] = await Promise.all([
-        fetch(`${API_BASE}/translate`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: incident.title, targetLanguage: targetLang })
-        }),
-        fetch(`${API_BASE}/translate`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: incident.description, targetLanguage: targetLang })
-        })
-      ]);
-
-      const titleData = await titleRes.json();
-      const descData = await descRes.json();
-
-      if (titleData.translatedText) setTranslatedTitle(titleData.translatedText);
-      if (descData.translatedText) setTranslatedDesc(descData.translatedText);
-    } catch (err) {
-      console.error("Incident translation failed:", err);
-    } finally {
-      setIsTranslating(false);
-    }
-  };
-
   const handleConfirm = async () => {
     if (!user) {
       toast.error("Please sign in to acknowledge reports", {
@@ -420,11 +368,11 @@ export function IncidentCard({
                 </div>
 
                 <h3 className="text-xl font-black text-foreground group-hover:text-primary transition-colors duration-300 tracking-tight leading-tight mb-3">
-                  {translatedTitle}
+                  {incident.translatedTitle || incident.title}
                 </h3>
 
                 <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed font-medium mb-6 opacity-80">
-                  {translatedDesc}
+                  {incident.translatedDesc || incident.description}
                 </p>
               </div>
 
@@ -494,7 +442,7 @@ export function IncidentCard({
                   <span className="text-[11px] font-black tracking-widest text-muted-foreground uppercase">{incident.type}</span>
                 </div>
                 <DialogTitle className="text-2xl md:text-4xl font-black text-white leading-[1.1] tracking-tight">
-                  {translatedTitle}
+                  {incident.translatedTitle || incident.title}
                 </DialogTitle>
               </div>
 
@@ -595,7 +543,7 @@ export function IncidentCard({
                   <GanttChartSquare className="h-4 w-4" /> Comprehensive Summary
                 </div>
                 <div className="bg-white/5 border border-white/5 p-8 rounded-3xl italic leading-relaxed text-slate-300 text-lg shadow-inner selection:bg-primary/30">
-                  "{typeof translatedDesc === 'string' ? translatedDesc : (translatedDesc ? JSON.stringify(translatedDesc) : "Official report analysis pending for this entry.")}"
+                  "{typeof (incident.translatedDesc || incident.description) === 'string' ? (incident.translatedDesc || incident.description) : ((incident.translatedDesc || incident.description) ? JSON.stringify(incident.translatedDesc || incident.description) : "Official report analysis pending for this entry.")}"
                 </div>
               </div>
 
