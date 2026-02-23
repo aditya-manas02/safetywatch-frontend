@@ -4,8 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
-import { translateText, translateBatch } from "@/hooks/useTranslation";
-
 type SignalClass = "ALPHA" | "SIGMA" | "PULSE" | "INTEL";
 
 interface Signal {
@@ -68,9 +66,7 @@ const SafetyPulse = () => {
     };
 
     const translateUI = async (lang: string) => {
-        const intelFeed = await translateText("Intelligence Feed", lang);
-        const intel = await translateText("INTEL", lang);
-        setT({ intelFeed, intel });
+        // No-op
     };
 
     useEffect(() => {
@@ -78,15 +74,9 @@ const SafetyPulse = () => {
         const lang = localStorage.getItem("app_lang") || "en";
         translateUI(lang);
 
-        const handleLangChange = (e: any) => {
-            translateUI(e.detail.lang);
-        };
-        window.addEventListener("languageChanged", handleLangChange);
-
         const interval = setInterval(fetchPulse, 45000);
         return () => {
             clearInterval(interval);
-            window.removeEventListener("languageChanged", handleLangChange);
         };
     }, []);
 
@@ -146,34 +136,7 @@ const SafetyPulse = () => {
     }, [latestIncidents, announcements, stats]);
 
     useEffect(() => {
-        const translateSignals = async () => {
-            const lang = localStorage.getItem("app_lang") || "en";
-            if (lang === "en") {
-                setTranslatedSignals(baseSignals);
-                return;
-            }
-
-            try {
-                const signalTexts = baseSignals.map(sig => sig.text);
-                const signalLocations = baseSignals.map(sig => sig.location);
-
-                const [translatedTexts, translatedLocations] = await Promise.all([
-                    translateBatch(signalTexts, lang),
-                    translateBatch(signalLocations, lang)
-                ]);
-
-                const translated = baseSignals.map((sig, i) => ({
-                    ...sig,
-                    text: translatedTexts[i],
-                    location: translatedLocations[i]
-                }));
-                setTranslatedSignals(translated);
-            } catch (err) {
-                console.error("SafetyPulse translation failed:", err);
-                setTranslatedSignals(baseSignals);
-            }
-        };
-        translateSignals();
+        setTranslatedSignals(baseSignals);
     }, [baseSignals]);
 
     const getSignalStyle = (cls: SignalClass) => {

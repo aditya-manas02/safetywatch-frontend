@@ -8,7 +8,6 @@ import { API_BASE, getAuthHeaders } from "@/lib/api";
 import { toast } from "sonner";
 import { Vote, Users, Clock, Loader2, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { translateText } from "@/hooks/useTranslation";
 
 interface PollOption {
     text: string;
@@ -41,68 +40,17 @@ export default function PollsWidget() {
         failedToVote: "Failed to vote",
         networkError: "Network error"
     });
-
-    const translateUI = async (lang: string) => {
-        const communityPulse = await translateText("Community Pulse", lang);
-        const activePolls = await translateText("Active Polls", lang);
-        const participants = await translateText("Participants", lang);
-        const voteRegistered = await translateText("Vote Registered", lang);
-        const signInToVote = await translateText("Please sign in to vote", lang);
-        const voteRecorded = await translateText("Vote recorded!", lang);
-        const failedToVote = await translateText("Failed to vote", lang);
-        const networkError = await translateText("Network error", lang);
-
-        setT({
-            communityPulse, activePolls, participants, voteRegistered,
-            signInToVote, voteRecorded, failedToVote, networkError
-        });
-    };
-
-    const translateAll = async (pollsToTranslate: Poll[], targetLang: string) => {
-        if (targetLang === "en") return;
-        setLoading(true);
-        try {
-            const translated = await Promise.all(
-                pollsToTranslate.map(async (poll) => {
-                    const options = await Promise.all(
-                        poll.options.map(async (opt) => {
-                            return {
-                                ...opt,
-                                text: await translateText(opt.originalText || opt.text, targetLang)
-                            };
-                        })
-                    );
-
-                    return {
-                        ...poll,
-                        question: await translateText(poll.originalQuestion || poll.question, targetLang),
-                        options
-                    };
-                })
-            );
-            setPolls(translated);
-        } catch (err) {
-            console.error("Poll translation fail:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        const lang = localStorage.getItem("app_lang") || "en";
-        translateUI(lang);
-
-        const handleLangChange = (e: any) => {
-            const targetLang = e.detail.lang;
-            translateUI(targetLang);
-            if (targetLang === "en") {
-                setPolls(originalPolls.current);
-            } else {
-                translateAll(originalPolls.current, targetLang);
-            }
-        };
-        window.addEventListener("languageChanged", handleLangChange);
-        return () => window.removeEventListener("languageChanged", handleLangChange);
+        setT({
+            communityPulse: "Community Pulse",
+            activePolls: "Active Polls",
+            participants: "Participants",
+            voteRegistered: "Vote Registered",
+            signInToVote: "Please sign in to vote",
+            voteRecorded: "Vote recorded!",
+            failedToVote: "Failed to vote",
+            networkError: "Network error"
+        });
     }, []);
 
     const fetchPolls = async () => {
@@ -119,13 +67,7 @@ export default function PollsWidget() {
                     options: p.options.map((o: any) => ({ ...o, originalText: o.text }))
                 }));
                 originalPolls.current = fresh;
-
-                const lang = localStorage.getItem("app_lang") || "en";
-                if (lang !== "en") {
-                    translateAll(fresh, lang);
-                } else {
-                    setPolls(fresh);
-                }
+                setPolls(fresh);
             }
         } catch (err) {
             console.error("Failed to fetch polls:", err);

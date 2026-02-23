@@ -6,7 +6,7 @@ import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
-import { translateText, translateBatch } from "@/hooks/useTranslation";
+
 
 function AnimatedCounter({ value }: { value: number }) {
   const count = useMotionValue(0);
@@ -84,74 +84,12 @@ export default function Hero({
     return () => clearInterval(interval);
   }, []);
 
-  const translateUI = async (lang: string, currentStats: Stats | null, currentLatest: Incident[]) => {
-    if (lang === "en") {
-      setT({
-        ...DEFAULT_T,
-        commonType: currentStats?.mostCommonType || "",
-        latestIncidents: currentLatest
-      });
-      return;
-    }
-
-    const staticLabels = [
-      "Empowering Communities", "Safety in Every", "Neighborhood.",
-      "SafetyWatch provides real-time community insights, incident reporting, and neighborhood transparency to help you stay protected and connected.",
-      "Report Incident", "View Feed", "Get the App", "LIVE OVERVIEW", "Live Uplink",
-      "Reports", "Alerts", "Members", "Primary Concern", "Most reported in your area", "LATEST SIGNALS"
-    ];
-
-    if (currentStats?.mostCommonType) staticLabels.push(currentStats.mostCommonType);
-
-    const incidentTexts = currentLatest.flatMap(inc => [inc.title, inc.type]);
-    const allToTranslate = [...staticLabels, ...incidentTexts];
-
-    try {
-      const translated = await translateBatch(allToTranslate, lang);
-
-      let ptr = 0;
-      const staticTranslated = translated.slice(0, staticLabels.length);
-      ptr = staticLabels.length;
-
-      const latestTranslated = [];
-      for (let i = 0; i < currentLatest.length; i++) {
-        latestTranslated.push({
-          ...currentLatest[i],
-          translatedTitle: translated[ptr++],
-          translatedType: translated[ptr++]
-        });
-      }
-
-      setT({
-        empowering: staticTranslated[0],
-        safetyIn: staticTranslated[1],
-        neighborhood: staticTranslated[2],
-        heroDesc: staticTranslated[3],
-        reportBtn: staticTranslated[4],
-        viewFeedBtn: staticTranslated[5],
-        getApp: staticTranslated[6],
-        liveOverview: staticTranslated[7],
-        liveUplink: staticTranslated[8],
-        reports: staticTranslated[9],
-        alerts: staticTranslated[10],
-        members: staticTranslated[11],
-        primaryConcern: staticTranslated[12],
-        mostReported: staticTranslated[13],
-        latestSignals: staticTranslated[14],
-        commonType: currentStats?.mostCommonType ? staticTranslated[15] : "",
-        latestIncidents: latestTranslated
-      });
-    } catch (err) {
-      console.error("Hero translation failed:", err);
-    }
-  };
-
   useEffect(() => {
-    const handleLangChange = (e: any) => {
-      translateUI(e.detail.lang, stats, latest);
-    };
-    window.addEventListener("languageChanged", handleLangChange);
-    return () => window.removeEventListener("languageChanged", handleLangChange);
+    setT({
+      ...DEFAULT_T,
+      commonType: stats?.mostCommonType || "",
+      latestIncidents: latest
+    });
   }, [stats, latest]);
 
   async function loadData() {
@@ -184,8 +122,11 @@ export default function Hero({
 
       setStats(statsData);
       setLatest(latestData || []);
-      const currentLang = localStorage.getItem("app_lang") || "en";
-      translateUI(currentLang, statsData, latestData || []);
+      setT({
+        ...DEFAULT_T,
+        commonType: statsData?.mostCommonType || "",
+        latestIncidents: latestData || []
+      });
     } catch (err: any) {
       setErrorMsg(err.message || "Connection Failed");
     } finally {
@@ -364,9 +305,9 @@ export default function Hero({
                                 <Icon className="h-4 w-4" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-bold text-sm text-foreground truncate">{inc.translatedTitle || inc.title}</p>
+                                <p className="font-bold text-sm text-foreground truncate">{inc.title}</p>
                                 <p className="text-[10px] text-muted-foreground font-medium truncate uppercase tracking-tighter">
-                                  {inc.translatedType || inc.type} • {inc.location}
+                                  {inc.type} • {inc.location}
                                 </p>
                               </div>
                               <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />

@@ -2,8 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Newspaper, ChevronLeft, ChevronRight, X, ExternalLink, Calendar, Globe } from "lucide-react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
-import { translateText, translateBatch } from "@/hooks/useTranslation";
-
 interface NewsArticle {
     title: string;
     description: string;
@@ -53,28 +51,9 @@ export default function NewsFeed() {
         }, 6000);
         return () => clearInterval(slideInterval);
     }, [articles.length, selectedArticle]);
-
-    const translateUI = async (lang: string) => {
-        if (lang === "en") {
-            setT(DEFAULT_T);
-            return;
-        }
-
-        const labels = Object.values(DEFAULT_T);
-        const keys = Object.keys(DEFAULT_T);
-
-        try {
-            const translated = await translateBatch(labels, lang);
-            const newT = { ...DEFAULT_T };
-            keys.forEach((key, i) => {
-                (newT as any)[key] = translated[i];
-            });
-            setT(newT);
-        } catch (err) {
-            console.error("NewsFeed UI translation failed:", err);
-        }
-    };
-
+    useEffect(() => {
+        setT(DEFAULT_T);
+    }, []);
     async function loadNews() {
         try {
             const res = await fetch(`${API_BASE}/news?t=${Date.now()}`, {
@@ -84,15 +63,7 @@ export default function NewsFeed() {
                 const data = await res.json();
                 const fresh = data.articles.slice(0, 5);
                 originalArticles.current = fresh;
-
-                const currentLang = localStorage.getItem("app_lang") || "en";
-                translateUI(currentLang);
-
-                if (currentLang !== "en") {
-                    await translateAll(fresh, currentLang);
-                } else {
-                    setArticles(fresh);
-                }
+                setArticles(fresh);
                 setLastUpdated(new Date());
             }
         } catch (err) {
@@ -101,39 +72,6 @@ export default function NewsFeed() {
             setLoading(false);
         }
     }
-
-    async function translateAll(articlesToTranslate: NewsArticle[], targetLang: string) {
-        if (targetLang === "en") {
-            setArticles(originalArticles.current);
-            return;
-        }
-
-        const textsToTranslate = articlesToTranslate.flatMap(a => [a.title, a.description]);
-
-        try {
-            const translated = await translateBatch(textsToTranslate, targetLang);
-            const translatedArticles = articlesToTranslate.map((article, i) => ({
-                ...article,
-                title: translated[i * 2],
-                description: translated[i * 2 + 1]
-            }));
-            setArticles(translatedArticles);
-        } catch (err) {
-            console.error("NewsFeed articles translation failed:", err);
-            setArticles(articlesToTranslate);
-        }
-    }
-
-    useEffect(() => {
-        const handleLangChange = (e: any) => {
-            const newLang = e.detail.lang;
-            translateUI(newLang);
-            translateAll(originalArticles.current, newLang);
-        };
-
-        window.addEventListener("languageChanged", handleLangChange);
-        return () => window.removeEventListener("languageChanged", handleLangChange);
-    }, []);
 
     function formatTime(dateString: string) {
         const date = new Date(dateString);

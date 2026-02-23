@@ -41,7 +41,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
 import IncidentCard from "@/components/IncidentCard";
-import { translateBatch } from "@/hooks/useTranslation";
 import { useRef } from "react";
 
 interface CircleMember {
@@ -75,6 +74,7 @@ interface CircleDetails {
     inviteCode: string;
     members: CircleMember[];
     sharedIncidents: any[];
+    createdAt?: string;
 }
 
 export default function CircleDetails() {
@@ -88,18 +88,7 @@ export default function CircleDetails() {
     const rawIncidents = useRef<any[]>([]);
 
     const translateIncidents = async (incidents: any[], lang: string) => {
-        if (lang === "en" || !incidents.length) return [...incidents];
-        try {
-            const texts = incidents.flatMap(i => [i.title, i.description]);
-            const translated = await translateBatch(texts, lang);
-            return incidents.map((inc, i) => ({
-                ...inc,
-                translatedTitle: translated[i * 2] || inc.title,
-                translatedDesc: translated[i * 2 + 1] || inc.description
-            }));
-        } catch {
-            return [...incidents];
-        }
+        return [...incidents];
     };
 
     const [isCheckInOpen, setIsCheckInOpen] = useState(false);
@@ -114,14 +103,6 @@ export default function CircleDetails() {
         }
         fetchCircleDetails();
 
-        const handleLangChange = async (e: any) => {
-            if (rawIncidents.current.length && circle) {
-                const translated = await translateIncidents(rawIncidents.current, e.detail.lang);
-                setCircle(prev => prev ? { ...prev, sharedIncidents: translated } : null);
-            }
-        };
-        window.addEventListener("languageChanged", handleLangChange);
-        return () => window.removeEventListener("languageChanged", handleLangChange);
     }, [id, user, circle?.name]);
 
     const fetchCircleDetails = async () => {
@@ -133,10 +114,8 @@ export default function CircleDetails() {
             const data = await res.json();
 
             if (res.ok) {
-                const lang = localStorage.getItem("app_lang") || "en";
                 rawIncidents.current = data.circle.sharedIncidents || [];
-                const translatedIncidents = await translateIncidents(rawIncidents.current, lang);
-                setCircle({ ...data.circle, sharedIncidents: translatedIncidents });
+                setCircle({ ...data.circle, sharedIncidents: rawIncidents.current });
                 setStatuses(data.statuses);
             } else {
                 toast.error(data.message || "Failed to load circle details");

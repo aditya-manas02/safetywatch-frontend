@@ -41,7 +41,6 @@ import PollsWidget from "@/components/PollsWidget";
 import { ChallengesSection } from "@/components/ChallengesSection";
 import AdCarousel from "@/components/AdCarousel";
 import SafetyContentPanel from "@/components/SafetyContentPanel";
-import { translateBatch } from "@/hooks/useTranslation";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Index() {
@@ -65,18 +64,7 @@ export default function Index() {
   const rawMyReports = useRef<Incident[]>([]);
 
   const translateIncidents = async (incidents: Incident[], lang: string) => {
-    if (lang === "en" || !incidents.length) return [...incidents];
-    try {
-      const texts = incidents.flatMap(i => [i.title, i.description]);
-      const translated = await translateBatch(texts, lang);
-      return incidents.map((inc, i) => ({
-        ...inc,
-        translatedTitle: translated[i * 2] || inc.title,
-        translatedDesc: translated[i * 2 + 1] || inc.description
-      }));
-    } catch {
-      return [...incidents];
-    }
+    return [...incidents];
   };
 
   const DEFAULT_T = {
@@ -106,48 +94,8 @@ export default function Index() {
 
   const [t, setT] = useState(DEFAULT_T);
 
-  const translateUI = async (lang: string) => {
-    if (lang === "en") {
-      setT(DEFAULT_T);
-      return;
-    }
-
-    const labels = Object.values(DEFAULT_T);
-    const keys = Object.keys(DEFAULT_T);
-
-    try {
-      const translated = await translateBatch(labels, lang);
-      const newT = { ...DEFAULT_T };
-      keys.forEach((key, i) => {
-        (newT as any)[key] = translated[i];
-      });
-      setT(newT);
-    } catch (err) {
-      console.error("Index translation failed:", err);
-    }
-  };
-
   useEffect(() => {
-    const lang = localStorage.getItem("app_lang") || "en";
-    translateUI(lang);
-
-    const handleLangChange = async (e: any) => {
-      const newLang = e.detail.lang;
-      translateUI(newLang);
-
-      // Re-translate all stored raw incidents
-      if (rawPopular.current.length) setPopularIncidents(await translateIncidents(rawPopular.current, newLang));
-      if (rawNearby.current.length) setNearbyIncidents(await translateIncidents(rawNearby.current, newLang));
-      if (rawMyReports.current.length) setMyReports(await translateIncidents(rawMyReports.current, newLang));
-
-      if (focusedIncident) {
-        const translated = await translateIncidents([focusedIncident], newLang);
-        setFocusedIncident(translated[0]);
-      }
-    };
-
-    window.addEventListener("languageChanged", handleLangChange);
-    return () => window.removeEventListener("languageChanged", handleLangChange);
+    setT(DEFAULT_T);
   }, [focusedIncident]);
 
   /* ---------------------------
