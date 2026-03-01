@@ -194,7 +194,9 @@ export default function Index() {
       imageUrl: item.imageUrl || null,
       timestamp: new Date(item.createdAt),
       status: item.status,
-      isImportant: item.isImportant
+      isImportant: item.isImportant,
+      helpfulUpvotes: item.helpfulUpvotes || [],
+      resolutionVotes: item.resolutionVotes || []
     };
   }
 

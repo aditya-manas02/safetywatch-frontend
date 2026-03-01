@@ -201,6 +201,14 @@ const App = () => {
     // Hide splash screen
     SplashScreen.hide().catch(err => console.warn("SplashScreen hide failed:", err));
 
+    // FAILSAFE: Force loading to complete after 5 seconds regardless of update check status
+    const failsafeTimer = setTimeout(() => {
+      if (!isUpdateCheckDone) {
+        console.warn("[APP] Update check failsafe triggered - allowing entry.");
+        setIsUpdateCheckDone(true);
+      }
+    }, 5000);
+
     // Configure Status Bar for native platforms
     if (Capacitor.isNativePlatform()) {
       StatusBar.setOverlaysWebView({ overlay: true }).catch(err => console.warn("StatusBar overlay failed:", err));
@@ -211,7 +219,9 @@ const App = () => {
         requestNativePermissions();
       }, 2000);
     }
-  }, []);
+
+    return () => clearTimeout(failsafeTimer);
+  }, [isUpdateCheckDone]);
 
   const requestNativePermissions = async () => {
     try {

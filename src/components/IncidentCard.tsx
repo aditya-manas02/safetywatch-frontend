@@ -128,11 +128,13 @@ export function IncidentCard({
 
   // Sync state with props when incident changes
   useEffect(() => {
-    const isUpvoted = incident.helpfulUpvotes?.includes(user?.id || "");
-    setHasUpvoted(isUpvoted);
-    setIsUpvotedLocal(isUpvoted);
-    setUpvotes(incident.helpfulUpvotes?.length || 0);
-    setUpvotesLocal(incident.helpfulUpvotes?.length || 0);
+    if (incident.helpfulUpvotes) {
+      const isUpvoted = incident.helpfulUpvotes.includes(user?.id || "");
+      setHasUpvoted(isUpvoted);
+      setIsUpvotedLocal(isUpvoted);
+      setUpvotes(incident.helpfulUpvotes.length || 0);
+      setUpvotesLocal(incident.helpfulUpvotes.length || 0);
+    }
   }, [incident.helpfulUpvotes, user?.id]);
 
   const handleConfirm = async () => {

@@ -60,15 +60,10 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1';
 
-        const notifiedRef = (window as any)._updateCheckNotified || { current: false };
         if (isWebDomain && !Capacitor.isNativePlatform()) {
             console.log('[VERSION_CHECK] Web/Local Environment detected. Allowing entry.');
             setIsChecking(false);
-            if (!notifiedRef.current) {
-                onCheckComplete?.(false);
-                notifiedRef.current = true;
-                (window as any)._updateCheckNotified = notifiedRef;
-            }
+            onCheckComplete?.(false);
             return;
         }
 
