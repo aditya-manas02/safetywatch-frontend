@@ -6,13 +6,13 @@ import packageJson from "../../package.json";
 
 export const SafetyWatchLoader = () => {
     const [progress, setProgress] = useState(0);
-    const [displayVersion, setDisplayVersion] = useState(packageJson.version);
+    const [version, setVersion] = useState(packageJson.version);
 
     useEffect(() => {
         // Fetch real version if on native
         if (Capacitor.isNativePlatform()) {
             CapacitorApp.getInfo().then(info => {
-                setDisplayVersion(info.version);
+                setVersion("v1.4.8-LIVE");
             }).catch(err => console.error("Loader version fetch error:", err));
         }
 
@@ -71,7 +71,7 @@ export const SafetyWatchLoader = () => {
                     >
                         <div className="h-[1px] w-6 bg-blue-500/50" />
                         <p className="text-white/80 font-mono tracking-[0.4em] text-[10px] font-bold uppercase">
-                            v{displayVersion} • NEXUS AI SECURE
+                            v{version} • NEXUS AI SECURE
                         </p>
                         <div className="h-[1px] w-6 bg-blue-500/50" />
                     </motion.div>
