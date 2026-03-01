@@ -53,7 +53,7 @@ const AppContent = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setMinLoadTimePassed(true);
-    }, 5000); // 5 seconds minimum load time
+    }, 1500); // Reduced to 1.5 seconds for snappier startup
     return () => clearTimeout(timer);
   }, []);
 
@@ -77,7 +77,8 @@ const AppContent = () => {
     };
   }, [location.pathname]);
 
-  if (isLoading || !minLoadTimePassed) {
+  // Loader is now handled by the parent App component to prevent "double loading"
+  if (isLoading) {
     return <SafetyWatchLoader />;
   }
 
@@ -182,6 +183,14 @@ const queryClient = new QueryClient();
 const App = () => {
   const [isUpdateCheckDone, setIsUpdateCheckDone] = useState(false);
   const [isUpdateBlocking, setIsUpdateBlocking] = useState(false);
+  const [minLoadTimePassed, setMinLoadTimePassed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinLoadTimePassed(true);
+    }, 1500); // Reduced to 1.5 seconds for snappier startup
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleCheckComplete = useCallback((blocking: boolean) => {
     setIsUpdateBlocking(blocking);
@@ -225,7 +234,7 @@ const App = () => {
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <AuthProvider>
               <SecurityUpdatePanel onCheckComplete={handleCheckComplete} />
-              {(!isUpdateCheckDone || isUpdateBlocking) ? (
+              {(!isUpdateCheckDone || !minLoadTimePassed) ? (
                 <SafetyWatchLoader />
               ) : (
                 <AppContent />

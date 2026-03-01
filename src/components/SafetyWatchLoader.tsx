@@ -16,7 +16,7 @@ export const SafetyWatchLoader = () => {
             }).catch(err => console.error("Loader version fetch error:", err));
         }
 
-        const duration = 5000; // 5 seconds
+        const duration = 1500; // Reduced to 1.5 seconds to match App.tsx
         const startTime = Date.now();
 
         const interval = setInterval(() => {

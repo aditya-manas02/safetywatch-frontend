@@ -123,6 +123,17 @@ export function IncidentCard({
     incident.resolutionVotes?.yes?.includes(user?.id || "") ? "yes" :
       incident.resolutionVotes?.no?.includes(user?.id || "") ? "no" : null
   );
+  const [isUpvotedLocal, setIsUpvotedLocal] = useState(hasUpvoted);
+  const [upvotesLocal, setUpvotesLocal] = useState(upvotes);
+
+  // Sync state with props when incident changes
+  useEffect(() => {
+    const isUpvoted = incident.helpfulUpvotes?.includes(user?.id || "");
+    setHasUpvoted(isUpvoted);
+    setIsUpvotedLocal(isUpvoted);
+    setUpvotes(incident.helpfulUpvotes?.length || 0);
+    setUpvotesLocal(incident.helpfulUpvotes?.length || 0);
+  }, [incident.helpfulUpvotes, user?.id]);
 
   const handleConfirm = async () => {
     if (!user) {
@@ -171,6 +182,11 @@ export function IncidentCard({
     }
 
     try {
+      // Optimistic UI update
+      const newStatus = !isUpvotedLocal;
+      setIsUpvotedLocal(newStatus);
+      setUpvotesLocal(prev => newStatus ? prev + 1 : prev - 1);
+
       const res = await fetch(`${API_BASE}/incidents/${incident.id}/upvote`, {
         method: "PATCH",
         headers: getAuthHeaders(token)
@@ -178,10 +194,19 @@ export function IncidentCard({
       const data = await res.json();
       if (res.ok) {
         setUpvotes(data.upvotes);
-        setHasUpvoted(!hasUpvoted);
+        setHasUpvoted(newStatus);
+        setUpvotesLocal(data.upvotes);
+      } else {
+        // Rollback on error
+        setIsUpvotedLocal(!newStatus);
+        setUpvotesLocal(prev => !newStatus ? prev + 1 : prev - 1);
+        toast.error("Failed to update vote");
       }
     } catch (err) {
       console.error("Upvote failed:", err);
+      // Rollback
+      setIsUpvotedLocal(hasUpvoted);
+      setUpvotesLocal(upvotes);
     }
   };
 
@@ -328,12 +353,12 @@ export function IncidentCard({
                       variant="secondary"
                       className={cn(
                         "rounded-full h-8 px-3 text-[10px] font-bold backdrop-blur-md border-white/10 transition-all",
-                        hasUpvoted ? "bg-orange-500 text-white" : "bg-black/40 text-white/80 hover:bg-black/60"
+                        isUpvotedLocal ? "bg-orange-500 text-white" : "bg-black/40 text-white/80 hover:bg-black/60"
                       )}
                       onClick={handleUpvote}
                     >
-                      <ThumbsUp className={cn("h-3.5 w-3.5 mr-1.5", hasUpvoted && "fill-white")} />
-                      {upvotes}
+                      <ThumbsUp className={cn("h-3.5 w-3.5 mr-1.5", isUpvotedLocal && "fill-white")} />
+                      {upvotesLocal}
                     </Button>
                   </div>
                   {incident.imageUrl ? (
