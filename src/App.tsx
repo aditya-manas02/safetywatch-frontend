@@ -232,6 +232,55 @@ const App = () => {
       if ('Notification' in window) {
         await Notification.requestPermission();
       }
+
+      // Automatically register for push notifications
+      const { PushNotifications } = await import('@capacitor/push-notifications');
+      
+      let permStatus = await PushNotifications.checkPermissions();
+      if (permStatus.receive === 'prompt') {
+        permStatus = await PushNotifications.requestPermissions();
+      }
+
+      if (permStatus.receive === 'granted') {
+        PushNotifications.register();
+      }
+
+      // Add push listeners
+      PushNotifications.addListener('registration', async (token) => {
+        console.log('[PUSH] Registration token: ', token.value);
+        // Sync token with backend if user is logged in
+        const authToken = localStorage.getItem('token');
+        if (authToken) {
+          try {
+            const { API_BASE, getAuthHeaders } = await import('@/lib/api');
+            await fetch(`${API_BASE}/users/fcm-token`, {
+              method: 'POST',
+              headers: getAuthHeaders(authToken),
+              body: JSON.stringify({ token: token.value })
+            });
+          } catch (e) {
+            console.error('[PUSH] Failed to sync token:', e);
+          }
+        }
+      });
+
+      PushNotifications.addListener('registrationError', (error) => {
+        console.error('[PUSH] Error on registration: ', JSON.stringify(error));
+      });
+
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        console.log('[PUSH] Received notification: ', JSON.stringify(notification));
+      });
+
+      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+        console.log('[PUSH] Action performed: ', JSON.stringify(notification));
+        // You can use the notification.data payload to navigate
+        const data = notification.notification.data;
+        if (data && data.link) {
+          window.location.href = data.link;
+        }
+      });
+
     } catch (e) {
       console.warn('[PERMISSIONS] Proactive request failed:', e);
     }

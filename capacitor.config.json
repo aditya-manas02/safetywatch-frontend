@@ -18,6 +18,9 @@
             "androidSplashResourceName": "splash",
             "showSpinner": false
         },
+        "PushNotifications": {
+            "presentationOptions": ["badge", "sound", "alert"]
+        },
         "CapacitorHttp": {
             "enabled": true
         }
