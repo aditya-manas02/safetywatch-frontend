@@ -8,7 +8,8 @@ import {
   Clock, 
   MessageSquare, 
   AlertTriangle,
-  Server
+  Server,
+  Megaphone
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -22,7 +23,11 @@ export default function SystemSettings({ token }: Props) {
   const [config, setConfig] = useState({
     isMaintenanceMode: false,
     maintenanceMessage: "",
-    maintenanceExpectedBackAt: ""
+    maintenanceExpectedBackAt: "",
+    preAlertActive: false,
+    preAlertMessage: "",
+    preAlertStartTime: "",
+    preAlertEndTime: ""
   });
 
   const fetchConfig = async () => {
@@ -33,7 +38,11 @@ export default function SystemSettings({ token }: Props) {
       setConfig({
         isMaintenanceMode: data.isMaintenanceMode || false,
         maintenanceMessage: data.maintenanceMessage || "",
-        maintenanceExpectedBackAt: data.maintenanceExpectedBackAt ? new Date(data.maintenanceExpectedBackAt).toISOString().slice(0, 16) : ""
+        maintenanceExpectedBackAt: data.maintenanceExpectedBackAt ? new Date(data.maintenanceExpectedBackAt).toISOString().slice(0, 16) : "",
+        preAlertActive: data.preAlertActive || false,
+        preAlertMessage: data.preAlertMessage || "",
+        preAlertStartTime: data.preAlertStartTime ? new Date(data.preAlertStartTime).toISOString().slice(0, 16) : "",
+        preAlertEndTime: data.preAlertEndTime ? new Date(data.preAlertEndTime).toISOString().slice(0, 16) : ""
       });
     } catch (e) {
       toast({ title: "Error fetching system config", variant: "destructive" });
@@ -58,7 +67,11 @@ export default function SystemSettings({ token }: Props) {
         body: JSON.stringify({
           isMaintenanceMode: config.isMaintenanceMode,
           maintenanceMessage: config.maintenanceMessage,
-          maintenanceExpectedBackAt: config.maintenanceExpectedBackAt ? new Date(config.maintenanceExpectedBackAt).toISOString() : null
+          maintenanceExpectedBackAt: config.maintenanceExpectedBackAt ? new Date(config.maintenanceExpectedBackAt).toISOString() : null,
+          preAlertActive: config.preAlertActive,
+          preAlertMessage: config.preAlertMessage,
+          preAlertStartTime: config.preAlertStartTime ? new Date(config.preAlertStartTime).toISOString() : null,
+          preAlertEndTime: config.preAlertEndTime ? new Date(config.preAlertEndTime).toISOString() : null
         })
       });
 
@@ -134,6 +147,31 @@ export default function SystemSettings({ token }: Props) {
           </p>
         </div>
 
+        {/* PRE-ALERT TOGGLE */}
+        <div className={`col-span-1 p-6 rounded-2xl border transition-all duration-500 ${
+          config.preAlertActive 
+            ? "bg-amber-500/10 border-amber-500/50 shadow-lg shadow-amber-500/10" 
+            : "bg-card border-border shadow-sm"
+        }`}>
+          <div className="flex items-center justify-between mb-4">
+            <Megaphone className={config.preAlertActive ? "text-amber-500" : "text-muted-foreground"} />
+            <div 
+              onClick={() => setConfig({ ...config, preAlertActive: !config.preAlertActive })}
+              className={`w-14 h-7 rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+                config.preAlertActive ? "bg-amber-500" : "bg-muted"
+              }`}
+            >
+              <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${
+                config.preAlertActive ? "translate-x-7" : "translate-x-0"
+              }`} />
+            </div>
+          </div>
+          <h3 className="font-bold text-lg mb-1">Pre-Break Alert</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Display a warning banner to all active citizens before the maintenance starts.
+          </p>
+        </div>
+
         {/* DETAILS SECTION */}
         <div className="col-span-1 md:col-span-2 space-y-6">
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
@@ -160,6 +198,51 @@ export default function SystemSettings({ token }: Props) {
                   onChange={(e) => setConfig({ ...config, maintenanceExpectedBackAt: e.target.value })}
                   className="w-full bg-muted/50 border border-border rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
                 />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+            <h4 className="text-sm font-bold mb-4 flex items-center gap-2">
+              <Megaphone className="h-4 w-4 text-amber-500" /> Pre-Alert Configuration
+            </h4>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">
+                  Alert Message
+                </label>
+                <input
+                  type="text"
+                  value={config.preAlertMessage}
+                  onChange={(e) => setConfig({ ...config, preAlertMessage: e.target.value })}
+                  placeholder="Maintenance starting at 2:00 PM..."
+                  className="w-full bg-muted/50 border border-border rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">
+                    Alert Start
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={config.preAlertStartTime}
+                    onChange={(e) => setConfig({ ...config, preAlertStartTime: e.target.value })}
+                    className="w-full bg-muted/50 border border-border rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2 block">
+                    Alert End
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={config.preAlertEndTime}
+                    onChange={(e) => setConfig({ ...config, preAlertEndTime: e.target.value })}
+                    className="w-full bg-muted/50 border border-border rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
               </div>
             </div>
           </div>

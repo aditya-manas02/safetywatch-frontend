@@ -21,6 +21,7 @@ import { SafetyWatchLoader } from "./components/SafetyWatchLoader";
 import { SecurityUpdatePanel } from "./components/SecurityUpdatePanel";
 import { AreaCodeSelector } from "./components/AreaCodeSelector";
 import { SuspensionModal } from "./components/SuspensionModal";
+import { Megaphone, X } from "lucide-react";
 
 // Lazy load pages for performance
 const Index = lazy(() => import("./pages/Index"));
@@ -46,6 +47,12 @@ const AppContent = () => {
   const { isLoading, user, refreshUser, signOut, isSuperAdmin } = useAuth();
   const [minLoadTimePassed, setMinLoadTimePassed] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [preAlert, setPreAlert] = useState<{
+    active: boolean;
+    message: string;
+    start: string | null;
+    end: string | null;
+  } | null>(null);
 
   // Check if user needs to set area code (not superadmin and hasAreaCode is false)
   const needsAreaCode = user &&
@@ -59,19 +66,37 @@ const AppContent = () => {
         const { API_BASE } = await import("@/lib/api");
         const res = await fetch(`${API_BASE}/system/config`);
         const data = await res.json();
+        
+        // Maintenance redirect
         if (data.isMaintenanceMode && !isSuperAdmin) {
           setMaintenanceMode(true);
+        }
+
+        // Pre-alert data
+        if (data.preAlertActive) {
+          setPreAlert({
+            active: data.preAlertActive,
+            message: data.preAlertMessage,
+            start: data.preAlertStartTime,
+            end: data.preAlertEndTime
+          });
+        } else {
+          setPreAlert(null);
         }
       } catch (e) {
         console.error("Maintenance check failed", e);
       }
     };
     checkMaintenance();
+    const interval = setInterval(checkMaintenance, 60000); // Check every minute
 
     const timer = setTimeout(() => {
       setMinLoadTimePassed(true);
     }, 1500); 
-    return () => clearTimeout(timer);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
   }, [isSuperAdmin, location.pathname]);
 
   // Redirect to maintenance if active and not superadmin
@@ -123,8 +148,23 @@ const AppContent = () => {
     );
   }
 
+  const showPreAlert = preAlert && 
+    preAlert.active && 
+    preAlert.start && 
+    new Date() >= new Date(preAlert.start) && 
+    (!preAlert.end || new Date() <= new Date(preAlert.end));
+
   return (
     <AnimatedBackground>
+      {showPreAlert && (
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-amber-600 to-amber-500 text-white py-2 px-4 text-center text-xs font-bold shadow-lg flex items-center justify-center gap-3 animate-in fade-in slide-in-from-top duration-500 translate-y-[env(safe-area-inset-top)]">
+          <Megaphone className="h-4 w-4 animate-bounce shrink-0" />
+          <span className="flex-1">{preAlert.message}</span>
+          <button onClick={() => setPreAlert(null)} className="p-1 hover:bg-white/10 rounded-full transition-all">
+            <X className="h-3 w-3" />
+          </button>
+        </div>
+      )}
 
       {!hideNavbar && <Navbar />}
       <SuspensionModal
