@@ -41,6 +41,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
 import IncidentCard from "@/components/IncidentCard";
+import CircleChat from "@/components/CircleChat";
 import { useRef } from "react";
 
 interface CircleMember {
@@ -446,8 +447,12 @@ export default function CircleDetails() {
 
                     {/* Right Sidebar */}
                     <div className="space-y-8">
+                        {/* Group Chat */}
+                        <CircleChat circleId={id!} token={token} />
+
                         {/* Member Directory */}
                         <Card className="bg-white/5 border-white/10 rounded-3xl p-6">
+
                             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-6 flex items-center gap-2">
                                 <Users className="h-4 w-4" /> Directory
                             </h3>
