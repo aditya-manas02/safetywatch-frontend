@@ -35,15 +35,17 @@ const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Circles = lazy(() => import("./pages/Circles"));
 const CircleDetails = lazy(() => import("./pages/CircleDetails"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Maintenance = lazy(() => import("./pages/Maintenance"));
 
 
 
 const AppContent = () => {
   const location = useLocation();
-  const hideNavbar = ["/admin", "/auth"].some(path => location.pathname.startsWith(path));
+  const hideNavbar = ["/admin", "/auth", "/maintenance"].some(path => location.pathname.startsWith(path));
 
-  const { isLoading, user, refreshUser, signOut } = useAuth();
+  const { isLoading, user, refreshUser, signOut, isSuperAdmin } = useAuth();
   const [minLoadTimePassed, setMinLoadTimePassed] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   // Check if user needs to set area code (not superadmin and hasAreaCode is false)
   const needsAreaCode = user &&
@@ -51,11 +53,33 @@ const AppContent = () => {
     user.hasAreaCode === false;
 
   useEffect(() => {
+    const checkMaintenance = async () => {
+      if (location.pathname === "/maintenance" || location.pathname === "/auth") return;
+      try {
+        const { API_BASE } = await import("@/lib/api");
+        const res = await fetch(`${API_BASE}/system/config`);
+        const data = await res.json();
+        if (data.isMaintenanceMode && !isSuperAdmin) {
+          setMaintenanceMode(true);
+        }
+      } catch (e) {
+        console.error("Maintenance check failed", e);
+      }
+    };
+    checkMaintenance();
+
     const timer = setTimeout(() => {
       setMinLoadTimePassed(true);
-    }, 1500); // Reduced to 1.5 seconds for snappier startup
+    }, 1500); 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isSuperAdmin, location.pathname]);
+
+  // Redirect to maintenance if active and not superadmin
+  useEffect(() => {
+    if (maintenanceMode && !isSuperAdmin && location.pathname !== "/maintenance" && !location.pathname.startsWith("/auth")) {
+      window.location.href = "/maintenance";
+    }
+  }, [maintenanceMode, isSuperAdmin, location.pathname]);
 
   // Handle Hardware Back Button
   useEffect(() => {
@@ -167,6 +191,7 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="/maintenance" element={<Maintenance />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

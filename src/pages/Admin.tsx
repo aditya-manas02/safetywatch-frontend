@@ -23,7 +23,8 @@ import CreateChallenge from "@/components/admin/CreateChallenge";
 import CreateAnnouncement from "@/components/admin/CreateAnnouncement";
 import ReportManager from "@/components/admin/ReportManager";
 import AdManager from "@/components/admin/AdManager";
-import { Megaphone, Flag, MapPin, Target, Vote, Image as ImageIcon } from "lucide-react";
+import { Megaphone, Flag, MapPin, Target, Vote, Image as ImageIcon, Settings } from "lucide-react";
+import SystemSettings from "@/components/admin/SystemSettings";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -409,6 +410,22 @@ export default function Admin() {
           {activeTab === "ads" && <AdManager />}
 
           {activeTab === "activity" && <AuditLogViewer />}
+
+          {activeTab === "system" && isSuperAdmin && <SystemSettings token={token} />}
+
+          {activeTab === "system" && !isSuperAdmin && (
+            <div className="flex flex-col items-center justify-center p-10 space-y-4">
+              <Shield className="h-16 w-16 text-destructive opacity-50" />
+              <h2 className="text-xl font-bold">Access Restricted</h2>
+              <p className="text-muted-foreground text-center">Only SuperAdmins can modify system settings.</p>
+              <button
+                onClick={() => setActiveTab("dashboard")}
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-bold"
+              >
+                Return to Dashboard
+              </button>
+            </div>
+          )}
         </main>
       </div >
 
