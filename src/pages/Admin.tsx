@@ -70,7 +70,9 @@ export default function Admin() {
       const res = await fetch(`${API_BASE}/users`, {
         headers: getAuthHeaders(token),
       });
-      setUsers(await res.json());
+      if (!res.ok) throw new Error("Failed to load users");
+      const data = await res.json();
+      setUsers(Array.isArray(data) ? data : []);
     } catch {
       toast({ title: "Error loading users", variant: "destructive" });
     } finally {

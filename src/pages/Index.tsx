@@ -124,8 +124,9 @@ export default function Index() {
       const resp = await fetch(`${API_BASE}/incidents/popular`, {
         headers: VERSION_HEADERS
       });
+      if (!resp.ok) throw new Error("Failed to fetch popular incidents");
       const data = await resp.json();
-      const filtered = (data || []).map(mapIncident).filter((i: Incident) =>
+      const filtered = (Array.isArray(data) ? data : []).map(mapIncident).filter((i: Incident) =>
         (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
       );
       rawPopular.current = filtered;
@@ -147,8 +148,9 @@ export default function Index() {
       const resp = await fetch(`${API_BASE}/incidents/near-me?lat=${lat}&lng=${lng}&radius=10`, {
         headers: VERSION_HEADERS
       });
+      if (!resp.ok) throw new Error("Failed to fetch nearby incidents");
       const data = await resp.json();
-      const filtered = (data || []).map(mapIncident).filter((i: Incident) =>
+      const filtered = (Array.isArray(data) ? data : []).map(mapIncident).filter((i: Incident) =>
         (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
       );
       rawNearby.current = filtered;
@@ -171,8 +173,9 @@ export default function Index() {
       const resp = await fetch(`${API_BASE}/incidents/my-reports`, {
         headers: getAuthHeaders(token)
       });
+      if (!resp.ok) throw new Error("Failed to fetch my reports");
       const data = await resp.json();
-      const mapped = (data || []).map(mapIncident);
+      const mapped = (Array.isArray(data) ? data : []).map(mapIncident);
       rawMyReports.current = mapped;
       const lang = localStorage.getItem("app_lang") || "en";
       setMyReports(await translateIncidents(mapped, lang));
