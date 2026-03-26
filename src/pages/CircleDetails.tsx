@@ -16,7 +16,9 @@ import {
     Mail,
     Loader2,
     Calendar,
-    MessageSquare
+    MessageSquare,
+    UserMinus,
+    Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -75,6 +77,7 @@ interface CircleDetails {
     inviteCode: string;
     members: CircleMember[];
     sharedIncidents: any[];
+    creator: string;
     createdAt?: string;
 }
 
@@ -188,6 +191,49 @@ export default function CircleDetails() {
             }
         } catch (err) {
             toast.error("Failed to leave circle");
+        }
+    };
+
+    const handleKickMember = async (userId: string, userName: string) => {
+        if (!window.confirm(`Are you sure you want to remove ${userName} from the circle?`)) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/circles/${id}/kick/${userId}`, {
+                method: "POST",
+                headers: getAuthHeaders(token)
+            });
+
+            if (res.ok) {
+                toast.success(`${userName} has been removed`);
+                fetchCircleDetails(); // Refresh
+            } else {
+                const data = await res.json();
+                toast.error(data.message || "Failed to remove member");
+            }
+        } catch (err) {
+            toast.error("Connection error");
+        }
+    };
+
+    const handleTransferLeadership = async (newLeaderId: string, name: string) => {
+        if (!window.confirm(`Are you sure you want to transfer leadership to ${name}? You will lose administrative control.`)) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/circles/${id}/transfer-leadership`, {
+                method: "POST",
+                headers: getAuthHeaders(token),
+                body: JSON.stringify({ newLeaderId })
+            });
+
+            if (res.ok) {
+                toast.success(`Leadership transferred to ${name}`);
+                fetchCircleDetails(); // Refresh
+            } else {
+                const data = await res.json();
+                toast.error(data.message || "Failed to transfer leadership");
+            }
+        } catch (err) {
+            toast.error("Connection error");
         }
     };
 
@@ -457,7 +503,7 @@ export default function CircleDetails() {
                                 <Users className="h-4 w-4" /> Directory
                             </h3>
                             <div className="space-y-4">
-                                {circle.members.map((member) => (
+                                 {circle.members.map((member) => (
                                     <div key={member.user._id} className="flex items-center gap-3">
                                         <Avatar className="h-10 w-10 border border-white/10">
                                             <AvatarImage src={member.user.profilePicture} />
@@ -465,14 +511,53 @@ export default function CircleDetails() {
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-bold truncate">{member.user.name}</p>
-                                            <p className="text-[10px] font-black uppercase tracking-wider text-primary opacity-70">
-                                                {member.role}
-                                            </p>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <p className="text-[10px] font-black uppercase tracking-wider text-primary opacity-70">
+                                                    {member.role}
+                                                </p>
+                                                {member.user._id === circle.creator && (
+                                                    <Badge variant="outline" className="h-4 px-1 bg-amber-500/10 text-amber-500 border-none">
+                                                        <Crown className="h-2 w-2 mr-1" />
+                                                        LEADER
+                                                    </Badge>
+                                                )}
+                                            </div>
                                         </div>
                                         {member.user._id !== user?.id && (
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100">
-                                                <MessageSquare className="h-4 w-4" />
-                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100">
+                                                        <MoreVertical className="h-4 w-4" />
+                                                     </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="bg-[#020817] border-white/10 rounded-xl">
+                                                    <DropdownMenuItem 
+                                                        className="py-2 cursor-pointer"
+                                                        onClick={() => window.open(`tel:${member.user.phone}`)}
+                                                    >
+                                                        <Phone className="h-3.5 w-3.5 mr-2" /> Call
+                                                    </DropdownMenuItem>
+                                                    
+                                                    {/* Moderation Actions - Only for current leader */}
+                                                    {user?.id === circle.creator && (
+                                                        <>
+                                                            <Separator className="bg-white/5 my-1" />
+                                                            <DropdownMenuItem 
+                                                                className="py-2 cursor-pointer text-amber-500 focus:text-amber-500 focus:bg-amber-500/10"
+                                                                onClick={() => handleTransferLeadership(member.user._id, member.user.name)}
+                                                            >
+                                                                <Crown className="h-3.5 w-3.5 mr-2" /> Transfer Leadership
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem 
+                                                                className="py-2 cursor-pointer text-rose-500 focus:text-rose-500 focus:bg-rose-500/10"
+                                                                onClick={() => handleKickMember(member.user._id, member.user.name)}
+                                                            >
+                                                                <UserMinus className="h-3.5 w-3.5 mr-2" /> Kick Member
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         )}
                                     </div>
                                 ))}
