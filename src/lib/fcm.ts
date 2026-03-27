@@ -37,58 +37,104 @@ if (isConfigured) {
 
 /**
  * Request notification permission, get the FCM token, and register it with the backend.
+ * Handles both Web and Capacitor (Native Mobile) platforms.
  */
 export const registerFcmToken = async (authToken: string | null): Promise<void> => {
-  if (!messaging || !authToken) return;
+  if (!authToken) return;
 
   try {
-    if (typeof Notification === "undefined") {
-      console.warn("[FCM] Notification API not supported in this browser.");
-      return;
-    }
+    const { Capacitor } = await import("@capacitor/core");
+    const isNative = Capacitor.isNativePlatform();
 
-    let currentPermission = Notification.permission;
-    
-    if (currentPermission === "default") {
-      currentPermission = await Notification.requestPermission();
-    }
+    if (isNative) {
+      console.log("[FCM] Native platform detected. Using Capacitor PushNotifications.");
+      const { PushNotifications } = await import("@capacitor/push-notifications");
+      
+      // 1. Request/Check Permissions
+      let status = await PushNotifications.checkPermissions();
+      if (status.receive === "prompt" || (status.receive as string) === "default") {
+        status = await PushNotifications.requestPermissions();
+      }
 
-    if (currentPermission === "denied") {
-      console.warn("[FCM] Notification permission denied.");
-      return;
-    }
+      if (status.receive !== "granted") {
+        console.warn("[FCM] Native notification permission NOT granted:", status.receive);
+        return;
+      }
 
-    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
-    
-    // Explicitly register the service worker as a module (required for modular SDK)
-    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js", {
-      type: "module",
-    });
+      // 2. Register for remote notifications (triggers registration event)
+      await PushNotifications.register();
 
-    const fcmToken = await getToken(messaging, { 
-      vapidKey,
-      serviceWorkerRegistration: registration 
-    });
+      // 3. Listen for the registration token
+      return new Promise((resolve) => {
+        const successListener = PushNotifications.addListener("registration", async (tokenData) => {
+          const nativeToken = tokenData.value;
+          console.log("[FCM] Native token received:", nativeToken);
+          
+          const res = await fetch(`${API_BASE}/users/fcm-token`, {
+            method: "POST",
+            headers: getAuthHeaders(authToken),
+            body: JSON.stringify({ token: nativeToken }),
+          });
 
-    if (!fcmToken) {
-      console.warn("[FCM] Could not get FCM token.");
-      return;
-    }
+          if (res.ok) console.log("[FCM] Native token registered successfully.");
+          successListener.then(h => h.remove());
+          resolve();
+        });
 
-    // Send the token to the backend to store against the user
-    const res = await fetch(`${API_BASE}/users/fcm-token`, {
-      method: "POST",
-      headers: getAuthHeaders(authToken),
-      body: JSON.stringify({ token: fcmToken }),
-    });
-
-    if (res.ok) {
-      console.log("[FCM] Token registered with backend successfully.");
+        PushNotifications.addListener("registrationError", (err) => {
+          console.error("[FCM] Native registration error:", err);
+          resolve();
+        });
+      });
     } else {
-      console.warn("[FCM] Failed to register token with backend:", res.status);
+      // --- WEB FLOW ---
+      if (!messaging) {
+        console.warn("[FCM] Messaging not initialized on web.");
+        return;
+      }
+
+      if (typeof Notification === "undefined") {
+        console.warn("[FCM] Notification API not supported.");
+        return;
+      }
+
+      let currentPermission = Notification.permission;
+      if (currentPermission === "default") {
+        currentPermission = await Notification.requestPermission();
+      }
+
+      if (currentPermission !== "granted") {
+        console.warn("[FCM] Web notification permission denied.");
+        return;
+      }
+
+      const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js", {
+        type: "module",
+      });
+
+      const fcmToken = await getToken(messaging, { 
+        vapidKey,
+        serviceWorkerRegistration: registration 
+      });
+
+      if (!fcmToken) {
+        console.warn("[FCM] Could not get Web FCM token.");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/users/fcm-token`, {
+        method: "POST",
+        headers: getAuthHeaders(authToken),
+        body: JSON.stringify({ token: fcmToken }),
+      });
+
+      if (res.ok) {
+        console.log("[FCM] Web token registered successfully.");
+      }
     }
   } catch (err) {
-    console.error("[FCM] Error registering FCM token:", err);
+    console.error("[FCM] Error in registerFcmToken:", err);
   }
 };
 
