@@ -74,6 +74,19 @@ const AppContent = () => {
       if (Capacitor.isNativePlatform()) {
         try {
           const { PushNotifications } = await import("@capacitor/push-notifications");
+          const { LocalNotifications } = await import("@capacitor/local-notifications");
+          
+          // CRITICAL: Create Android Notification Channel for High Importance
+          await LocalNotifications.createChannel({
+            id: 'safetywatch-alerts',
+            name: 'SafetyWatch Emergency Alerts',
+            description: 'Critical SOS and safety notifications',
+            importance: 5, // High
+            visibility: 1, // Public
+            vibration: true,
+            sound: 'alert.wav'
+          });
+          
           const status = await PushNotifications.checkPermissions();
           console.log("[FCM] Native permission status:", status.receive);
           

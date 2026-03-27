@@ -428,11 +428,16 @@ export default function Index() {
                     <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl shadow-lg shadow-orange-500/20 shrink-0 flex-1 sm:flex-initial" onClick={async () => {
                       console.log("[FCM] Activate Now clicked. Platform:", Capacitor.getPlatform());
                       let permission: string = "default";
-                      try {
+                       try {
                         if (Capacitor.isNativePlatform()) {
                           const { PushNotifications } = await import("@capacitor/push-notifications");
-                          const status = await PushNotifications.requestPermissions();
-                          permission = status.receive;
+                          const { LocalNotifications } = await import("@capacitor/local-notifications");
+                          
+                          // Request both Push and Local permissions
+                          const pResult = await PushNotifications.requestPermissions();
+                          const lResult = await LocalNotifications.requestPermissions();
+                          
+                          permission = (pResult.receive === "granted" && lResult.display === "granted") ? "granted" : "denied";
                         } else {
                           permission = await Notification.requestPermission();
                         }
@@ -466,7 +471,8 @@ export default function Index() {
                               id: Math.floor(Math.random() * 1000),
                               schedule: { at: new Date(Date.now() + 1000) },
                               actionTypeId: "",
-                              extra: null
+                              extra: null,
+                              channelId: "safetywatch-alerts"
                             }]
                           });
                           toast({ title: "LOCAL TEST SENT", description: "Check your phone's notification tray!" });
@@ -486,12 +492,22 @@ export default function Index() {
                         }
 
                         // Step 2: Also fire a BACKEND test push via FCM
+                        if (!token) {
+                          toast({ title: "NO TOKEN", description: "Missing FCM token. Push might fail.", variant: "destructive" });
+                          return;
+                        }
+
                         const res = await fetch(`${API_BASE}/users/test-push`, {
                           method: "POST",
                           headers: getAuthHeaders(token),
                         });
                         const data = await res.json();
                         console.log("[FCM] Test push result:", data);
+                        if (!res.ok) {
+                          toast({ title: "SERVER TEST FAILED", description: data.message || "Is your backend up?", variant: "destructive" });
+                        } else {
+                          toast({ title: "SERVER TEST SENT", description: "A message was requested from the server." });
+                        }
                         if (data.result?.success) {
                           toast({ title: "SERVER PUSH SENT", description: `Sent to ${data.tokenCount} device(s). Check notification tray!` });
                         } else {
