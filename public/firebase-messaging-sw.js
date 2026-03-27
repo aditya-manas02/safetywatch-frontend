@@ -18,18 +18,17 @@ const messaging = getMessaging(app);
 onBackgroundMessage(messaging, (payload) => {
   console.log('[SW] Received background message:', payload);
 
-  const { title, body } = payload.notification || {};
+  const title = payload.notification?.title || payload.data?.title || 'Emergency SOS Alert!';
+  const body = payload.notification?.body || payload.data?.body || 'An emergency has been reported near you.';
   const link = payload.data?.link || '/';
 
-  if (title) {
-    self.registration.showNotification(title, {
-      body: body || '',
-      icon: '/logo192.png',
-      badge: '/logo192.png',
-      data: { link },
-      vibrate: [200, 100, 200],
-    });
-  }
+  self.registration.showNotification(title, {
+    body,
+    icon: '/logo192.png',
+    badge: '/logo192.png',
+    data: { link },
+    vibrate: [200, 100, 200],
+  });
 });
 
 // When user clicks the notification, open the app at the correct URL
