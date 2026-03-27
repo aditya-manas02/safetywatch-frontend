@@ -21,7 +21,7 @@ import { SafetyWatchLoader } from "./components/SafetyWatchLoader";
 import { SecurityUpdatePanel } from "./components/SecurityUpdatePanel";
 import { AreaCodeSelector } from "./components/AreaCodeSelector";
 import { SuspensionModal } from "./components/SuspensionModal";
-import { Megaphone, X } from "lucide-react";
+import { Megaphone, X, Bell, ShieldAlert } from "lucide-react";
 import SOSAlert from "./components/SOSAlert";
 import { toast } from "@/hooks/use-toast";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
@@ -63,6 +63,11 @@ const AppContent = () => {
     latitude: number;
     longitude: number;
   } | null>(null);
+
+  // --- Notification Permission State ---
+  const [notifPermission, setNotifPermission] = useState<string>(
+    typeof Notification !== "undefined" ? Notification.permission : "granted"
+  );
 
   // Check if user needs to set area code (not superadmin and hasAreaCode is false)
   const needsAreaCode = user &&
@@ -161,9 +166,7 @@ const AppContent = () => {
             body,
             icon: "/logo192.png",
             badge: "/logo192.png",
-            vibrate: [200, 100, 200],
-            tag: "safetywatch-foreground", // Prevents duplicate notifications
-            data: { link },
+            tag: "safetywatch-foreground",
           });
 
           notification.onclick = () => {
@@ -181,9 +184,7 @@ const AppContent = () => {
               body,
               icon: "/logo192.png",
               badge: "/logo192.png",
-              vibrate: [200, 100, 200],
               tag: "safetywatch-foreground",
-              data: { link },
             });
           });
         }
@@ -303,6 +304,48 @@ const AppContent = () => {
 
   return (
     <AnimatedBackground>
+      {/* === BLOCKING NOTIFICATION PERMISSION MODAL === */}
+      {notifPermission === "default" && user && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-card border border-border rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <div className="mx-auto w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mb-6">
+              <Bell className="w-8 h-8 text-orange-500 animate-bounce" />
+            </div>
+            <h2 className="text-xl font-bold mb-2">Enable Notifications</h2>
+            <p className="text-muted-foreground text-sm mb-2">
+              SafetyWatch needs notification access to send you <strong>real-time emergency SOS alerts</strong> when someone nearby is in danger.
+            </p>
+            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-6">
+              <ShieldAlert className="w-5 h-5 text-red-500 shrink-0" />
+              <p className="text-xs text-red-400 text-left">Without notification access, you will NOT receive emergency alerts even when the app is closed.</p>
+            </div>
+            <button
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-orange-500/30 transition-all text-base mb-3"
+              onClick={async () => {
+                try {
+                  const permission = await Notification.requestPermission();
+                  console.log("[FCM] Permission dialog result:", permission);
+                  setNotifPermission(permission);
+                  if (permission === "granted" && token) {
+                    import("@/lib/fcm").then(({ registerFcmToken }) => registerFcmToken(token));
+                  }
+                } catch (err) {
+                  console.error("[FCM] Permission request error:", err);
+                  setNotifPermission("denied");
+                }
+              }}
+            >
+              Allow Notifications
+            </button>
+            <button
+              className="text-muted-foreground text-xs hover:text-foreground transition-colors"
+              onClick={() => setNotifPermission("dismissed")}
+            >
+              Skip for now
+            </button>
+          </div>
+        </div>
+      )}
       {showPreAlert && (
         <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-amber-600 to-amber-500 text-white py-2 px-4 text-center text-xs font-bold shadow-lg flex items-center justify-center gap-3 animate-in fade-in slide-in-from-top duration-500 translate-y-[env(safe-area-inset-top)]">
           <Megaphone className="h-4 w-4 animate-bounce shrink-0" />
