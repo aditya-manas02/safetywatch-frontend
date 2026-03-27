@@ -105,7 +105,7 @@ const SOSButton: React.FC = () => {
   };
 
   return (
-    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10001] flex flex-col items-center gap-2 pointer-events-auto bg-black/50 p-4 rounded-3xl backdrop-blur-md border-2 border-white/20">
+    <div className="fixed bottom-24 left-6 z-[10001] flex flex-col items-center gap-2 pointer-events-auto">
       <div className="relative">
         {/* Progress ring */}
         {isHolding && (
@@ -146,8 +146,8 @@ const SOSButton: React.FC = () => {
           <AlertCircle size={32} />
         </button>
       </div>
-      <span className="text-sm font-black text-white drop-shadow-lg tracking-widest bg-red-600 px-3 py-1 rounded-full animate-pulse">
-        {isHolding ? "HOLDING..." : "EMERGENCY"}
+      <span className="text-xs font-bold text-red-600 drop-shadow-md">
+        {isHolding ? "HOLDING..." : "SOS"}
       </span>
     </div>
   );

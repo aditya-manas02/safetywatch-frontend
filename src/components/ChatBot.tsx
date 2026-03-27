@@ -70,7 +70,7 @@ export default function ChatBot() {
     };
 
     return (
-        <div className="fixed bottom-4 right-4 z-[9999] flex flex-col items-end font-sans">
+        <div className="fixed bottom-4 right-4 z-[9999] flex flex-col items-end font-sans pointer-events-none">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -83,7 +83,7 @@ export default function ChatBot() {
                         }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         // DESKTOP UI FIX: Fixed width (380px) and nicer shadow/border
-                        className="w-[90vw] sm:w-[380px] bg-[#09090b]/95 backdrop-blur-xl border border-purple-500/30 rounded-3xl shadow-[0_0_50px_-10px_rgba(168,85,247,0.4)] overflow-hidden flex flex-col mb-4 ring-1 ring-white/10"
+                        className="w-[90vw] sm:w-[380px] bg-[#09090b]/95 backdrop-blur-xl border border-purple-500/30 rounded-3xl shadow-[0_0_50px_-10px_rgba(168,85,247,0.4)] overflow-hidden flex flex-col mb-4 ring-1 ring-white/10 pointer-events-auto"
                     >
                         {/* Nexus Header */}
                         <div
@@ -231,28 +231,16 @@ export default function ChatBot() {
                     </defs>
                 </svg>
 
-                {/* Magnetic Interaction Overlay */}
-                <motion.div
-                    className="absolute inset-0 -m-16 z-0 hidden sm:block"
-                    onMouseMove={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const x = e.clientX - rect.left - rect.width / 2;
-                        const y = e.clientY - rect.top - rect.height / 2;
-                        buttonX.set(x * 0.2);
-                        buttonY.set(y * 0.2);
-                    }}
-                    onMouseLeave={() => {
-                        buttonX.set(0);
-                        buttonY.set(0);
-                    }}
-                />
+                {/* Draggable Button Container */}
 
                 <motion.button
-                    style={{ x: buttonX, y: buttonY }}
+                    drag
+                    dragConstraints={{ left: -window.innerWidth + 100, right: 0, top: -window.innerHeight + 200, bottom: 0 }}
+                    dragElastic={0.1}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setIsOpen(!isOpen)}
-                    className="relative h-16 w-16 sm:h-20 sm:w-20 transition-all duration-500 ease-out flex items-center justify-center pointer-events-auto"
+                    className="relative h-14 w-14 sm:h-16 sm:w-16 transition-all duration-500 ease-out flex items-center justify-center pointer-events-auto"
                 >
                     <AnimatePresence mode="wait">
                         {isOpen ? (
