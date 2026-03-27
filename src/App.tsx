@@ -115,21 +115,28 @@ const AppContent = () => {
     
     // Proactively check and request notification permission
     if (typeof Notification !== "undefined") {
+      console.log("[FCM] Current permission status:", Notification.permission);
+      
       if (Notification.permission === "default") {
+        console.log("[FCM] Permission is default. Requesting...");
         import("@/lib/fcm").then(({ registerFcmToken }) => {
-          registerFcmToken(token).catch(() => {});
+          registerFcmToken(token).catch((err) => console.error("[FCM] Proactive registration failed:", err));
         });
       } else if (Notification.permission === "denied") {
+        console.warn("[FCM] Permission is denied. Asking user to enable in settings.");
         toast({
           title: "PUSH NOTIFICATIONS BLOCKED",
           description: "Please enable notifications in your browser settings to receive real-time SOS alerts.",
           variant: "destructive"
         });
       } else if (Notification.permission === "granted") {
+        console.log("[FCM] Permission already granted. Syncing token...");
         import("@/lib/fcm").then(({ registerFcmToken }) => {
-          registerFcmToken(token).catch(() => {});
+          registerFcmToken(token).catch((err) => console.error("[FCM] Token sync failed:", err));
         });
       }
+    } else {
+      console.warn("[FCM] Notification API not supported in this environment.");
     }
   }, [user?.email, token]); // Run once when a user session is confirmed
 
