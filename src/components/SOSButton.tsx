@@ -105,7 +105,7 @@ const SOSButton: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-24 left-6 z-50 flex flex-col items-center gap-2">
+    <div className="fixed bottom-32 left-8 z-[10001] flex flex-col items-center gap-2 pointer-events-auto">
       <div className="relative">
         {/* Progress ring */}
         {isHolding && (
