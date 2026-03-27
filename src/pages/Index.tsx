@@ -61,10 +61,15 @@ export default function Index() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [focusedIncident, setFocusedIncident] = useState<Incident | null>(null);
   const [showPermissionBanner, setShowPermissionBanner] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<string>("default");
 
   useEffect(() => {
-    if (typeof Notification !== "undefined" && Notification.permission === "default") {
-      setShowPermissionBanner(true);
+    if (typeof Notification !== "undefined") {
+      setNotifPermission(Notification.permission);
+      // Show banner if permission not yet granted, OR if granted but user might want to test
+      if (Notification.permission === "default") {
+        setShowPermissionBanner(true);
+      }
     }
   }, []);
 
@@ -381,63 +386,97 @@ export default function Index() {
 
         {/* MAIN */}
         <main className="container mx-auto px-6 py-12">
-          {showPermissionBanner && (
+          {/* Notification Permission Banner — ask permission or test push */}
+          {(showPermissionBanner || (user && notifPermission === "granted")) && (
             <motion.div 
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
-              className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 sm:p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 overflow-hidden"
+              className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 sm:p-6 mb-8 flex flex-col gap-4 overflow-hidden"
             >
-              <div className="flex items-center gap-4 text-center sm:text-left">
-                <div className="bg-orange-500/20 p-2 sm:p-3 rounded-xl">
-                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500 animate-bounce" />
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4 text-center sm:text-left">
+                  <div className="bg-orange-500/20 p-2 sm:p-3 rounded-xl">
+                    <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500 animate-bounce" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm sm:text-base">
+                      {notifPermission === "granted" ? "🔔 Notifications Active" : "Enable Emergency Alerts"}
+                    </h4>
+                    <p className="text-muted-foreground text-[10px] sm:text-xs">
+                      {notifPermission === "granted" 
+                        ? "Permission granted. Tap 'Test' to verify system notifications work."
+                        : "Receive real-time push notifications for SOS alerts near your location."}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-sm sm:text-base">Enable Emergency Alerts</h4>
-                  <p className="text-muted-foreground text-[10px] sm:text-xs">Receive real-time push notifications for SOS alerts near your location.</p>
+                <div className="flex gap-2 w-full sm:w-auto">
+                  {notifPermission !== "granted" && (
+                    <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl shadow-lg shadow-orange-500/20 shrink-0 flex-1 sm:flex-initial" onClick={async () => {
+                      console.log("[FCM] Activate Now clicked. Platform:", Capacitor.getPlatform());
+                      let permission: string = "default";
+                      try {
+                        if (Capacitor.isNativePlatform()) {
+                          const { PushNotifications } = await import("@capacitor/push-notifications");
+                          const status = await PushNotifications.requestPermissions();
+                          permission = status.receive;
+                        } else {
+                          permission = await Notification.requestPermission();
+                        }
+                        console.log("[FCM] Permission result:", permission);
+                        setNotifPermission(permission);
+                        if (permission === "granted") {
+                          setShowPermissionBanner(false);
+                          if (token) {
+                            import("@/lib/fcm").then(({ registerFcmToken }) => registerFcmToken(token));
+                          }
+                          toast({ title: "ALERTS ENABLED", description: "You will now receive emergency notifications." });
+                        } else if (permission === "denied") {
+                          toast({ title: "PERMISSION DENIED", description: "Please enable notifications in your browser/app settings.", variant: "destructive" });
+                        }
+                      } catch (err) {
+                        console.error("[FCM] Permission request failed:", err);
+                        toast({ title: "ERROR", description: "Failed to request notification permissions.", variant: "destructive" });
+                      }
+                    }}>Activate Now</Button>
+                  )}
+                  {notifPermission === "granted" && user && token && (
+                    <Button size="sm" variant="outline" className="border-orange-500/30 text-orange-500 font-bold px-6 py-2 rounded-xl shrink-0 flex-1 sm:flex-initial" onClick={async () => {
+                      try {
+                        // Step 1: Fire a LOCAL service worker notification immediately
+                        const reg = await navigator.serviceWorker?.ready;
+                        if (reg) {
+                          await reg.showNotification("🔔 Local Test — SafetyWatch", {
+                            body: "This is a LOCAL test. If you see this, your phone supports system notifications!",
+                            icon: "/logo192.png",
+                            badge: "/logo192.png",
+                            vibrate: [200, 100, 200],
+                            tag: "local-test",
+                          });
+                          toast({ title: "LOCAL TEST SENT", description: "Check your phone's notification tray!" });
+                        } else {
+                          toast({ title: "NO SERVICE WORKER", description: "Service worker not found. Push won't work.", variant: "destructive" });
+                        }
+
+                        // Step 2: Also fire a BACKEND test push via FCM
+                        const res = await fetch(`${API_BASE}/users/test-push`, {
+                          method: "POST",
+                          headers: getAuthHeaders(token),
+                        });
+                        const data = await res.json();
+                        console.log("[FCM] Test push result:", data);
+                        if (data.result?.success) {
+                          toast({ title: "SERVER PUSH SENT", description: `Sent to ${data.tokenCount} device(s). Check notification tray!` });
+                        } else {
+                          toast({ title: "SERVER PUSH FAILED", description: data.message || "Backend could not send push. Check server logs.", variant: "destructive" });
+                        }
+                      } catch (err) {
+                        console.error("[FCM] Test notification failed:", err);
+                        toast({ title: "TEST FAILED", description: String(err), variant: "destructive" });
+                      }
+                    }}>🔔 Test Notification</Button>
+                  )}
                 </div>
               </div>
-              <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl shadow-lg shadow-orange-500/20 shrink-0 w-full sm:w-auto" onClick={async () => {
-                console.log("[FCM] Activate Now clicked. Platform:", Capacitor.getPlatform());
-                
-                let permission: string = "default";
-                
-                try {
-                  if (Capacitor.isNativePlatform()) {
-                    const { PushNotifications } = await import("@capacitor/push-notifications");
-                    const status = await PushNotifications.requestPermissions();
-                    permission = status.receive;
-                    console.log("[FCM] Capacitor permission result:", permission);
-                  } else {
-                    const webPermission = await Notification.requestPermission();
-                    permission = webPermission;
-                    console.log("[FCM] Web permission result:", permission);
-                  }
-
-                  if (permission === "granted") {
-                    setShowPermissionBanner(false);
-                    if (token) {
-                      import("@/lib/fcm").then(({ registerFcmToken }) => registerFcmToken(token));
-                    }
-                    toast({
-                      title: "ALERTS ENABLED",
-                      description: "You will now receive emergency notifications.",
-                    });
-                  } else if (permission === "denied") {
-                    toast({
-                      title: "PERMISSION DENIED",
-                      description: "Please enable notifications in your browser/app settings to receive SOS alerts.",
-                      variant: "destructive"
-                    });
-                  }
-                } catch (err) {
-                  console.error("[FCM] Permission request failed:", err);
-                  toast({
-                    title: "ERROR",
-                    description: "Failed to request notification permissions.",
-                    variant: "destructive"
-                  });
-                }
-              }}>Activate Now</Button>
             </motion.div>
           )}
           {user && <ChallengesSection />}
