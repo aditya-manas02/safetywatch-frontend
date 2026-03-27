@@ -42,6 +42,11 @@ export const registerFcmToken = async (authToken: string | null): Promise<void> 
   if (!messaging || !authToken) return;
 
   try {
+    if (typeof Notification === "undefined") {
+      console.warn("[FCM] Notification API not supported in this browser.");
+      return;
+    }
+
     let currentPermission = Notification.permission;
     
     if (currentPermission === "default") {
