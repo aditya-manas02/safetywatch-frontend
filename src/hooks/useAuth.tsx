@@ -99,6 +99,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // SIGN IN (Node backend)
   // ---------------------------
   const signIn = async (email: string, password: string) => {
+    // Clear any existing stale state before a new attempt
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+
     try {
       const resp = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",

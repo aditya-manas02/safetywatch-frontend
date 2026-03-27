@@ -13,6 +13,7 @@ const GuardianMode = () => {
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [activeSOS, setActiveSOS] = useState<any>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -72,7 +73,6 @@ const GuardianMode = () => {
         setProgress(0);
         setLoading(true);
 
-        // Get location and call backend
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
@@ -102,7 +102,6 @@ const GuardianMode = () => {
                             description: "Failed to notify neighbors. Retrying in background...",
                             variant: "destructive"
                         });
-                        // Fallback: still show UI so user knows they intended to trigger it
                         setActive(true);
                     } finally {
                         setLoading(false);
@@ -134,6 +133,40 @@ const GuardianMode = () => {
             description: "Returning to standard monitoring.",
         });
     };
+
+    // Background check for active SOS in the area
+    useEffect(() => {
+        const checkActiveSOS = async () => {
+            // Safety: Don't poll if on auth page or if token missing
+            const isAuthPage = window.location.pathname.startsWith('/auth');
+            if (!token || isAuthPage) return;
+
+            try {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    const res = await fetch(`${API_BASE}/incidents/sos/active?lat=${latitude}&lng=${longitude}`, {
+                        headers: getAuthHeaders(token)
+                    });
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && (!activeSOS || activeSOS.id !== data.id)) {
+                            setActiveSOS(data);
+                            console.log("[SOS] Active emergency detected nearby!");
+                        } else if (!data) {
+                            setActiveSOS(null);
+                        }
+                    }
+                }, () => {}, { timeout: 10000 });
+            } catch (err) {
+                console.error("[SOS] Polling failed", err);
+            }
+        };
+
+        checkActiveSOS();
+        const interval = setInterval(checkActiveSOS, 30000); 
+        return () => clearInterval(interval);
+    }, [token]);
 
     return (
         <>

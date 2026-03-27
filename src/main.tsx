@@ -10,11 +10,18 @@ window.fetch = async (...args) => {
     const url = typeof args[0] === 'string' ? args[0] : (args[0] instanceof Request ? args[0].url : '');
     // Ignore auth routes to prevent endless loops on login failures
     if (url.includes('/api/') && !url.includes('/auth/login') && !url.includes('/auth/signup') && !url.includes('/auth/verify-otp')) {
-      if (localStorage.getItem("token")) {
-        console.warn("[AUTH] Global 401 detected. Token expired or invalid. Logging out.");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.href = "/auth?session_expired=true";
+      // Only redirect if NOT on the auth page to prevent infinite loops
+      const isAuthPage = window.location.pathname.startsWith('/auth');
+      
+      if (!isAuthPage) {
+          console.warn("[AUTH] Session expired - redirecting to login.");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "/auth?session_expired=true";
+      } else {
+          console.warn("[AUTH] 401 encountered on auth page - suppressing redirect loop.");
+          // We still clear stale bits but don't force a reload/redirect
+          localStorage.removeItem("token");
       }
     }
   }
