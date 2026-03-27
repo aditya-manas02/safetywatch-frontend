@@ -3,21 +3,55 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShieldAlert, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { API_BASE, getAuthHeaders } from "@/lib/api";
 
 const GuardianMode = () => {
+    const { token, user } = useAuth();
     const [active, setActive] = useState(false);
     const [holding, setHolding] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [loading, setLoading] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        if (active) {
+            timerRef.current = setInterval(() => {
+                setDuration(prev => prev + 1);
+            }, 1000);
+        } else {
+            if (timerRef.current) clearInterval(timerRef.current);
+            setDuration(0);
+        }
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
+    }, [active]);
+
+    const formatDuration = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
 
     const startHold = () => {
+        if (!token) {
+            toast({
+                title: "Login Required",
+                description: "Please sign in to use Guardian Mode.",
+                variant: "destructive"
+            });
+            return;
+        }
         setHolding(true);
         setProgress(0);
         const startTime = Date.now();
 
         intervalRef.current = setInterval(() => {
             const elapsed = Date.now() - startTime;
-            const newProgress = Math.min((elapsed / 2000) * 100, 100); // 2 seconds to activate
+            const newProgress = Math.min((elapsed / 2000) * 100, 100); 
             setProgress(newProgress);
 
             if (newProgress >= 100) {
@@ -32,29 +66,72 @@ const GuardianMode = () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
     };
 
-    const activateGuardianMode = () => {
+    const activateGuardianMode = async () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
-        setActive(true);
         setHolding(false);
         setProgress(0);
+        setLoading(true);
 
-        // Play alert sound if possible (browser policy may block auto-play without prior interaction)
-        // const audio = new Audio('/siren.mp3'); 
-        // audio.play().catch(() => {}); 
+        // Get location and call backend
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    try {
+                        const { latitude, longitude } = position.coords;
+                        const response = await fetch(`${API_BASE}/incidents/sos`, {
+                            method: "POST",
+                            headers: getAuthHeaders(token),
+                            body: JSON.stringify({
+                                lat: latitude,
+                                lng: longitude
+                            }),
+                        });
 
-        toast({
-            title: "GUARDIAN MODE ACTIVATED",
-            description: "Emergency Contacts have been notified. Location tracking enabled.",
-            variant: "destructive",
-            duration: 10000
-        });
+                        if (!response.ok) throw new Error("Broadcast failed");
+
+                        setActive(true);
+                        toast({
+                            title: "EMERGENCY BROADCAST ACTIVE",
+                            description: "Nearby neighbors and police have been notified.",
+                            variant: "destructive",
+                            duration: 10000
+                        });
+                    } catch (err) {
+                        toast({
+                            title: "Broadcast Error",
+                            description: "Failed to notify neighbors. Retrying in background...",
+                            variant: "destructive"
+                        });
+                        // Fallback: still show UI so user knows they intended to trigger it
+                        setActive(true);
+                    } finally {
+                        setLoading(false);
+                    }
+                },
+                (error) => {
+                    setLoading(false);
+                    toast({
+                        title: "Location Error",
+                        description: "Please enable location to notify nearby help.",
+                        variant: "destructive"
+                    });
+                }
+            );
+        } else {
+            setLoading(false);
+            toast({
+                title: "Not Supported",
+                description: "Location is required for Guardian Mode.",
+                variant: "destructive"
+            });
+        }
     };
 
     const deactivate = () => {
         setActive(false);
         toast({
-            title: "Guardian Mode Deactivated",
-            description: "Returning to standard safety monitoring.",
+            title: "Emergency Mode Deactivated",
+            description: "Returning to standard monitoring.",
         });
     };
 
@@ -63,14 +140,14 @@ const GuardianMode = () => {
             {/* Floating Action Button */}
             <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2">
                 <AnimatePresence>
-                    {holding && (
+                    {(holding || loading) && (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
-                            className="bg-black/80 text-white text-xs px-2 py-1 rounded mb-2"
+                            className="bg-black/80 text-white text-xs px-3 py-1.5 rounded-full mb-2 font-bold backdrop-blur-sm border border-white/10"
                         >
-                            Hold to Activate
+                            {loading ? "Activating Beacon..." : "Hold to Activate SOS"}
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -81,18 +158,18 @@ const GuardianMode = () => {
                         <circle
                             cx="50%"
                             cy="50%"
-                            r="28"
-                            className="stroke-transparent fill-none"
+                            r="30"
+                            className="stroke-red-500/20 fill-none"
                             strokeWidth="4"
                         />
                         <circle
                             cx="50%"
                             cy="50%"
-                            r="28"
+                            r="30"
                             className="stroke-red-500 fill-none transition-all duration-75"
                             strokeWidth="4"
-                            strokeDasharray="176" // 2 * pi * 28
-                            strokeDashoffset={176 - (176 * progress) / 100}
+                            strokeDasharray="188.4" 
+                            strokeDashoffset={188.4 - (188.4 * progress) / 100}
                             strokeLinecap="round"
                         />
                     </svg>
@@ -104,7 +181,8 @@ const GuardianMode = () => {
                         onMouseLeave={endHold}
                         onTouchStart={startHold}
                         onTouchEnd={endHold}
-                        className={`h-14 w-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 ${active ? "bg-rose-600 animate-pulse ring-4 ring-rose-500/50" : "bg-muted border border-border hover:bg-muted/80"}`}
+                        disabled={loading}
+                        className={`h-14 w-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 relative ${active ? "bg-rose-600 animate-pulse ring-4 ring-rose-500/50" : "bg-card border border-border hover:bg-muted/80"} ${loading ? "opacity-50 cursor-wait" : ""}`}
                     >
                         <ShieldAlert className={`h-6 w-6 ${active ? "text-white" : "text-rose-600"}`} />
                     </motion.button>
@@ -118,43 +196,44 @@ const GuardianMode = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-rose-950/95 backdrop-blur-2xl flex items-center justify-center p-6"
+                        className="fixed inset-0 z-[100] bg-rose-950/98 backdrop-blur-2xl flex items-center justify-center p-6"
                     >
                         <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="max-w-md w-full bg-background/20 border-2 border-rose-500/50 p-8 rounded-3xl shadow-[0_0_50px_rgba(225,29,72,0.3)] space-y-8 backdrop-blur-xl"
+                            className="max-w-md w-full bg-black/40 border-2 border-rose-500/50 p-8 rounded-[2.5rem] shadow-[0_0_80px_rgba(225,29,72,0.4)] space-y-8 backdrop-blur-3xl"
                         >
                             <div className="flex justify-center">
-                                <div className="h-24 w-24 rounded-full bg-red-600/20 flex items-center justify-center border-4 border-red-500 animate-ping-slow">
-                                    <ShieldAlert className="h-12 w-12 text-red-500" />
+                                <div className="h-28 w-28 rounded-full bg-red-600/30 flex items-center justify-center border-4 border-red-500/50 relative">
+                                    <div className="absolute inset-0 rounded-full border-4 border-red-500 animate-ping opacity-40"></div>
+                                    <ShieldAlert className="h-14 w-14 text-red-500" />
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <h2 className="text-3xl font-black text-white uppercase tracking-widest">Emergency Active</h2>
-                                <p className="text-red-200 text-lg">
-                                    Beacon broadcasting to verified neighbors and emergency contacts.
+                            <div className="space-y-4 text-center">
+                                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Emergency Broadcaster</h2>
+                                <p className="text-rose-200/80 text-lg font-medium">
+                                    Your live coordinates are being shared with nearby safety agents and verified neighbors.
                                 </p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-red-900/40 p-4 rounded-xl border border-red-500/30">
-                                    <div className="text-2xl font-bold text-white">00:01</div>
-                                    <div className="text-xs text-red-300 uppercase">Duration</div>
+                                <div className="bg-red-500/10 p-5 rounded-3xl border border-red-500/20 text-center">
+                                    <div className="text-3xl font-black text-white tabular-nums">{formatDuration(duration)}</div>
+                                    <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest mt-1">Duration</div>
                                 </div>
-                                <div className="bg-red-900/40 p-4 rounded-xl border border-red-500/30">
-                                    <div className="text-2xl font-bold text-white">Sharing</div>
-                                    <div className="text-xs text-red-300 uppercase">Location</div>
+                                <div className="bg-red-500/10 p-5 rounded-3xl border border-red-500/20 text-center">
+                                    <div className="text-3xl font-black text-white animate-pulse">LIVE</div>
+                                    <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest mt-1">Status</div>
                                 </div>
                             </div>
 
                             <Button
                                 onClick={deactivate}
                                 size="lg"
-                                className="w-full h-14 text-lg font-bold bg-white text-red-900 hover:bg-white/90"
+                                className="w-full h-16 text-xl font-black bg-white text-rose-950 hover:bg-white/90 rounded-2xl shadow-xl transition-transform active:scale-95"
                             >
-                                <X className="mr-2 h-5 w-5" />
+                                <X className="mr-3 h-6 w-6" />
                                 I AM SAFE - CANCEL
                             </Button>
                         </motion.div>

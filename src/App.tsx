@@ -22,6 +22,8 @@ import { SecurityUpdatePanel } from "./components/SecurityUpdatePanel";
 import { AreaCodeSelector } from "./components/AreaCodeSelector";
 import { SuspensionModal } from "./components/SuspensionModal";
 import { Megaphone, X } from "lucide-react";
+import SOSAlert from "./components/SOSAlert";
+import { API_BASE, getAuthHeaders } from "@/lib/api";
 
 // Lazy load pages for performance
 const Index = lazy(() => import("./pages/Index"));
@@ -44,7 +46,7 @@ const AppContent = () => {
   const location = useLocation();
   const hideNavbar = ["/admin", "/auth", "/maintenance"].some(path => location.pathname.startsWith(path));
 
-  const { isLoading, user, refreshUser, signOut, isSuperAdmin } = useAuth();
+  const { isLoading, user, token, refreshUser, signOut, isSuperAdmin } = useAuth();
   const [minLoadTimePassed, setMinLoadTimePassed] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [preAlert, setPreAlert] = useState<{
@@ -52,6 +54,13 @@ const AppContent = () => {
     message: string;
     start: string | null;
     end: string | null;
+  } | null>(null);
+
+  const [activeSOS, setActiveSOS] = useState<{
+    incidentId: string;
+    userName: string;
+    latitude: number;
+    longitude: number;
   } | null>(null);
 
   // Check if user needs to set area code (not superadmin and hasAreaCode is false)
@@ -98,6 +107,57 @@ const AppContent = () => {
       clearTimeout(timer);
     };
   }, [isSuperAdmin, location.pathname]);
+
+  // --- Background Location Sync for SOS ---
+  useEffect(() => {
+    if (!user || !token) return;
+
+    const syncLocation = () => {
+      if (!navigator.geolocation) return;
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            await fetch(`${API_BASE}/users/location`, {
+              method: "PATCH",
+              headers: getAuthHeaders(token),
+              body: JSON.stringify({ latitude, longitude }),
+            });
+            console.log("[LOCATION] Background sync successful");
+          } catch (e) {
+            console.error("[LOCATION] Background sync failed", e);
+          }
+        },
+        (err) => console.warn("[LOCATION] Access denied or unavailable", err),
+        { enableHighAccuracy: false, timeout: 10000 }
+      );
+    };
+
+    // Initial sync
+    syncLocation();
+
+    // Sync every 5 minutes
+    const interval = setInterval(syncLocation, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [user, token]);
+
+  // --- SOS Alert Listener ---
+  useEffect(() => {
+    const handleSOS = (event: any) => {
+      const { incidentId, userName, latitude, longitude } = event.detail;
+      setActiveSOS({ incidentId, userName, latitude, longitude });
+      
+      // Play a sound if possible
+      try {
+        const audio = new Audio('/emergency_alert.mp3');
+        audio.play().catch(() => {});
+      } catch (e) {}
+    };
+
+    window.addEventListener("sos_alert_received", handleSOS);
+    return () => window.removeEventListener("sos_alert_received", handleSOS);
+  }, []);
 
   // Redirect to maintenance if active and not superadmin
   useEffect(() => {
@@ -239,6 +299,13 @@ const AppContent = () => {
       <Suspense fallback={null}>
         {!location.pathname.startsWith("/inbox") && <ChatBot />}
       </Suspense>
+      
+      {activeSOS && (
+        <SOSAlert
+          {...activeSOS}
+          onClose={() => setActiveSOS(null)}
+        />
+      )}
     </AnimatedBackground >
   );
 };
@@ -335,6 +402,20 @@ const App = () => {
 
       PushNotifications.addListener('pushNotificationReceived', (notification) => {
         console.log('[PUSH] Received notification: ', JSON.stringify(notification));
+        
+        // Handle SOS Alert specifically to show the overlay
+        const data = notification.data || notification.notification?.data;
+        if (data && data.type === 'sos_alert') {
+          const event = new CustomEvent('sos_alert_received', {
+            detail: {
+              incidentId: data.incidentId,
+              userName: notification.body?.split(' ')[0] || 'Someone',
+              latitude: parseFloat(data.latitude),
+              longitude: parseFloat(data.longitude)
+            }
+          });
+          window.dispatchEvent(event);
+        }
       });
 
       PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {

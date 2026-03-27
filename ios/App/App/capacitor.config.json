@@ -3,8 +3,6 @@
 	"appName": "SafetyWatch",
 	"webDir": "dist",
 	"server": {
-		"url": "https://safetywatch.vercel.app",
-		"cleartext": true,
 		"androidScheme": "https"
 	},
 	"plugins": {
@@ -20,6 +18,13 @@
 			"androidSplashResourceName": "splash",
 			"showSpinner": false
 		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
 		"CapacitorHttp": {
 			"enabled": true
 		}
@@ -31,6 +36,7 @@
 		"CAPCameraPlugin",
 		"FilesystemPlugin",
 		"GeolocationPlugin",
+		"PushNotificationsPlugin",
 		"SplashScreenPlugin",
 		"StatusBarPlugin"
 	]
