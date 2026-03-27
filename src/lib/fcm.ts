@@ -26,7 +26,13 @@ if (isConfigured) {
     console.warn("[FCM] Firebase init failed:", err);
   }
 } else {
-  console.warn("[FCM] Firebase config is incomplete. Push notifications will be in-app only.");
+  const missing = Object.entries(firebaseConfig)
+    .filter(([_, v]) => !v || v === "undefined")
+    .map(([k]) => `VITE_FIREBASE_${k.replace(/[A-Z]/g, letter => `_${letter}`).toUpperCase()}`);
+  
+  if (missing.length > 0) {
+    console.warn(`[FCM] Push notifications DISABLED. Missing Vercel Env Vars: ${missing.join(", ")}`);
+  }
 }
 
 /**
