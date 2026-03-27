@@ -401,7 +401,7 @@ export default function Index() {
         {/* MAIN */}
         <main className="container mx-auto px-6 py-12">
           {/* Notification Permission Banner — ask permission or test push */}
-          {(showPermissionBanner || (user && notifPermission === "granted")) && (
+          {showPermissionBanner && notifPermission !== "granted" && (
             <motion.div 
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
