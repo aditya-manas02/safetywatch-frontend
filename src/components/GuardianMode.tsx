@@ -82,8 +82,8 @@ const GuardianMode = () => {
                             method: "POST",
                             headers: getAuthHeaders(token),
                             body: JSON.stringify({
-                                lat: latitude,
-                                lng: longitude
+                                latitude: latitude,
+                                longitude: longitude
                             }),
                         });
 
