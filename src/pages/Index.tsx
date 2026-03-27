@@ -23,6 +23,7 @@ import {
   LayoutDashboard,
   ChevronRight,
   TrendingUp,
+  Bell,
 } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -58,6 +59,13 @@ export default function Index() {
 
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [focusedIncident, setFocusedIncident] = useState<Incident | null>(null);
+  const [showPermissionBanner, setShowPermissionBanner] = useState(false);
+
+  useEffect(() => {
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      setShowPermissionBanner(true);
+    }
+  }, []);
 
   const rawPopular = useRef<Incident[]>([]);
   const rawNearby = useRef<Incident[]>([]);
@@ -372,6 +380,36 @@ export default function Index() {
 
         {/* MAIN */}
         <main className="container mx-auto px-6 py-12">
+          {showPermissionBanner && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 sm:p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 overflow-hidden"
+            >
+              <div className="flex items-center gap-4 text-center sm:text-left">
+                <div className="bg-orange-500/20 p-2 sm:p-3 rounded-xl">
+                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500 animate-bounce" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm sm:text-base">Enable Emergency Alerts</h4>
+                  <p className="text-muted-foreground text-[10px] sm:text-xs">Receive real-time push notifications for SOS alerts near your location.</p>
+                </div>
+              </div>
+              <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl shadow-lg shadow-orange-500/20 shrink-0 w-full sm:w-auto" onClick={async () => {
+                const permission = await Notification.requestPermission();
+                if (permission === "granted") {
+                  setShowPermissionBanner(false);
+                  if (token) {
+                    import("@/lib/fcm").then(({ registerFcmToken }) => registerFcmToken(token));
+                  }
+                  toast({
+                    title: "ALERTS ENABLED",
+                    description: "You will now receive emergency notifications.",
+                  });
+                }
+              }}>Activate Now</Button>
+            </motion.div>
+          )}
           {user && <ChallengesSection />}
 
           <AdCarousel />
