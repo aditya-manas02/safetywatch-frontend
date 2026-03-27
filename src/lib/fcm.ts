@@ -42,8 +42,13 @@ export const registerFcmToken = async (authToken: string | null): Promise<void> 
   if (!messaging || !authToken) return;
 
   try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
+    let currentPermission = Notification.permission;
+    
+    if (currentPermission === "default") {
+      currentPermission = await Notification.requestPermission();
+    }
+
+    if (currentPermission === "denied") {
       console.warn("[FCM] Notification permission denied.");
       return;
     }

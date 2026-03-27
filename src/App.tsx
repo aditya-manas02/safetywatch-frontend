@@ -23,6 +23,7 @@ import { AreaCodeSelector } from "./components/AreaCodeSelector";
 import { SuspensionModal } from "./components/SuspensionModal";
 import { Megaphone, X } from "lucide-react";
 import SOSAlert from "./components/SOSAlert";
+import { toast } from "@/hooks/use-toast";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
 
 // Lazy load pages for performance
@@ -111,10 +112,24 @@ const AppContent = () => {
   // --- Register FCM token for already-authenticated users ---
   useEffect(() => {
     if (!user || !token) return;
-    import("@/lib/fcm").then(({ registerFcmToken }) => {
-      registerFcmToken(token).catch(() => {});
-    });
-  }, [user?.email]); // Run once when a user session is confirmed
+    
+    // Proactively check and request notification permission
+    if (Notification.permission === "default") {
+      import("@/lib/fcm").then(({ registerFcmToken }) => {
+        registerFcmToken(token).catch(() => {});
+      });
+    } else if (Notification.permission === "denied") {
+      toast({
+        title: "PUSH NOTIFICATIONS BLOCKED",
+        description: "Please enable notifications in your browser settings to receive real-time SOS alerts.",
+        variant: "destructive"
+      });
+    } else if (Notification.permission === "granted") {
+      import("@/lib/fcm").then(({ registerFcmToken }) => {
+        registerFcmToken(token).catch(() => {});
+      });
+    }
+  }, [user?.email, token]); // Run once when a user session is confirmed
 
   // --- Background Location Sync for SOS ---
   useEffect(() => {
