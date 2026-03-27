@@ -68,21 +68,33 @@ const AppContent = () => {
 
   useEffect(() => {
     const checkPerms = async () => {
+      // Check if user already moved past the setup screen
+      const setupDone = localStorage.getItem("notif_setup_complete") === "true";
+      
       if (Capacitor.isNativePlatform()) {
         try {
           const { PushNotifications } = await import("@capacitor/push-notifications");
           const status = await PushNotifications.checkPermissions();
           console.log("[FCM] Native permission status:", status.receive);
-          setNotifPermission(status.receive);
+          
+          if (setupDone && status.receive === "prompt") {
+            setNotifPermission("dismissed"); // User already saw modal, hide it
+          } else {
+            setNotifPermission(status.receive);
+          }
         } catch (e) {
           console.warn("[FCM] Failed to check native permissions:", e);
-          setNotifPermission("default");
+          setNotifPermission(setupDone ? "dismissed" : "default");
         }
       } else if (typeof Notification !== "undefined") {
         console.log("[FCM] Web permission status:", Notification.permission);
-        setNotifPermission(Notification.permission);
+        if (setupDone && Notification.permission === "default") {
+          setNotifPermission("dismissed");
+        } else {
+          setNotifPermission(Notification.permission);
+        }
       } else {
-        setNotifPermission("granted"); // Fallback for environments with no notification support
+        setNotifPermission("granted");
       }
     };
     checkPerms();
@@ -353,7 +365,8 @@ const AppContent = () => {
                     result = await Notification.requestPermission();
                   }
 
-                  console.log("[FCM] Permission result:", result);
+                  console.log("[FCM] Permission request result:", result);
+                  localStorage.setItem("notif_setup_complete", "true"); // PERSIST setup interaction
                   setNotifPermission(result);
                   
                   if (result === "granted" && token) {
@@ -361,7 +374,8 @@ const AppContent = () => {
                     await registerFcmToken(token);
                   }
                 } catch (err) {
-                  console.error("[FCM] Permission request error:", err);
+                  console.error("[FCM] Permission request failed:", err);
+                  localStorage.setItem("notif_setup_complete", "true");
                   setNotifPermission("denied");
                 }
               }}
@@ -370,7 +384,10 @@ const AppContent = () => {
             </button>
             <button
               className="text-muted-foreground text-xs hover:text-foreground transition-colors"
-              onClick={() => setNotifPermission("dismissed")}
+              onClick={() => {
+                localStorage.setItem("notif_setup_complete", "true");
+                setNotifPermission("dismissed");
+              }}
             >
               Skip for now
             </button>
