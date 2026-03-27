@@ -9,6 +9,7 @@ import HowItWorks from "@/components/HowItWorks";
 import RealHeatmap from "@/components/RealHeatmap";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
+import { Capacitor } from "@capacitor/core";
 
 import {
   AlertCircle,
@@ -396,15 +397,44 @@ export default function Index() {
                 </div>
               </div>
               <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl shadow-lg shadow-orange-500/20 shrink-0 w-full sm:w-auto" onClick={async () => {
-                const permission = await Notification.requestPermission();
-                if (permission === "granted") {
-                  setShowPermissionBanner(false);
-                  if (token) {
-                    import("@/lib/fcm").then(({ registerFcmToken }) => registerFcmToken(token));
+                console.log("[FCM] Activate Now clicked. Platform:", Capacitor.getPlatform());
+                
+                let permission: string = "default";
+                
+                try {
+                  if (Capacitor.isNativePlatform()) {
+                    const { PushNotifications } = await import("@capacitor/push-notifications");
+                    const status = await PushNotifications.requestPermissions();
+                    permission = status.receive;
+                    console.log("[FCM] Capacitor permission result:", permission);
+                  } else {
+                    const webPermission = await Notification.requestPermission();
+                    permission = webPermission;
+                    console.log("[FCM] Web permission result:", permission);
                   }
+
+                  if (permission === "granted") {
+                    setShowPermissionBanner(false);
+                    if (token) {
+                      import("@/lib/fcm").then(({ registerFcmToken }) => registerFcmToken(token));
+                    }
+                    toast({
+                      title: "ALERTS ENABLED",
+                      description: "You will now receive emergency notifications.",
+                    });
+                  } else if (permission === "denied") {
+                    toast({
+                      title: "PERMISSION DENIED",
+                      description: "Please enable notifications in your browser/app settings to receive SOS alerts.",
+                      variant: "destructive"
+                    });
+                  }
+                } catch (err) {
+                  console.error("[FCM] Permission request failed:", err);
                   toast({
-                    title: "ALERTS ENABLED",
-                    description: "You will now receive emergency notifications.",
+                    title: "ERROR",
+                    description: "Failed to request notification permissions.",
+                    variant: "destructive"
                   });
                 }
               }}>Activate Now</Button>
