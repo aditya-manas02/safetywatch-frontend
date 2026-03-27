@@ -56,7 +56,6 @@ const AppContent = () => {
     start: string | null;
     end: string | null;
   } | null>(null);
-
   const [activeSOS, setActiveSOS] = useState<{
     incidentId: string;
     userName: string;
@@ -65,9 +64,29 @@ const AppContent = () => {
   } | null>(null);
 
   // --- Notification Permission State ---
-  const [notifPermission, setNotifPermission] = useState<string>(
-    typeof Notification !== "undefined" ? Notification.permission : "granted"
-  );
+  const [notifPermission, setNotifPermission] = useState<string>("loading");
+
+  useEffect(() => {
+    const checkPerms = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { PushNotifications } = await import("@capacitor/push-notifications");
+          const status = await PushNotifications.checkPermissions();
+          console.log("[FCM] Native permission status:", status.receive);
+          setNotifPermission(status.receive);
+        } catch (e) {
+          console.warn("[FCM] Failed to check native permissions:", e);
+          setNotifPermission("default");
+        }
+      } else if (typeof Notification !== "undefined") {
+        console.log("[FCM] Web permission status:", Notification.permission);
+        setNotifPermission(Notification.permission);
+      } else {
+        setNotifPermission("granted"); // Fallback for environments with no notification support
+      }
+    };
+    checkPerms();
+  }, []);
 
   // Check if user needs to set area code (not superadmin and hasAreaCode is false)
   const needsAreaCode = user &&
@@ -305,7 +324,7 @@ const AppContent = () => {
   return (
     <AnimatedBackground>
       {/* === BLOCKING NOTIFICATION PERMISSION MODAL === */}
-      {notifPermission === "default" && user && (
+      {(notifPermission === "default" || notifPermission === "prompt") && user && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="bg-card border border-border rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
             <div className="mx-auto w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mb-6">
@@ -323,11 +342,23 @@ const AppContent = () => {
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-orange-500/30 transition-all text-base mb-3"
               onClick={async () => {
                 try {
-                  const permission = await Notification.requestPermission();
-                  console.log("[FCM] Permission dialog result:", permission);
-                  setNotifPermission(permission);
-                  if (permission === "granted" && token) {
-                    import("@/lib/fcm").then(({ registerFcmToken }) => registerFcmToken(token));
+                  console.log("[FCM] Requesting permission...");
+                  let result: string = "default";
+                  
+                  if (Capacitor.isNativePlatform()) {
+                    const { PushNotifications } = await import("@capacitor/push-notifications");
+                    const status = await PushNotifications.requestPermissions();
+                    result = status.receive;
+                  } else {
+                    result = await Notification.requestPermission();
+                  }
+
+                  console.log("[FCM] Permission result:", result);
+                  setNotifPermission(result);
+                  
+                  if (result === "granted" && token) {
+                    const { registerFcmToken } = await import("@/lib/fcm");
+                    await registerFcmToken(token);
                   }
                 } catch (err) {
                   console.error("[FCM] Permission request error:", err);
