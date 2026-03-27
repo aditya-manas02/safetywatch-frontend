@@ -1,24 +1,21 @@
-// Firebase Cloud Messaging Service Worker
-// This file is required by Firebase to handle background push notifications.
-// It MUST be at the root of the public directory.
-
-importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getMessaging, onBackgroundMessage } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-messaging-sw.js";
 
 // Initialize Firebase inside the service worker
-firebase.initializeApp({
+const firebaseConfig = {
   apiKey: "AIzaSyBc2b4BN3k4b2XtJw4R5ldqhUNQWI8TZjs",
   authDomain: "safetywatch-94b0a.firebaseapp.com",
   projectId: "safetywatch-94b0a",
   storageBucket: "safetywatch-94b0a.firebasestorage.app",
   messagingSenderId: "676449036770",
   appId: "1:676449036770:web:5de5cc23cb46245d4d31bb",
-});
+};
 
-const messaging = firebase.messaging();
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
 // Handle background messages
-messaging.onBackgroundMessage((payload) => {
+onBackgroundMessage(messaging, (payload) => {
   console.log('[SW] Received background message:', payload);
 
   const { title, body } = payload.notification || {};
@@ -39,5 +36,20 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const link = event.notification.data?.link || '/';
-  event.waitUntil(clients.openWindow(link));
+  
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        if (clientList.length > 0) {
+          let client = clientList[0];
+          for (let i = 0; i < clientList.length; i++) {
+            if (clientList[i].focused) {
+              client = clientList[i];
+            }
+          }
+          return client.focus();
+        }
+        return self.clients.openWindow(link);
+      })
+  );
 });
