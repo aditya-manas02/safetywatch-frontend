@@ -7,12 +7,12 @@ importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-com
 
 // Initialize Firebase inside the service worker
 firebase.initializeApp({
-  apiKey: self.FIREBASE_API_KEY || "",
-  authDomain: self.FIREBASE_AUTH_DOMAIN || "",
-  projectId: self.FIREBASE_PROJECT_ID || "",
-  storageBucket: self.FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: self.FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: self.FIREBASE_APP_ID || "",
+  apiKey: "AIzaSyBc2b4BN3k4b2XtJw4R5ldqhUNQWI8TZjs",
+  authDomain: "safetywatch-94b0a.firebaseapp.com",
+  projectId: "safetywatch-94b0a",
+  storageBucket: "safetywatch-94b0a.firebasestorage.app",
+  messagingSenderId: "676449036770",
+  appId: "1:676449036770:web:5de5cc23cb46245d4d31bb",
 });
 
 const messaging = firebase.messaging();
