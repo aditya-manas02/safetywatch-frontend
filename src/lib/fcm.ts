@@ -59,7 +59,16 @@ export const registerFcmToken = async (authToken: string | null): Promise<void> 
     }
 
     const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
-    const fcmToken = await getToken(messaging, { vapidKey });
+    
+    // Explicitly register the service worker as a module (required for modular SDK)
+    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js", {
+      type: "module",
+    });
+
+    const fcmToken = await getToken(messaging, { 
+      vapidKey,
+      serviceWorkerRegistration: registration 
+    });
 
     if (!fcmToken) {
       console.warn("[FCM] Could not get FCM token.");
