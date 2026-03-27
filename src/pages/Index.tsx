@@ -407,6 +407,28 @@ export default function Index() {
               animate={{ height: "auto", opacity: 1 }}
               className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 sm:p-6 mb-8 flex flex-col gap-4 overflow-hidden"
             >
+              {/* Debug Tray (Mini) */}
+              <div className="flex flex-wrap gap-2 mb-2">
+                <Badge variant="outline" className="text-[9px] uppercase border-orange-500/20 text-orange-500/60">
+                  {Capacitor.isNativePlatform() ? "Native App" : "Web Browser"}
+                </Badge>
+                <Badge variant="outline" className="text-[9px] uppercase border-orange-500/20 text-orange-500/60">
+                  Perm: {notifPermission}
+                </Badge>
+                <Badge variant="outline" className="text-[9px] uppercase border-orange-500/20 text-orange-500/60">
+                  Token: {token ? "Found" : "Missing"}
+                </Badge>
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem("notif_setup_complete");
+                    window.location.reload();
+                  }}
+                  className="text-[9px] uppercase text-orange-500 hover:underline ml-auto"
+                >
+                  Reset Setup
+                </button>
+              </div>
+
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4 text-center sm:text-left">
                   <div className="bg-orange-500/20 p-2 sm:p-3 rounded-xl">
@@ -414,11 +436,14 @@ export default function Index() {
                   </div>
                   <div>
                     <h4 className="font-bold text-sm sm:text-base">
-                      {notifPermission === "granted" ? "🔔 Notifications Active" : "Enable Emergency Alerts"}
+                      {notifPermission === "granted" ? "🔔 Notifications Active" : 
+                       notifPermission === "denied" ? "🚫 Permissions Blocked" : "Enable Emergency Alerts"}
                     </h4>
                     <p className="text-muted-foreground text-[10px] sm:text-xs">
                       {notifPermission === "granted" 
                         ? "Permission granted. Tap 'Test' to verify system notifications work."
+                        : notifPermission === "denied"
+                        ? "Please enable notifications in your device/browser settings to receive SOS alerts."
                         : "Receive real-time push notifications for SOS alerts near your location."}
                     </p>
                   </div>
@@ -429,16 +454,23 @@ export default function Index() {
                       console.log("[FCM] Activate Now clicked. Platform:", Capacitor.getPlatform());
                       let permission: string = "default";
                        try {
+                        console.log("[FCM] Requesting permissions...");
                         if (Capacitor.isNativePlatform()) {
                           const { PushNotifications } = await import("@capacitor/push-notifications");
                           const { LocalNotifications } = await import("@capacitor/local-notifications");
                           
                           // Request both Push and Local permissions
+                          console.log("[FCM] Native: Requesting PushPermissions...");
                           const pResult = await PushNotifications.requestPermissions();
-                          const lResult = await LocalNotifications.requestPermissions();
+                          console.log("[FCM] Native: Push Result:", pResult.receive);
                           
-                          permission = (pResult.receive === "granted" && lResult.display === "granted") ? "granted" : "denied";
+                          console.log("[FCM] Native: Requesting LocalPermissions...");
+                          const lResult = await LocalNotifications.requestPermissions();
+                          console.log("[FCM] Native: Local Result:", lResult.display);
+                          
+                          permission = (pResult.receive === "granted" || lResult.display === "granted") ? "granted" : "denied";
                         } else {
+                          console.log("[FCM] Web: Requesting Notification.requestPermission...");
                           permission = await Notification.requestPermission();
                         }
                         console.log("[FCM] Permission result:", permission);
