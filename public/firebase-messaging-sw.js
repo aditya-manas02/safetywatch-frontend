@@ -1,6 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getMessaging, onBackgroundMessage } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-messaging-sw.js";
 
+// Ensure the new service worker takes over immediately
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 // Initialize Firebase inside the service worker
 const firebaseConfig = {
   apiKey: "AIzaSyBc2b4BN3k4b2XtJw4R5ldqhUNQWI8TZjs",
