@@ -233,9 +233,20 @@ export default function Index() {
     if (user) fetchMyReports();
 
     const params = new URLSearchParams(location.search);
-    const incidentId = params.get("incident");
+    const incidentId = params.get("incidentId") || params.get("incident");
+    const isSos = params.get("sos") === "true";
+
     if (incidentId) {
       fetchFocusedIncident(incidentId);
+      
+      if (isSos) {
+        toast({
+          title: "🚨 ACTIVE SOS ALERT",
+          description: "Emergency location focused on map. Immediate assistance required!",
+          variant: "destructive",
+          duration: 10000
+        });
+      }
     }
 
     // Attempt to get user location for Nearby section

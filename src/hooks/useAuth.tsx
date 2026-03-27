@@ -132,6 +132,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAdmin(data.user.roles?.includes("admin") || data.user.roles?.includes("superadmin"));
       setIsSuperAdmin(data.user.roles?.includes("superadmin"));
 
+      // Register FCM token for push notifications (best-effort, non-blocking)
+      import("@/lib/fcm").then(({ registerFcmToken }) => {
+        registerFcmToken(data.token).catch(() => {});
+      });
+
       return { error: null };
     } catch (err: unknown) {
       const error = err instanceof Error ? err : new Error('An unknown error occurred');

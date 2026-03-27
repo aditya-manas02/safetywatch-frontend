@@ -108,6 +108,14 @@ const AppContent = () => {
     };
   }, [isSuperAdmin, location.pathname]);
 
+  // --- Register FCM token for already-authenticated users ---
+  useEffect(() => {
+    if (!user || !token) return;
+    import("@/lib/fcm").then(({ registerFcmToken }) => {
+      registerFcmToken(token).catch(() => {});
+    });
+  }, [user?.email]); // Run once when a user session is confirmed
+
   // --- Background Location Sync for SOS ---
   useEffect(() => {
     if (!user || !token) return;
