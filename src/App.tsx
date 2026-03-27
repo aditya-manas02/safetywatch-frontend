@@ -140,6 +140,61 @@ const AppContent = () => {
     }
   }, [user?.email, token]); // Run once when a user session is confirmed
 
+  // --- Force system-level notifications even when app is in the foreground ---
+  useEffect(() => {
+    if (!user || !token) return;
+    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+
+    let unsubscribe: (() => void) | undefined;
+
+    import("@/lib/fcm").then(({ onForegroundMessage }) => {
+      unsubscribe = onForegroundMessage((payload) => {
+        console.log("[FCM] Foreground message received:", payload);
+        
+        const title = payload.notification?.title || payload.data?.title || "SafetyWatch Alert";
+        const body = payload.notification?.body || payload.data?.body || "You have a new alert.";
+        const link = payload.data?.link || "/";
+
+        // Force a system-level notification using the Web Notification API
+        try {
+          const notification = new Notification(title, {
+            body,
+            icon: "/logo192.png",
+            badge: "/logo192.png",
+            vibrate: [200, 100, 200],
+            tag: "safetywatch-foreground", // Prevents duplicate notifications
+            data: { link },
+          });
+
+          notification.onclick = () => {
+            window.focus();
+            if (link && link !== "/") {
+              window.location.href = link;
+            }
+            notification.close();
+          };
+        } catch (e) {
+          // Fallback: on mobile browsers, `new Notification()` may not work directly.
+          // Use service worker registration to show notification instead.
+          navigator.serviceWorker?.ready?.then((reg) => {
+            reg.showNotification(title, {
+              body,
+              icon: "/logo192.png",
+              badge: "/logo192.png",
+              vibrate: [200, 100, 200],
+              tag: "safetywatch-foreground",
+              data: { link },
+            });
+          });
+        }
+      });
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [user?.email, token]);
+
   // --- Background Location Sync for SOS ---
   useEffect(() => {
     if (!user || !token) return;
