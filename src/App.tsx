@@ -179,45 +179,58 @@ const AppContent = () => {
   // --- Force system-level notifications even when app is in the foreground ---
   useEffect(() => {
     if (!user || !token) return;
-    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
 
     let unsubscribe: (() => void) | undefined;
 
     import("@/lib/fcm").then(({ onForegroundMessage }) => {
-      unsubscribe = onForegroundMessage((payload) => {
+      unsubscribe = onForegroundMessage(async (payload) => {
         console.log("[FCM] Foreground message received:", payload);
         
         const title = payload.notification?.title || payload.data?.title || "SafetyWatch Alert";
         const body = payload.notification?.body || payload.data?.body || "You have a new alert.";
         const link = payload.data?.link || "/";
 
-        // Force a system-level notification using the Web Notification API
-        try {
-          const notification = new Notification(title, {
-            body,
-            icon: "/logo192.png",
-            badge: "/logo192.png",
-            tag: "safetywatch-foreground",
-          });
-
-          notification.onclick = () => {
-            window.focus();
-            if (link && link !== "/") {
-              window.location.href = link;
-            }
-            notification.close();
-          };
-        } catch (e) {
-          // Fallback: on mobile browsers, `new Notification()` may not work directly.
-          // Use service worker registration to show notification instead.
-          navigator.serviceWorker?.ready?.then((reg) => {
-            reg.showNotification(title, {
+        if (Capacitor.isNativePlatform()) {
+          try {
+            const { LocalNotifications } = await import("@capacitor/local-notifications");
+            await LocalNotifications.schedule({
+              notifications: [{
+                title: `[SOS] ${title}`,
+                body,
+                id: Math.floor(Math.random() * 100000),
+                schedule: { at: new Date(Date.now() + 500) },
+                extra: { link }
+              }]
+            });
+          } catch (e) {
+            console.error("[FCM] Native LocalNotifications failed:", e);
+          }
+        } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+          try {
+            const notification = new Notification(title, {
               body,
               icon: "/logo192.png",
               badge: "/logo192.png",
               tag: "safetywatch-foreground",
             });
-          });
+
+            notification.onclick = () => {
+              window.focus();
+              if (link && link !== "/") {
+                window.location.href = link;
+              }
+              notification.close();
+            };
+          } catch (e) {
+            navigator.serviceWorker?.ready?.then((reg) => {
+              reg.showNotification(title, {
+                body,
+                icon: "/logo192.png",
+                badge: "/logo192.png",
+                tag: "safetywatch-foreground",
+              });
+            });
+          }
         }
       });
     });

@@ -64,13 +64,27 @@ export default function Index() {
   const [notifPermission, setNotifPermission] = useState<string>("default");
 
   useEffect(() => {
-    if (typeof Notification !== "undefined") {
-      setNotifPermission(Notification.permission);
-      // Show banner if permission not yet granted, OR if granted but user might want to test
-      if (Notification.permission === "default") {
-        setShowPermissionBanner(true);
+    const checkPerms = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { PushNotifications } = await import("@capacitor/push-notifications");
+          const status = await PushNotifications.checkPermissions();
+          console.log("[FCM] Index check - Native status:", status.receive);
+          setNotifPermission(status.receive);
+          if (status.receive === "prompt" || (status.receive as string) === "default") {
+            setShowPermissionBanner(true);
+          }
+        } catch (e) {
+          console.warn("[FCM] Index - Native permission check failed:", e);
+        }
+      } else if (typeof Notification !== "undefined") {
+        setNotifPermission(Notification.permission);
+        if (Notification.permission === "default") {
+          setShowPermissionBanner(true);
+        }
       }
-    }
+    };
+    checkPerms();
   }, []);
 
   const rawPopular = useRef<Incident[]>([]);
@@ -442,19 +456,33 @@ export default function Index() {
                   {notifPermission === "granted" && user && token && (
                     <Button size="sm" variant="outline" className="border-orange-500/30 text-orange-500 font-bold px-6 py-2 rounded-xl shrink-0 flex-1 sm:flex-initial" onClick={async () => {
                       try {
-                        // Step 1: Fire a LOCAL service worker notification immediately
-                        const reg = await navigator.serviceWorker?.ready;
-                        if (reg) {
-                          await reg.showNotification("🔔 Local Test — SafetyWatch", {
-                            body: "This is a LOCAL test. If you see this, your phone supports system notifications!",
-                            icon: "/logo192.png",
-                            badge: "/logo192.png",
-                            vibrate: [200, 100, 200],
-                            tag: "local-test",
+                        // Step 1: Fire a LOCAL notification immediately
+                        if (Capacitor.isNativePlatform()) {
+                          const { LocalNotifications } = await import("@capacitor/local-notifications");
+                          await LocalNotifications.schedule({
+                            notifications: [{
+                              title: "🔔 Native Test — SafetyWatch",
+                              body: "This is a NATIVE test. If you see this, your phone supports system alerts!",
+                              id: Math.floor(Math.random() * 1000),
+                              schedule: { at: new Date(Date.now() + 1000) },
+                              actionTypeId: "",
+                              extra: null
+                            }]
                           });
                           toast({ title: "LOCAL TEST SENT", description: "Check your phone's notification tray!" });
                         } else {
-                          toast({ title: "NO SERVICE WORKER", description: "Service worker not found. Push won't work.", variant: "destructive" });
+                          const reg = await navigator.serviceWorker?.ready;
+                          if (reg) {
+                            await reg.showNotification("🔔 Web Test — SafetyWatch", {
+                              body: "This is a WEB test. If you see this, your browser supports system notifications!",
+                              icon: "/logo192.png",
+                              badge: "/logo192.png",
+                              tag: "local-test",
+                            });
+                            toast({ title: "LOCAL TEST SENT", description: "Check your phone's notification tray!" });
+                          } else {
+                            toast({ title: "NO SERVICE WORKER", description: "Service worker not found. Push won't work.", variant: "destructive" });
+                          }
                         }
 
                         // Step 2: Also fire a BACKEND test push via FCM

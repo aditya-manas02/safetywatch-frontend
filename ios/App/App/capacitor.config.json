@@ -36,6 +36,7 @@
 		"CAPCameraPlugin",
 		"FilesystemPlugin",
 		"GeolocationPlugin",
+		"LocalNotificationsPlugin",
 		"PushNotificationsPlugin",
 		"SplashScreenPlugin",
 		"StatusBarPlugin"
