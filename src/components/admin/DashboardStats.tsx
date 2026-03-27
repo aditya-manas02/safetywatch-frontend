@@ -156,7 +156,7 @@ export default function DashboardStats() {
                 <div>
                   <CardTitle className="text-lg font-bold flex items-center gap-2">
                     Incident Trends
-                    <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-mono border border-primary/20">v1.4.7</span>
+                    <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-mono border border-primary/20">v1.5.0</span>
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">Activity volume over the last 7 days</p>
                 </div>
