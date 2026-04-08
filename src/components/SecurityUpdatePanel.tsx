@@ -117,7 +117,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 } else if (response.status === 426) {
                     // Backend explicitly rejected this version
                     console.warn('[VERSION_CHECK] Backend rejected version with 426.');
-                    data = response.data || { version: "1.4.6", minVersion: "1.4.6", notes: "Mandatory Update Required" };
+                    data = response.data || { version: "1.5.0", minVersion: "1.5.0", notes: "Mandatory Update Required" };
                 } else {
                     throw new Error(`Status ${response.status}`);
                 }
@@ -160,7 +160,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             setShowUpdate(true);
             setVersionInfo({
                 version: "Checking...",
-                minVersion: "1.4.3",
+                minVersion: "1.5.0",
                 url: `https://safetywatch-backend.onrender.com/SafetyWatch.apk`,
                 notes: `Connection error. Please check your internet. (Error: ${error?.message || 'Unknown'})`
             });
@@ -489,7 +489,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                         <div className="w-full space-y-2 mb-8 text-[13px] font-mono tracking-wider">
                             <div className="flex justify-between items-center px-4 py-3 bg-white/5 rounded-xl border border-white/5">
                                 <span className="text-slate-500 uppercase">Current</span>
-                                <span className="text-white font-bold">{currentVersion || '1.4.3'}</span>
+                                <span className="text-white font-bold">{currentVersion || '1.5.0'}</span>
                             </div>
                             <div className="flex justify-between items-center px-4 py-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
                                 <span className="text-purple-400 uppercase">Target</span>
@@ -540,7 +540,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                             </p>
                                             <p className="text-red-200/70 text-[12px] leading-tight italic">
                                                 {downloadError === "LEGACY_SHELL_INCOMPATIBILITY"
-                                                    ? "Your current app shell (v1.4.0) is too old for in-app syncing."
+                                                    ? "Your current app shell (v1.5.0) is too old for in-app syncing."
                                                     : `Reason: ${downloadError}`}
                                             </p>
                                         </div>
