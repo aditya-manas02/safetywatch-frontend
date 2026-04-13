@@ -407,27 +407,7 @@ export default function Index() {
               animate={{ height: "auto", opacity: 1 }}
               className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 sm:p-6 mb-8 flex flex-col gap-4 overflow-hidden"
             >
-              {/* Debug Tray (Mini) */}
-              <div className="flex flex-wrap gap-2 mb-2">
-                <Badge variant="outline" className="text-[9px] uppercase border-orange-500/20 text-orange-500/60">
-                  {Capacitor.isNativePlatform() ? "Native App" : "Web Browser"}
-                </Badge>
-                <Badge variant="outline" className="text-[9px] uppercase border-orange-500/20 text-orange-500/60">
-                  Perm: {notifPermission}
-                </Badge>
-                <Badge variant="outline" className="text-[9px] uppercase border-orange-500/20 text-orange-500/60">
-                  Token: {token ? "Found" : "Missing"}
-                </Badge>
-                <button 
-                  onClick={() => {
-                    localStorage.removeItem("notif_setup_complete");
-                    window.location.reload();
-                  }}
-                  className="text-[9px] uppercase text-orange-500 hover:underline ml-auto"
-                >
-                  Reset Setup
-                </button>
-              </div>
+
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4 text-center sm:text-left">

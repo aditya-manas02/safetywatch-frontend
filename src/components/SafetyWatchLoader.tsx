@@ -12,7 +12,7 @@ export const SafetyWatchLoader = () => {
         // Fetch real version if on native
         if (Capacitor.isNativePlatform()) {
             CapacitorApp.getInfo().then(info => {
-                setVersion("v1.5.0-LIVE");
+                setVersion("v1.5.0-FINAL");
             }).catch(err => console.error("Loader version fetch error:", err));
         }
 
