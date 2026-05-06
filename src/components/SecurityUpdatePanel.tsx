@@ -375,7 +375,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
     const handleInstall = async () => {
         let installUri = downloadedFileUri;
 
-        // SELF-HEALING: If URI is lost, re-resolve from multiple directories (Cache first for v1.4.6)
+        // SELF-HEALING: If URI is lost, re-resolve from multiple directories (Cache first for v1.5.0)
         if (!installUri) {
             console.log('[VERSION_CHECK] URI missing from state. Searching directories...');
             const fileName = getFileName();
@@ -540,7 +540,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                             </p>
                                             <p className="text-red-200/70 text-[12px] leading-tight italic">
                                                 {downloadError === "LEGACY_SHELL_INCOMPATIBILITY"
-                                                    ? "Your current app shell (v1.5.0) is too old for in-app syncing."
+                                                    ? "Your current app shell is too old for in-app syncing."
                                                     : `Reason: ${downloadError}`}
                                             </p>
                                         </div>
