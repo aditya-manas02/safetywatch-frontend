@@ -117,7 +117,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 } else if (response.status === 426) {
                     // Backend explicitly rejected this version
                     console.warn('[VERSION_CHECK] Backend rejected version with 426.');
-                    data = response.data || { version: "1.5.0", minVersion: "1.5.0", notes: "Mandatory Update Required" };
+                    data = response.data || { version: "1.4.7", minVersion: "1.4.7", notes: "Mandatory Update Required" };
                 } else {
                     throw new Error(`Status ${response.status}`);
                 }
@@ -160,7 +160,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             setShowUpdate(true);
             setVersionInfo({
                 version: "Checking...",
-                minVersion: "1.5.0",
+                minVersion: "1.4.7",
                 url: `https://safetywatch-backend.onrender.com/SafetyWatch.apk`,
                 notes: `Connection error. Please check your internet. (Error: ${error?.message || 'Unknown'})`
             });
@@ -375,7 +375,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
     const handleInstall = async () => {
         let installUri = downloadedFileUri;
 
-        // SELF-HEALING: If URI is lost, re-resolve from multiple directories (Cache first for v1.5.0)
+        // SELF-HEALING: If URI is lost, re-resolve from multiple directories (Cache first for v1.4.7)
         if (!installUri) {
             console.log('[VERSION_CHECK] URI missing from state. Searching directories...');
             const fileName = getFileName();
@@ -489,7 +489,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                         <div className="w-full space-y-2 mb-8 text-[13px] font-mono tracking-wider">
                             <div className="flex justify-between items-center px-4 py-3 bg-white/5 rounded-xl border border-white/5">
                                 <span className="text-slate-500 uppercase">Current</span>
-                                <span className="text-white font-bold">{currentVersion || '1.5.0'}</span>
+                                <span className="text-white font-bold">{currentVersion || '1.4.7'}</span>
                             </div>
                             <div className="flex justify-between items-center px-4 py-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
                                 <span className="text-purple-400 uppercase">Target</span>
@@ -549,7 +549,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                     {downloadError === "LEGACY_SHELL_INCOMPATIBILITY" ? (
                                         <div className="space-y-4">
                                             <p className="text-slate-400 text-[11px] leading-relaxed">
-                                                This is a one-time requirement. Please perform a **manual upgrade** to v1.5.0 using the
+                                                This is a one-time requirement. Please perform a **manual upgrade** to v1.4.7 using the
                                                 secondary button below. This will enable the automatic update engine for all future versions.
                                             </p>
                                             <Button
@@ -557,7 +557,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                                 className="w-full bg-purple-600 hover:bg-purple-700 text-white font-black tracking-tighter uppercase rounded-xl py-6 h-auto shadow-[0_0_20px_rgba(168,85,247,0.3)]"
                                             >
                                                 <ExternalLink className="w-4 h-4 mr-2" />
-                                                Manual Upgrade to v1.5.0
+                                                Manual Upgrade to v1.4.7
                                             </Button>
                                         </div>
                                     ) : (
