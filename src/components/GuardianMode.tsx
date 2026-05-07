@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
+import { Geolocation } from "@capacitor/geolocation";
+import { Capacitor } from "@capacitor/core";
 
 const GuardianMode = () => {
     const { token, user } = useAuth();
@@ -73,55 +75,67 @@ const GuardianMode = () => {
         setProgress(0);
         setLoading(true);
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    try {
-                        const { latitude, longitude } = position.coords;
-                        const response = await fetch(`${API_BASE}/incidents/sos`, {
-                            method: "POST",
-                            headers: getAuthHeaders(token),
-                            body: JSON.stringify({
-                                latitude: latitude,
-                                longitude: longitude,
-                                areaCode: user?.areaCode
-                            }),
-                        });
+        const handleActivation = async (latitude: number, longitude: number) => {
+            try {
+                const response = await fetch(`${API_BASE}/incidents/sos`, {
+                    method: "POST",
+                    headers: getAuthHeaders(token),
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude,
+                        areaCode: user?.areaCode
+                    }),
+                });
 
-                        if (!response.ok) throw new Error("Broadcast failed");
+                if (!response.ok) throw new Error("Broadcast failed");
 
-                        setActive(true);
-                        toast({
-                            title: "EMERGENCY BROADCAST ACTIVE",
-                            description: "Nearby neighbors and police have been notified.",
-                            variant: "destructive",
-                            duration: 10000
-                        });
-                    } catch (err) {
-                        toast({
-                            title: "Broadcast Error",
-                            description: "Failed to notify neighbors. Retrying in background...",
-                            variant: "destructive"
-                        });
-                        setActive(true);
-                    } finally {
-                        setLoading(false);
+                setActive(true);
+                toast({
+                    title: "EMERGENCY BROADCAST ACTIVE",
+                    description: "Nearby neighbors and police have been notified.",
+                    variant: "destructive",
+                    duration: 10000
+                });
+            } catch (err) {
+                toast({
+                    title: "Broadcast Error",
+                    description: "Failed to notify neighbors. Retrying in background...",
+                    variant: "destructive"
+                });
+                setActive(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        try {
+            // Check and Request Permissions for Native Platforms
+            if (Capacitor.isNativePlatform()) {
+                const permStatus = await Geolocation.checkPermissions();
+                if (permStatus.location !== 'granted') {
+                    const requestStatus = await Geolocation.requestPermissions();
+                    if (requestStatus.location !== 'granted') {
+                        throw new Error("Permission denied");
                     }
-                },
-                (error) => {
-                    setLoading(false);
-                    toast({
-                        title: "Location Error",
-                        description: "Please enable location to notify nearby help.",
-                        variant: "destructive"
-                    });
                 }
-            );
-        } else {
+            }
+
+            const position = await Geolocation.getCurrentPosition({
+                enableHighAccuracy: true,
+                timeout: 10000
+            });
+
+            await handleActivation(position.coords.latitude, position.coords.longitude);
+
+        } catch (error: any) {
             setLoading(false);
+            const isPermissionError = error.message?.includes("denied") || error.code === 1;
+            
             toast({
-                title: "Not Supported",
-                description: "Location is required for Guardian Mode.",
+                title: isPermissionError ? "Permission Required" : "Location Error",
+                description: isPermissionError 
+                    ? "Please grant location access to use Guardian Mode." 
+                    : "Failed to get your location. Please check your GPS settings.",
                 variant: "destructive"
             });
         }
