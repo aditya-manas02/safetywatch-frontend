@@ -83,7 +83,8 @@ const GuardianMode = () => {
                             headers: getAuthHeaders(token),
                             body: JSON.stringify({
                                 latitude: latitude,
-                                longitude: longitude
+                                longitude: longitude,
+                                areaCode: user?.areaCode
                             }),
                         });
 
@@ -153,6 +154,17 @@ const GuardianMode = () => {
                         if (data && (!activeSOS || activeSOS.id !== data.id)) {
                             setActiveSOS(data);
                             console.log("[SOS] Active emergency detected nearby!");
+                            
+                            // Dispatch custom event to trigger SOSAlert in App.tsx
+                            const event = new CustomEvent('sos_alert_received', {
+                                detail: {
+                                    incidentId: data.id,
+                                    userName: data.user || "Someone",
+                                    latitude: data.latitude,
+                                    longitude: data.longitude
+                                }
+                            });
+                            window.dispatchEvent(event);
                         } else if (!data) {
                             setActiveSOS(null);
                         }
@@ -170,8 +182,8 @@ const GuardianMode = () => {
 
     return (
         <>
-            {/* Floating Action Button */}
-            <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2">
+            {/* Floating Action Button - Moved to Left to avoid ChatBot overlap */}
+            <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-2">
                 <AnimatePresence>
                     {(holding || loading) && (
                         <motion.div

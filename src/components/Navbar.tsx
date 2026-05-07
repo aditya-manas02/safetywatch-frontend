@@ -28,7 +28,7 @@ export default function Navbar() {
                         <div className="relative rounded-xl p-1.5 bg-background border border-border/50 shadow-lg shadow-primary/10 group-hover:scale-110 transition-transform duration-300 overflow-hidden">
                             <img
                                 src="/assets/splash.png"
-                                alt="Nexus AI"
+                                alt="SafetyWatch Logo"
                                 className="h-7 w-7 object-contain mix-blend-normal drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]"
                             />
                         </div>

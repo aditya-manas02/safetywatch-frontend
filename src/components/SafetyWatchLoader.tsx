@@ -51,7 +51,7 @@ export const SafetyWatchLoader = () => {
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 1.5, ease: "easeOut" }}
                         src="/assets/splash.png"
-                        alt="Nexus AI"
+                        alt="SafetyWatch Logo"
                         className="h-full w-full object-contain relative z-10 drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]"
                     />
                 </div>
@@ -74,7 +74,7 @@ export const SafetyWatchLoader = () => {
                     >
                         <div className="h-[1px] w-6 bg-blue-500/50" />
                         <p className="text-white/80 font-mono tracking-[0.4em] text-[10px] font-bold uppercase">
-                            v{version} • NEXUS AI SECURE
+                            v{version} • SAFETYWATCH SECURE
                         </p>
                         <div className="h-[1px] w-6 bg-blue-500/50" />
                     </motion.div>
