@@ -24,6 +24,7 @@ import { SuspensionModal } from "./components/SuspensionModal";
 import { Megaphone, X, Bell, ShieldAlert } from "lucide-react";
 import SOSAlert from "./components/SOSAlert";
 import AppTour from "./components/AppTour";
+import ScrollToTop from "./components/ScrollToTop";
 import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
@@ -578,6 +579,7 @@ const AppContent = () => {
       <Suspense fallback={null}>
         {!location.pathname.startsWith("/inbox") && <ChatBot />}
       </Suspense>
+      <ScrollToTop />
       
       {activeSOS && (
         <SOSAlert
