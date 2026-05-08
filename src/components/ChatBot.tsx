@@ -95,11 +95,10 @@ export default function ChatBot() {
 
                             <div className="flex items-center gap-3 relative z-10">
                                 <div className="relative">
-                                    <div className="absolute -inset-1 bg-purple-500/40 rounded-full blur-sm animate-pulse"></div>
                                     <img
                                         src="/assets/splash.png"
                                         alt="Nexus Logo"
-                                        className="h-9 w-9 relative z-10 object-contain drop-shadow-[0_0_10px_rgba(168,85,247,0.6)]"
+                                        className="h-9 w-9 relative z-10 object-contain drop-shadow-[0_0_10px_rgba(168,85,247,0.4)]"
                                     />
                                     {/* Online indicator dot */}
                                     <div className="absolute bottom-0 right-0 h-2.5 w-2.5 bg-cyan-400 border-2 border-[#1e1b4b] rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)]"></div>
@@ -266,7 +265,7 @@ export default function ChatBot() {
                                 {/* Gooey Energy Layer */}
                                 <div style={{ filter: 'url(#goo)' }} className="absolute inset-0 w-full h-full scale-125">
                                     {/* Main Body */}
-                                    <div className="absolute inset-4 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 shadow-[0_0_30px_rgba(168,85,247,0.5)]"></div>
+                                    <div className="absolute inset-4 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 shadow-[0_0_15px_rgba(168,85,247,0.3)]"></div>
 
                                     {/* Morphing Droplets */}
                                     {[...Array(3)].map((_, i) => (
@@ -298,11 +297,10 @@ export default function ChatBot() {
 
                                     {/* BRAIN ICON CONSTRUCTION (REPLACES PNG) */}
                                     <div className="relative z-30 transform group-hover:scale-110 transition-transform duration-500">
-                                        <div className="absolute -inset-4 bg-purple-500/20 blur-xl rounded-full"></div>
                                         <img
                                             src="/assets/splash.png"
                                             alt="AI"
-                                            className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-[0_0_12px_rgba(168,85,247,0.8)]"
+                                            className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]"
                                         />
                                         <motion.div
                                             animate={{ opacity: [0, 1, 0] }}
@@ -322,15 +320,6 @@ export default function ChatBot() {
                     </AnimatePresence>
                 </motion.button>
 
-                {/* Cyber-Notification Badge */}
-                {!isOpen && (
-                    <div className="absolute -top-1 -right-1 z-40">
-                        <span className="flex h-5 w-5 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-5 w-5 bg-cyan-500 border-2 border-[#09090b] shadow-[0_0_15px_rgba(34,211,238,0.5)]"></span>
-                        </span>
-                    </div>
-                )}
             </div>
         </div>
     );
