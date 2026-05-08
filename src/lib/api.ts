@@ -7,8 +7,14 @@ export const BASE_URL = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 // Correctly handle /api suffix
 export const API_BASE = `${BASE_URL}/api`;
 
-export const VERSION_HEADERS = {
-    "x-app-version": "1.4.7"
+export let VERSION_HEADERS = {
+    "x-app-version": "1.4.7",
+    "x-app-build-id": "0"
+};
+
+export const setVersionMetadata = (version: string, build: string) => {
+    VERSION_HEADERS["x-app-version"] = version;
+    VERSION_HEADERS["x-app-build-id"] = build;
 };
 
 export const getAuthHeaders = (token: string | null) => ({

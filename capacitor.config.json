@@ -3,7 +3,9 @@
     "appName": "SafetyWatch",
     "webDir": "dist",
     "server": {
-        "androidScheme": "https"
+        "androidScheme": "https",
+        "url": "https://safetywatch.vercel.app",
+        "cleartext": true
     },
     "plugins": {
         "StatusBar": {
@@ -19,7 +21,11 @@
             "showSpinner": false
         },
         "PushNotifications": {
-            "presentationOptions": ["badge", "sound", "alert"]
+            "presentationOptions": [
+                "badge",
+                "sound",
+                "alert"
+            ]
         },
         "CapacitorHttp": {
             "enabled": true

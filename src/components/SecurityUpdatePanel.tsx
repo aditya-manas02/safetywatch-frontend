@@ -15,6 +15,8 @@ import { BASE_URL, VERSION_HEADERS } from "@/lib/api";
 interface VersionInfo {
     version: string;
     minVersion: string;
+    buildId?: string;
+    minBuildId?: string;
     url: string;
     notes: string;
 }
@@ -27,6 +29,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
     const [showUpdate, setShowUpdate] = useState(false);
     const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
     const [currentVersion, setCurrentVersion] = useState<string>('');
+    const [currentBuild, setCurrentBuild] = useState<string>('');
     const [isMandatory, setIsMandatory] = useState(false);
     const [isChecking, setIsChecking] = useState(true);
 
@@ -90,13 +93,20 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
         try {
             let current = "0.0.0";
+            let build = "0";
             try {
                 const appInfo = await CapacitorApp.getInfo();
                 current = appInfo.version;
+                build = appInfo.build;
                 setCurrentVersion(current);
+                setCurrentBuild(build);
+                
+                // Sync to global headers for backend validation
+                const { setVersionMetadata } = await import("@/lib/api");
+                setVersionMetadata(current, build);
             } catch (e) {
                 console.warn('[VERSION_CHECK] Could not get app info, assuming very old version:', e);
-                current = "0.0.0"; // Force update for undetectable versions
+                current = "0.0.0"; 
                 setCurrentVersion(current);
             }
 
@@ -137,10 +147,10 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             setVersionInfo(data);
 
             // USE LOCAL 'current' VARIABLE, NOT THE STATE 'currentVersion'
-            const updateAvailable = isOutdated(current, data.version);
-            const updateMandatory = isOutdated(current, data.minVersion);
+            const updateAvailable = isOutdated(current, data.version, build, data.buildId);
+            const updateMandatory = isOutdated(current, data.minVersion, build, data.minBuildId);
 
-            console.log(`[VERSION_CHECK] COMPLETED - Latest: ${data.version}, MinRequired: ${data.minVersion}, Mandatory: ${updateMandatory}`);
+            console.log(`[VERSION_CHECK] COMPLETED - Latest: ${data.version} (Build: ${data.buildId}), MinRequired: ${data.minVersion} (Build: ${data.minBuildId}), Mandatory: ${updateMandatory}`);
 
             if (updateAvailable || updateMandatory) {
                 setShowUpdate(true);
@@ -168,14 +178,15 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         }
     };
 
-    const isOutdated = (current: string, latest: string): boolean => {
-        if (!current || !latest) return false;
+    const isOutdated = (current: string, target: string, currentBuild?: string, targetBuild?: string): boolean => {
+        if (!current || !target) return false;
+        
         // Strip any v prefix and focus on major.minor.patch
         const currClean = current.replace(/^v/, '').split('-')[0];
-        const latestClean = latest.replace(/^v/, '').split('-')[0];
+        const targetClean = target.replace(/^v/, '').split('-')[0];
 
         const c = currClean.split('.').map(Number);
-        const l = latestClean.split('.').map(Number);
+        const l = targetClean.split('.').map(Number);
 
         while (c.length < 3) c.push(0);
         while (l.length < 3) l.push(0);
@@ -186,6 +197,12 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             if (cv < lv) return true;
             if (cv > lv) return false;
         }
+        
+        // If versions are identical, compare build IDs
+        if (currentBuild && targetBuild) {
+            return parseInt(currentBuild) < parseInt(targetBuild);
+        }
+        
         return false;
     };
 

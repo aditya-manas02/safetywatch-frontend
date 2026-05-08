@@ -123,8 +123,16 @@ const AppContent = () => {
     const checkMaintenance = async () => {
       if (location.pathname === "/maintenance" || location.pathname === "/auth") return;
       try {
-        const { API_BASE } = await import("@/lib/api");
-        const res = await fetch(`${API_BASE}/system/config`);
+        const { API_BASE, getAuthHeaders } = await import("@/lib/api");
+        const res = await fetch(`${API_BASE}/system/config`, {
+          headers: getAuthHeaders(token)
+        });
+        
+        if (res.status === 426) {
+          console.warn("[VERSION] App blocked by backend. Stopping boot.");
+          return; // SecurityUpdatePanel will show the overlay
+        }
+
         const data = await res.json();
         
         // Maintenance redirect
