@@ -291,6 +291,8 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         setIsDownloading(true);
         setDownloadProgress(5);
 
+        let progressListener: any = null;
+
         try {
             const fileName = getFileName();
             console.log('[VERSION_DL] Target:', fileName);
@@ -309,6 +311,15 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             // STRATEGY A: Modern Capacitor Download (Best performance, uses native stream)
             try {
                 console.log('[VERSION_DL] Protocol A: Native Direct Stream');
+
+                // Add listener for native progress events
+                progressListener = await Filesystem.addListener('progress', (progress) => {
+                    if (progress.contentLength > 0) {
+                        const percent = Math.round((progress.bytes / progress.contentLength) * 100);
+                        setDownloadProgress(Math.max(5, percent));
+                    }
+                });
+
                 const downloadResult = await Filesystem.downloadFile({
                     url: downloadUrl,
                     path: fileName,
@@ -323,14 +334,29 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 }
             } catch (err: any) {
                 console.warn('[VERSION_DL] Protocol A Failed (likely older shell):', err.message);
+                if (progressListener) {
+                    await progressListener.remove();
+                    progressListener = null;
+                }
 
                 // STRATEGY B: Single-Shot Sync (Avoids base64 corruption)
                 try {
                     console.log('[VERSION_DL] Protocol B: Single-Shot Sync');
                     setDownloadProgress(11);
 
+                    // Simulated progress for fallback
+                    const simInterval = setInterval(() => {
+                        setDownloadProgress(prev => {
+                            if (prev < 90) return prev + 1;
+                            return prev;
+                        });
+                    }, 800);
+
                     const response = await fetch(downloadUrl);
-                    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+                    if (!response.ok) {
+                        clearInterval(simInterval);
+                        throw new Error(`Server returned ${response.status}`);
+                    }
 
                     const blob = await response.blob();
                     const base64Data = await new Promise<string>((resolve, reject) => {
@@ -346,6 +372,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                         directory: Directory.Cache
                     });
 
+                    clearInterval(simInterval);
                     console.log('[VERSION_DL] Single-Shot Sync Complete.');
                     downloadSuccessful = true;
 
@@ -384,6 +411,10 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
             setDownloadError(errorMsg);
             toast.error("Bridge Connection Failed.");
+        } finally {
+            if (progressListener) {
+                await progressListener.remove();
+            }
         }
     };
 
