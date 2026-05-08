@@ -16,6 +16,7 @@ const GuardianMode = () => {
     const [duration, setDuration] = useState(0);
     const [loading, setLoading] = useState(false);
     const [activeSOS, setActiveSOS] = useState<any>(null);
+    const [sosIncidentId, setSosIncidentId] = useState<string | null>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -87,7 +88,12 @@ const GuardianMode = () => {
                     }),
                 });
 
-                if (!response.ok) throw new Error("Broadcast failed");
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Broadcast failed");
+
+                if (data.incident?._id) {
+                    setSosIncidentId(data.incident._id);
+                }
 
                 setActive(true);
                 toast({
@@ -141,8 +147,21 @@ const GuardianMode = () => {
         }
     };
 
-    const deactivate = () => {
+    const deactivate = async () => {
+        try {
+            if (sosIncidentId && token) {
+                await fetch(`${API_BASE}/incidents/sos/safe`, {
+                    method: "POST",
+                    headers: getAuthHeaders(token),
+                    body: JSON.stringify({ incidentId: sosIncidentId })
+                });
+            }
+        } catch (err) {
+            console.error("Failed to notify safe status:", err);
+        }
+
         setActive(false);
+        setSosIncidentId(null);
         toast({
             title: "Emergency Mode Deactivated",
             description: "Returning to standard monitoring.",
@@ -165,9 +184,10 @@ const GuardianMode = () => {
                     
                     if (res.ok) {
                         const data = await res.json();
-                        if (data && (!activeSOS || activeSOS.id !== data.id)) {
+                        // Only trigger if it's a NEW SOS or if the status has CHANGED (e.g. to safe)
+                        if (data && (!activeSOS || activeSOS.id !== data.id || activeSOS.status !== data.status)) {
                             setActiveSOS(data);
-                            console.log("[SOS] Active emergency detected nearby!");
+                            console.log("[SOS] Active emergency update detected nearby!");
                             
                             // Dispatch custom event to trigger SOSAlert in App.tsx
                             const event = new CustomEvent('sos_alert_received', {
@@ -175,7 +195,8 @@ const GuardianMode = () => {
                                     incidentId: data.id,
                                     userName: data.user || "Someone",
                                     latitude: data.latitude,
-                                    longitude: data.longitude
+                                    longitude: data.longitude,
+                                    status: data.status // Include status!
                                 }
                             });
                             window.dispatchEvent(event);
@@ -192,7 +213,7 @@ const GuardianMode = () => {
         checkActiveSOS();
         const interval = setInterval(checkActiveSOS, 30000); 
         return () => clearInterval(interval);
-    }, [token]);
+    }, [token, activeSOS]);
 
     return (
         <>
@@ -273,6 +294,14 @@ const GuardianMode = () => {
                                 <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Emergency Broadcaster</h2>
                                 <p className="text-rose-200/80 text-lg font-medium">
                                     Your live coordinates are being shared with nearby safety agents and verified neighbors.
+                                </p>
+                            </div>
+
+                            {/* WARNING BOX */}
+                            <div className="bg-red-500/20 border-2 border-red-500/50 p-4 rounded-2xl">
+                                <p className="text-red-400 text-xs font-black uppercase tracking-widest text-center mb-1">STRICT WARNING</p>
+                                <p className="text-white text-xs font-bold text-center leading-relaxed">
+                                    If the system found this broadcast fake, strict action will be taken against the user (including legal action).
                                 </p>
                             </div>
 

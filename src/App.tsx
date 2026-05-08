@@ -61,6 +61,7 @@ const AppContent = () => {
     userName: string;
     latitude: number;
     longitude: number;
+    status?: string;
   } | null>(null);
 
   // --- Notification Permission State ---
@@ -290,14 +291,16 @@ const AppContent = () => {
   // --- SOS Alert Listener ---
   useEffect(() => {
     const handleSOS = (event: any) => {
-      const { incidentId, userName, latitude, longitude } = event.detail;
-      setActiveSOS({ incidentId, userName, latitude, longitude });
+      const { incidentId, userName, latitude, longitude, status } = event.detail;
+      setActiveSOS({ incidentId, userName, latitude, longitude, status });
       
-      // Play a sound if possible
-      try {
-        const audio = new Audio('/emergency_alert.mp3');
-        audio.play().catch(() => {});
-      } catch (e) {}
+      // Play a sound if possible (only for NEW alerts, not updates to safe)
+      if (status !== 'problem solved') {
+        try {
+          const audio = new Audio('/emergency_alert.mp3');
+          audio.play().catch(() => {});
+        } catch (e) {}
+      }
     };
 
     window.addEventListener("sos_alert_received", handleSOS);
