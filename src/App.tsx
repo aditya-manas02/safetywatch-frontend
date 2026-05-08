@@ -212,13 +212,27 @@ const AppContent = () => {
         const body = payload.notification?.body || payload.data?.body || "You have a new alert.";
         const link = payload.data?.link || "/";
 
+        if (payload.data?.type === 'sos_alert') {
+          console.log("[FCM] SOS Alert detected in foreground push!");
+          const event = new CustomEvent('sos_alert_received', {
+            detail: {
+              incidentId: payload.data.incidentId,
+              userName: payload.data.title?.split(' ')[0] || payload.notification?.title?.split(' ')[0] || 'Someone',
+              latitude: parseFloat(payload.data.latitude),
+              longitude: parseFloat(payload.data.longitude),
+              status: 'pending'
+            }
+          });
+          window.dispatchEvent(event);
+        }
+
         if (Capacitor.isNativePlatform()) {
           try {
             const { LocalNotifications } = await import("@capacitor/local-notifications");
             await LocalNotifications.schedule({
               notifications: [{
-                title: `[SOS] ${title}`,
-                body,
+                title: title,
+                body: body,
                 id: Math.floor(Math.random() * 100000),
                 schedule: { at: new Date(Date.now() + 500) },
                 extra: { link }
@@ -616,17 +630,19 @@ const App = () => {
       });
 
       PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        console.log('[PUSH] Received notification: ', JSON.stringify(notification));
+        console.log('[PUSH] Received notification in foreground: ', JSON.stringify(notification));
         
-        // Handle SOS Alert specifically to show the overlay
+        // Handle SOS Alert specifically to show the overlay instantly
         const data = notification.data || notification.notification?.data;
-        if (data && data.type === 'sos_alert') {
+        if (data && (data.type === 'sos_alert' || data.incidentId)) {
+          console.log('[PUSH] SOS Alert payload detected. Triggering popup.');
           const event = new CustomEvent('sos_alert_received', {
             detail: {
               incidentId: data.incidentId,
-              userName: notification.body?.split(' ')[0] || 'Someone',
+              userName: notification.title?.split(' ')[0] || notification.body?.split(' ')[0] || 'Someone',
               latitude: parseFloat(data.latitude),
-              longitude: parseFloat(data.longitude)
+              longitude: parseFloat(data.longitude),
+              status: data.status || 'pending'
             }
           });
           window.dispatchEvent(event);

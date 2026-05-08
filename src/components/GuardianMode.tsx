@@ -211,7 +211,7 @@ const GuardianMode = () => {
         };
 
         checkActiveSOS();
-        const interval = setInterval(checkActiveSOS, 30000); 
+        const interval = setInterval(checkActiveSOS, 10000); 
         return () => clearInterval(interval);
     }, [token, activeSOS]);
 
