@@ -126,10 +126,28 @@ const GuardianMode = () => {
                 }
             }
 
-            const position = await Geolocation.getCurrentPosition({
+            // STAGE 1: Quick Fix (might be inaccurate)
+            let position = await Geolocation.getCurrentPosition({
                 enableHighAccuracy: true,
                 timeout: 10000
             });
+
+            // STAGE 2: Refinement (If accuracy is worse than 100m, wait for satellite lock)
+            if (position.coords.accuracy && position.coords.accuracy > 100) {
+                console.log(`[SOS] Initial accuracy poor (${position.coords.accuracy}m). Waiting for satellite lock...`);
+                try {
+                    const refined = await Geolocation.getCurrentPosition({
+                        enableHighAccuracy: true,
+                        timeout: 10000 // Give it more time to see satellites
+                    });
+                    if (refined.coords.accuracy < position.coords.accuracy) {
+                        position = refined;
+                        console.log(`[SOS] Location refined to ${position.coords.accuracy}m accuracy.`);
+                    }
+                } catch (e) {
+                    console.warn("[SOS] Refinement failed, using initial position.");
+                }
+            }
 
             await handleActivation(position.coords.latitude, position.coords.longitude);
 
@@ -171,31 +189,35 @@ const GuardianMode = () => {
     // Background check for active SOS in the area
     useEffect(() => {
         const checkActiveSOS = async (retryCount = 0) => {
-            // Safety: Don't poll if on auth page or if token missing
             const isAuthPage = window.location.pathname.startsWith('/auth');
             if (!token || isAuthPage) return;
 
             try {
-                // Use Native Capacitor Geolocation (faster and more reliable on Android)
+                // Use High Accuracy GPS for maximum precision
                 const position = await Geolocation.getCurrentPosition({
-                    enableHighAccuracy: false,
-                    timeout: 5000 // 5 seconds max to wait for GPS
+                    enableHighAccuracy: true,
+                    timeout: 15000 // Give GPS more time for high precision
                 });
 
-                const { latitude, longitude } = position.coords;
+                const { latitude, longitude, accuracy } = position.coords;
+                
+                // IGNORE weak or invalid locations
+                if ((latitude === 0 && longitude === 0) || (accuracy && accuracy > 300)) {
+                    console.warn("[SOS] Ignoring inaccurate location:", accuracy, "meters");
+                    return;
+                }
+
                 const res = await fetch(`${API_BASE}/incidents/sos/active?lat=${latitude}&lng=${longitude}`, {
                     headers: getAuthHeaders(token),
-                    signal: AbortSignal.timeout(8000) // 8 second network timeout
+                    signal: AbortSignal.timeout(10000)
                 });
                 
                 if (res.ok) {
                     const data = await res.json();
-                    // Only trigger if it's a NEW SOS or if the status has CHANGED (e.g. to safe)
                     if (data && (!activeSOS || activeSOS.id !== data.id || activeSOS.status !== data.status)) {
                         setActiveSOS(data);
-                        console.log("[SOS] Active emergency update detected nearby!");
+                        console.log(`[SOS] Active emergency nearby! (Accuracy: ${accuracy}m)`);
                         
-                        // Dispatch custom event to trigger SOSAlert in App.tsx
                         const event = new CustomEvent('sos_alert_received', {
                             detail: {
                                 incidentId: data.id,
@@ -209,14 +231,11 @@ const GuardianMode = () => {
                     } else if (!data) {
                         setActiveSOS(null);
                     }
-                } else if (res.status >= 500 && retryCount < 2) {
-                    // Server error, retry once
+                } else if (res.status >= 500 && retryCount < 1) {
                     setTimeout(() => checkActiveSOS(retryCount + 1), 2000);
                 }
             } catch (err: any) {
-                console.warn("[SOS] Polling attempt failed:", err.message);
-                // On network timeout/error, retry once after a short delay
-                if ((err.name === 'AbortError' || err.message?.includes('Network')) && retryCount < 2) {
+                if (retryCount < 1) {
                     setTimeout(() => checkActiveSOS(retryCount + 1), 3000);
                 }
             }

@@ -289,15 +289,17 @@ const AppContent = () => {
     const syncLocation = async (retryCount = 0) => {
       try {
         const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: false,
-          timeout: 10000
+          enableHighAccuracy: true,
+          timeout: 15000
         });
 
-        const { latitude, longitude } = position.coords;
+        const { latitude, longitude, accuracy } = position.coords;
+        if ((latitude === 0 && longitude === 0) || (accuracy && accuracy > 1000)) return;
+
         const res = await fetch(`${API_BASE}/users/location`, {
           method: "PATCH",
           headers: getAuthHeaders(token),
-          body: JSON.stringify({ latitude, longitude }),
+          body: JSON.stringify({ latitude, longitude, accuracy }),
           signal: AbortSignal.timeout(10000)
         });
 
@@ -318,7 +320,7 @@ const AppContent = () => {
     syncLocation();
 
     // Sync every 5 minutes
-    const interval = setInterval(syncLocation, 5 * 60 * 1000);
+    const interval = setInterval(() => syncLocation(), 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [user, token]);
 
