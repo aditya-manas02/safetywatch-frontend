@@ -1,10 +1,148 @@
 import { useEffect, useState, useCallback } from "react";
-import { Joyride, CallBackProps, STATUS, Step } from "react-joyride";
+import { Joyride, CallBackProps, STATUS, Step, TooltipRenderProps, EVENTS, ACTIONS } from "react-joyride";
 import { useTheme } from "next-themes";
+import { motion, AnimatePresence } from "framer-motion";
 
+// ─── Custom Animated Tooltip ─────────────────────────────────────────────────
+function CustomTooltip({
+  continuous,
+  index,
+  step,
+  backProps,
+  closeProps,
+  primaryProps,
+  skipProps,
+  tooltipProps,
+  size,
+  isDark,
+}: TooltipRenderProps & { isDark: boolean }) {
+  return (
+    <motion.div
+      {...(tooltipProps as any)}
+      key={index}
+      initial={{ opacity: 0, scale: 0.88, y: 16 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.88, y: 16 }}
+      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        backgroundColor: isDark ? "#0f172a" : "#ffffff",
+        borderRadius: "18px",
+        maxWidth: "360px",
+        minWidth: "300px",
+        overflow: "hidden",
+        boxShadow: isDark
+          ? "0 30px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)"
+          : "0 30px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)",
+      }}
+    >
+      {/* Orange gradient header with progress bar */}
+      <div style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)", padding: "16px 20px 14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+          <span style={{ color: "rgba(255,255,255,0.85)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase" }}>
+            SafetyWatch Tour · {index + 1}/{size}
+          </span>
+          <button
+            {...closeProps}
+            style={{
+              background: "rgba(255,255,255,0.2)",
+              border: "none",
+              borderRadius: "50%",
+              width: "22px",
+              height: "22px",
+              cursor: "pointer",
+              color: "white",
+              fontSize: "13px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              lineHeight: 1,
+              padding: 0,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Animated progress bar */}
+        <div style={{ height: "4px", backgroundColor: "rgba(255,255,255,0.25)", borderRadius: "99px", overflow: "hidden" }}>
+          <motion.div
+            style={{ height: "100%", backgroundColor: "white", borderRadius: "99px", originX: 0 }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: (index + 1) / size }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          />
+        </div>
+      </div>
+
+      {/* Content area */}
+      <div style={{ padding: "20px 22px 4px", color: isDark ? "#f1f5f9" : "#0f172a", lineHeight: 1.6 }}>
+        {step.content}
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: "16px 22px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button
+          {...skipProps}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: isDark ? "#64748b" : "#94a3b8",
+            fontSize: "12px",
+            fontWeight: 600,
+            padding: "6px 4px",
+          }}
+        >
+          Skip Tour
+        </button>
+
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          {index > 0 && (
+            <button
+              {...backProps}
+              style={{
+                background: isDark ? "rgba(255,255,255,0.08)" : "#f1f5f9",
+                border: "none",
+                borderRadius: "9px",
+                padding: "8px 14px",
+                cursor: "pointer",
+                color: isDark ? "#cbd5e1" : "#475569",
+                fontSize: "13px",
+                fontWeight: 700,
+              }}
+            >
+              ← Back
+            </button>
+          )}
+          <motion.button
+            {...primaryProps}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            style={{
+              background: "linear-gradient(135deg, #f97316, #ea580c)",
+              border: "none",
+              borderRadius: "9px",
+              padding: "8px 18px",
+              cursor: "pointer",
+              color: "white",
+              fontSize: "13px",
+              fontWeight: 800,
+              boxShadow: "0 4px 14px rgba(249,115,22,0.4)",
+            }}
+          >
+            {continuous ? (index === size - 1 ? "Finish 🎉" : "Next →") : "Got it!"}
+          </motion.button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Main AppTour Component ───────────────────────────────────────────────────
 export default function AppTour() {
   const [run, setRun] = useState(false);
   const [steps, setSteps] = useState<Step[]>([]);
+  const [stepIndex, setStepIndex] = useState(0);
   const { theme, systemTheme } = useTheme();
 
   const currentTheme = theme === "system" ? systemTheme : theme;
@@ -15,12 +153,12 @@ export default function AppTour() {
       {
         target: "body",
         content: (
-          <div className="text-left">
+          <div>
             <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "8px", color: "#f97316" }}>
               Welcome to SafetyWatch! 🛡️
             </h2>
-            <p style={{ fontSize: "0.85rem", opacity: 0.75 }}>
-              Let's take a comprehensive tour of all the critical safety features in this system.
+            <p style={{ fontSize: "0.85rem", opacity: 0.75, margin: 0 }}>
+              Let's take a 2-minute tour of all the critical safety features available to keep you and your neighborhood safe.
             </p>
           </div>
         ),
@@ -30,10 +168,10 @@ export default function AppTour() {
       {
         target: "#tour-safety-pulse",
         content: (
-          <div className="text-left">
-            <h3 style={{ fontWeight: 700, marginBottom: "6px" }}>📡 Intelligence Feed</h3>
-            <p style={{ fontSize: "0.85rem" }}>
-              This live ticker at the top shows real-time security signals, incident alerts, and network status updates from the command center.
+          <div>
+            <h3 style={{ fontWeight: 700, marginBottom: "6px", margin: "0 0 6px" }}>📡 Intelligence Feed</h3>
+            <p style={{ fontSize: "0.85rem", margin: 0 }}>
+              This live ticker at the top constantly streams real-time security signals, incident alerts, and system status updates from the command center.
             </p>
           </div>
         ),
@@ -43,10 +181,10 @@ export default function AppTour() {
       {
         target: "#tour-report-btn",
         content: (
-          <div className="text-left">
-            <h3 style={{ fontWeight: 700, marginBottom: "6px" }}>📝 Report Incidents</h3>
-            <p style={{ fontSize: "0.85rem" }}>
-              Click here to report suspicious activities, hazards, fires, or any safety concern in your area. Your report will be reviewed and shared with the community.
+          <div>
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📝 Report Incidents</h3>
+            <p style={{ fontSize: "0.85rem", margin: 0 }}>
+              Click here to report suspicious activities, hazards, fires, or any safety concern in your area. Your report is reviewed and shared with the community to keep everyone informed.
             </p>
           </div>
         ),
@@ -55,10 +193,10 @@ export default function AppTour() {
       {
         target: "#tour-guardian-mode",
         content: (
-          <div className="text-left">
-            <h3 style={{ fontWeight: 700, marginBottom: "6px", color: "#ef4444" }}>🆘 Emergency SOS</h3>
-            <p style={{ fontSize: "0.85rem" }}>
-              <strong>Hold this red button only in real emergencies.</strong> It instantly broadcasts your live GPS location to all nearby neighbors and authorities. Misuse is a strict offence.
+          <div>
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px", color: "#ef4444" }}>🆘 Emergency SOS</h3>
+            <p style={{ fontSize: "0.85rem", margin: 0 }}>
+              <strong>Hold this button only in real emergencies.</strong> It instantly broadcasts your live GPS location to all nearby neighbors and authorities. Misuse is a serious offence.
             </p>
           </div>
         ),
@@ -68,10 +206,10 @@ export default function AppTour() {
       {
         target: "#tour-notification-center",
         content: (
-          <div className="text-left">
-            <h3 style={{ fontWeight: 700, marginBottom: "6px" }}>🔔 Alerts & Notifications</h3>
-            <p style={{ fontSize: "0.85rem" }}>
-              Your personal notification center. Emergency broadcasts, SOS alerts from neighbors, and important safety updates will appear here in real-time.
+          <div>
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>🔔 Alerts & Notifications</h3>
+            <p style={{ fontSize: "0.85rem", margin: 0 }}>
+              Your personal notification center. Emergency broadcasts, SOS alerts from neighbors, and all important safety updates appear here in real-time.
             </p>
           </div>
         ),
@@ -80,10 +218,10 @@ export default function AppTour() {
       {
         target: "#tour-navbar-circles",
         content: (
-          <div className="text-left">
-            <h3 style={{ fontWeight: 700, marginBottom: "6px" }}>👥 Community Circles</h3>
-            <p style={{ fontSize: "0.85rem" }}>
-              Join or create private Circles to collaborate with specific neighbors, apartment residents, or community watch groups. Share alerts only with trusted members.
+          <div>
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>👥 Community Circles</h3>
+            <p style={{ fontSize: "0.85rem", margin: 0 }}>
+              Create or join private Circles to coordinate with neighbors, apartment buildings, or local watch groups. Share alerts only with people you trust.
             </p>
           </div>
         ),
@@ -92,10 +230,10 @@ export default function AppTour() {
       {
         target: "#nearby-section",
         content: (
-          <div className="text-left">
-            <h3 style={{ fontWeight: 700, marginBottom: "6px" }}>📍 Local Watch</h3>
-            <p style={{ fontSize: "0.85rem" }}>
-              This section shows verified incidents reported within a 10km radius of your current location. Always stay aware of what's happening around you.
+          <div>
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📍 Local Watch</h3>
+            <p style={{ fontSize: "0.85rem", margin: 0 }}>
+              Shows verified incidents reported within a 10km radius of your current location. Always be aware of what is happening around you.
             </p>
           </div>
         ),
@@ -104,10 +242,10 @@ export default function AppTour() {
       {
         target: "#tour-heatmap",
         content: (
-          <div className="text-left">
-            <h3 style={{ fontWeight: 700, marginBottom: "6px" }}>🗺️ Live Density Heatmap</h3>
-            <p style={{ fontSize: "0.85rem" }}>
-              The heatmap shows incident hotspots in your area. Red zones have high activity. Use this to plan safer routes and avoid dangerous locations.
+          <div>
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>🗺️ Live Density Heatmap</h3>
+            <p style={{ fontSize: "0.85rem", margin: 0 }}>
+              Red zones indicate high incident activity. Use this interactive map to identify dangerous hotspots and plan safer routes in your area.
             </p>
           </div>
         ),
@@ -116,10 +254,10 @@ export default function AppTour() {
       {
         target: "#tour-polls-widget",
         content: (
-          <div className="text-left">
-            <h3 style={{ fontWeight: 700, marginBottom: "6px" }}>📊 Community Surveys</h3>
-            <p style={{ fontSize: "0.85rem" }}>
-              Participate in quick polls to help local authorities understand neighborhood safety concerns. Every vote contributes to better community decisions.
+          <div>
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📊 Community Surveys</h3>
+            <p style={{ fontSize: "0.85rem", margin: 0 }}>
+              Participate in quick polls to help local authorities understand neighborhood safety concerns. Every vote shapes better community decisions.
             </p>
           </div>
         ),
@@ -128,12 +266,12 @@ export default function AppTour() {
       {
         target: "body",
         content: (
-          <div className="text-left">
+          <div>
             <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "8px", color: "#f97316" }}>
               You're all set! 🎉
             </h2>
-            <p style={{ fontSize: "0.85rem", opacity: 0.75 }}>
-              You can replay this tour anytime by clicking the <strong>"App Tour"</strong> button in the menu. Stay safe and stay vigilant!
+            <p style={{ fontSize: "0.85rem", opacity: 0.75, margin: 0 }}>
+              You now know all the key features. You can replay this tour anytime from the <strong>"App Tour"</strong> button in the menu. Stay safe and stay vigilant!
             </p>
           </div>
         ),
@@ -142,19 +280,24 @@ export default function AppTour() {
       },
     ];
 
-    // Only include steps where the DOM target exists (except 'body' steps)
     return allSteps.filter(
       (step) => step.target === "body" || document.querySelector(step.target as string)
     );
   }, []);
 
-  // Single function that builds steps and then starts the tour with a small delay
-  // to ensure React has committed the steps state before Joyride reads it.
   const startTour = useCallback(() => {
+    // Full reset first — this fixes "only works once" bug
+    setRun(false);
+    setStepIndex(0);
+    setSteps([]);
+
     const tourSteps = buildSteps();
-    setSteps(tourSteps);
-    // Small delay ensures steps are in state before run=true triggers Joyride
-    setTimeout(() => setRun(true), 80);
+
+    // Short delay to let React flush the reset before starting
+    setTimeout(() => {
+      setSteps(tourSteps);
+      setTimeout(() => setRun(true), 60);
+    }, 60);
   }, [buildSteps]);
 
   useEffect(() => {
@@ -163,11 +306,9 @@ export default function AppTour() {
 
     if (!hasSeenTour) {
       if (isAlreadyLoggedIn) {
-        // Silently mark as seen for existing users — don't auto-show
         localStorage.setItem("has_seen_app_tour", "true");
       } else {
-        // Auto-show for brand new users after page loads
-        setTimeout(startTour, 1500);
+        setTimeout(startTour, 1800);
       }
     }
 
@@ -176,69 +317,56 @@ export default function AppTour() {
   }, [startTour]);
 
   const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status } = data;
+    const { status, type, index, action } = data;
+
+    // Track step navigation manually for reliable stepIndex control
+    if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+      setStepIndex(index + (action === ACTIONS.PREV ? -1 : 1));
+    }
+
     if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       setRun(false);
+      setStepIndex(0);
       localStorage.setItem("has_seen_app_tour", "true");
     }
   };
+
+  // Custom tooltip that receives isDark via closure
+  const TooltipWithTheme = useCallback(
+    (props: TooltipRenderProps) => <CustomTooltip {...props} isDark={isDark} />,
+    [isDark]
+  );
 
   return (
     <Joyride
       steps={steps}
       run={run}
+      stepIndex={stepIndex}
       continuous
       scrollToFirstStep
-      showProgress
       showSkipButton
       disableScrollParentFix
+      disableOverlayClose
+      tooltipComponent={TooltipWithTheme}
       callback={handleJoyrideCallback}
-      locale={{
-        back: "← Back",
-        close: "Close",
-        last: "Finish Tour ✓",
-        next: "Next →",
-        skip: "Skip Tour",
+      floaterProps={{
+        disableAnimation: false,
+        styles: {
+          floater: { filter: "none" },
+        },
       }}
       styles={{
         options: {
           primaryColor: "#f97316",
           zIndex: 100000,
-          backgroundColor: isDark ? "#0f172a" : "#ffffff",
-          textColor: isDark ? "#f1f5f9" : "#0f172a",
-          arrowColor: isDark ? "#0f172a" : "#ffffff",
-          overlayColor: "rgba(0, 0, 0, 0.55)",
+          overlayColor: "rgba(0,0,0,0.52)",
+          spotlightShadow: "0 0 0 9999px rgba(0,0,0,0.52)",
         },
-        tooltipContainer: {
-          textAlign: "left",
+        spotlight: {
+          borderRadius: "12px",
         },
-        tooltip: {
-          borderRadius: "14px",
-          padding: "20px 24px",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-        },
-        buttonNext: {
-          backgroundColor: "#f97316",
-          borderRadius: "8px",
-          fontWeight: "bold",
-          color: "#ffffff",
-          padding: "8px 18px",
-        },
-        buttonBack: {
-          color: "#f97316",
-          fontWeight: "bold",
-          marginRight: "8px",
-        },
-        buttonSkip: {
-          color: isDark ? "#94a3b8" : "#64748b",
-          fontWeight: "500",
-        },
-        buttonClose: {
-          color: isDark ? "#94a3b8" : "#64748b",
-        },
-        beacon: {
-          inner: "#f97316",
-          outer: "#f9731650",
+        overlay: {
+          mixBlendMode: "normal",
         },
       }}
     />
