@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, LifeBuoy, User, LogOut, Settings, LogIn, MessageSquare, Users } from "lucide-react";
+import { Shield, LifeBuoy, User, LogOut, Settings, LogIn, MessageSquare, Users, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -101,6 +101,16 @@ export default function Navbar() {
                                 <LogOut className="mr-2 h-4 w-4" />
                                 Sign Out
                             </Button>
+                            
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.dispatchEvent(new Event("start-app-tour"))}
+                                className="hidden lg:flex border-primary/20 text-primary hover:bg-primary/10 font-bold rounded-xl px-4 transition-all"
+                            >
+                                <Info className="mr-2 h-4 w-4" />
+                                App Tour
+                            </Button>
                         </>
                     ) : (
                         <>
@@ -201,6 +211,15 @@ export default function Navbar() {
                             <div className="h-px bg-border/50 my-1" />
 
                             <Button
+                                variant="outline"
+                                onClick={() => { window.dispatchEvent(new Event("start-app-tour")); setIsMobileMenuOpen(false); }}
+                                className="justify-start h-12 text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 font-bold rounded-xl"
+                            >
+                                <Info className="mr-3 h-5 w-5" />
+                                App Tour
+                            </Button>
+
+                            <Button
                                 variant="ghost"
                                 onClick={handleSignOut}
                                 className="justify-start h-12 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 font-bold rounded-xl"
@@ -210,13 +229,23 @@ export default function Navbar() {
                             </Button>
                         </>
                     ) : (
-                        <Button
-                            onClick={() => { navigate("/auth"); setIsMobileMenuOpen(false); }}
-                            className="h-12 w-full bg-primary text-primary-foreground font-black rounded-xl shadow-lg"
-                        >
-                            <LogIn className="mr-2 h-5 w-5" />
-                            Sign In / Register
-                        </Button>
+                        <>
+                            <Button
+                                variant="outline"
+                                onClick={() => { window.dispatchEvent(new Event("start-app-tour")); setIsMobileMenuOpen(false); }}
+                                className="h-12 w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 font-bold rounded-xl shadow-sm mb-2"
+                            >
+                                <Info className="mr-2 h-5 w-5" />
+                                App Tour
+                            </Button>
+                            <Button
+                                onClick={() => { navigate("/auth"); setIsMobileMenuOpen(false); }}
+                                className="h-12 w-full bg-primary text-primary-foreground font-black rounded-xl shadow-lg"
+                            >
+                                <LogIn className="mr-2 h-5 w-5" />
+                                Sign In / Register
+                            </Button>
+                        </>
                     )}
                 </div>
             )}

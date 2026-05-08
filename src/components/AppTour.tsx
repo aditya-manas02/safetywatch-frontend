@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
 import { Joyride, CallBackProps, STATUS, Step } from "react-joyride";
+import { useTheme } from "next-themes";
 
 export default function AppTour() {
   const [run, setRun] = useState(false);
+  const { theme, systemTheme } = useTheme();
+
+  // Determine actual theme for Joyride styles
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const isDark = currentTheme === "dark";
 
   useEffect(() => {
     const hasSeenTour = localStorage.getItem("has_seen_app_tour");
+    const isAlreadyLoggedIn = !!localStorage.getItem("token");
+
     if (!hasSeenTour) {
-      // Small delay to let the app load fully before starting the tour
-      setTimeout(() => setRun(true), 1500);
+      if (isAlreadyLoggedIn) {
+        // If they already have an account and token, they are an existing user
+        // from before the tour was introduced. Mark it as seen so it doesn't pop up.
+        localStorage.setItem("has_seen_app_tour", "true");
+      } else {
+        // Only auto-show for completely new users
+        setTimeout(() => setRun(true), 1500);
+      }
     }
 
     const handleStartTour = () => {
@@ -96,8 +110,9 @@ export default function AppTour() {
         options: {
           primaryColor: "#f97316", // orange-500
           zIndex: 100000,
-          backgroundColor: "#ffffff",
-          textColor: "#000000",
+          backgroundColor: isDark ? "#020817" : "#ffffff", // slate-950 or white
+          textColor: isDark ? "#f8fafc" : "#0f172a", // slate-50 or slate-900
+          arrowColor: isDark ? "#020817" : "#ffffff",
         },
         tooltipContainer: {
           textAlign: "left",
@@ -106,13 +121,14 @@ export default function AppTour() {
           backgroundColor: "#f97316",
           borderRadius: "8px",
           fontWeight: "bold",
+          color: "#ffffff",
         },
         buttonBack: {
           color: "#f97316",
           fontWeight: "bold",
         },
         buttonSkip: {
-          color: "#64748b",
+          color: isDark ? "#94a3b8" : "#64748b",
         }
       }}
     />
