@@ -55,7 +55,9 @@ export default function Navbar() {
 
                     {user ? (
                         <>
-                            <NotificationCenter />
+                            <div id="tour-notification-center">
+                                <NotificationCenter />
+                            </div>
                             <Button
                                 variant="ghost"
                                 size="sm"

@@ -390,7 +390,9 @@ export default function Index() {
       transition={{ duration: 0.4 }}
     >
       <PullToRefresh onRefresh={handleRefresh}>
-        <SafetyPulse />
+        <div id="tour-safety-pulse">
+          <SafetyPulse />
+        </div>
 
         {/* HERO */}
         <Hero
@@ -654,7 +656,9 @@ export default function Index() {
             {/* RIGHT: ASIDE */}
             <aside className="space-y-10">
               <SafetyContentPanel />
-              <PollsWidget />
+              <div id="tour-polls-widget">
+                <PollsWidget />
+              </div>
               <NewsFeed />
 
               <div id="tour-heatmap" className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden relative group">

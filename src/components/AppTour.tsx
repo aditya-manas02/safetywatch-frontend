@@ -33,59 +33,113 @@ export default function AppTour() {
     return () => window.removeEventListener("start-app-tour", handleStartTour);
   }, []);
 
-  const steps: Step[] = [
-    {
-      target: "body",
-      content: (
-        <div className="text-left">
-          <h2 className="text-xl font-bold mb-2 text-primary">Welcome to SafetyWatch! 🛡️</h2>
-          <p className="text-sm text-muted-foreground">Let's take a quick 30-second tour to show you how to keep yourself and your neighborhood safe.</p>
-        </div>
-      ),
-      placement: "center",
-      disableBeacon: true,
-    },
-    {
-      target: "#tour-report-btn",
-      content: (
-        <div className="text-left">
-          <h3 className="font-bold mb-1">Report Incidents</h3>
-          <p className="text-sm">Use this button to report suspicious activities, hazards, or non-urgent incidents in your area. This helps keep everyone informed.</p>
-        </div>
-      ),
-      disableBeacon: true,
-    },
-    {
-      target: "#tour-guardian-mode",
-      content: (
-        <div className="text-left">
-          <h3 className="font-bold mb-1 text-red-500">Emergency SOS</h3>
-          <p className="text-sm">Hold this button ONLY in real emergencies. It immediately broadcasts your live location to all nearby users and authorities.</p>
-        </div>
-      ),
-      disableBeacon: true,
-    },
-    {
-      target: "#tour-navbar-circles",
-      content: (
-        <div className="text-left">
-          <h3 className="font-bold mb-1">Your Community Circles</h3>
-          <p className="text-sm">Join or create private Circles to collaborate with specific neighbors, building members, or community watch groups.</p>
-        </div>
-      ),
-      disableBeacon: true,
-    },
-    {
-      target: "#tour-heatmap",
-      content: (
-        <div className="text-left">
-          <h3 className="font-bold mb-1">Live Heatmap</h3>
-          <p className="text-sm">Check the heatmap to see incident density in your area. This helps you identify and avoid dangerous hotspots.</p>
-        </div>
-      ),
-      disableBeacon: true,
+  // Build steps dynamically so we only include targets that currently exist on screen
+  const getSteps = (): Step[] => {
+    const allSteps: Step[] = [
+      {
+        target: "body",
+        content: (
+          <div className="text-left">
+            <h2 className="text-xl font-bold mb-2 text-primary">Welcome to SafetyWatch! 🛡️</h2>
+            <p className="text-sm text-muted-foreground">Let's take a comprehensive tour to show you all the critical safety features of the system.</p>
+          </div>
+        ),
+        placement: "center",
+        disableBeacon: true,
+      },
+      {
+        target: "#tour-safety-pulse",
+        content: (
+          <div className="text-left">
+            <h3 className="font-bold mb-1">Intelligence Feed</h3>
+            <p className="text-sm">This ticker provides live, encrypted security updates and system status from the command center.</p>
+          </div>
+        ),
+        disableBeacon: true,
+      },
+      {
+        target: "#tour-report-btn",
+        content: (
+          <div className="text-left">
+            <h3 className="font-bold mb-1">Report Incidents</h3>
+            <p className="text-sm">Use this to report suspicious activities, hazards, or non-urgent issues to keep everyone informed.</p>
+          </div>
+        ),
+        disableBeacon: true,
+      },
+      {
+        target: "#tour-guardian-mode",
+        content: (
+          <div className="text-left">
+            <h3 className="font-bold mb-1 text-red-500">Emergency SOS</h3>
+            <p className="text-sm">Hold this button ONLY in real emergencies. It broadcasts your live GPS coordinates to authorities and neighbors instantly.</p>
+          </div>
+        ),
+        disableBeacon: true,
+      },
+      {
+        target: "#tour-notification-center",
+        content: (
+          <div className="text-left">
+            <h3 className="font-bold mb-1">Alerts & Notifications</h3>
+            <p className="text-sm">Check here for important updates, emergency broadcasts, and direct safety alerts sent to you.</p>
+          </div>
+        ),
+        disableBeacon: true,
+      },
+      {
+        target: "#tour-navbar-circles",
+        content: (
+          <div className="text-left">
+            <h3 className="font-bold mb-1">Community Circles</h3>
+            <p className="text-sm">Join or create private Circles to collaborate with specific neighbors or community watch groups.</p>
+          </div>
+        ),
+        disableBeacon: true,
+      },
+      {
+        target: "#nearby-section",
+        content: (
+          <div className="text-left">
+            <h3 className="font-bold mb-1">Local Watch</h3>
+            <p className="text-sm">This section tracks and highlights verified incidents within a 10km radius of your location.</p>
+          </div>
+        ),
+        disableBeacon: true,
+      },
+      {
+        target: "#tour-heatmap",
+        content: (
+          <div className="text-left">
+            <h3 className="font-bold mb-1">Live Density Heatmap</h3>
+            <p className="text-sm">Monitor this heatmap to identify dangerous hotspots and avoid high-risk areas in real-time.</p>
+          </div>
+        ),
+        disableBeacon: true,
+      },
+      {
+        target: "#tour-polls-widget",
+        content: (
+          <div className="text-left">
+            <h3 className="font-bold mb-1">Community Surveys</h3>
+            <p className="text-sm">Participate in quick polls to help local authorities understand neighborhood concerns better.</p>
+          </div>
+        ),
+        disableBeacon: true,
+      }
+    ];
+
+    // Filter out steps where the target doesn't exist in the DOM (except 'body')
+    return allSteps.filter(step => step.target === "body" || document.querySelector(step.target as string));
+  };
+
+  const [steps, setSteps] = useState<Step[]>([]);
+
+  useEffect(() => {
+    if (run) {
+      setSteps(getSteps());
     }
-  ];
+  }, [run]);
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status } = data;
