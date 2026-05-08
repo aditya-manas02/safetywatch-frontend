@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Joyride, { CallBackProps, STATUS, Step } from "react-joyride";
+import { Joyride, CallBackProps, STATUS, Step } from "react-joyride";
 
 export default function AppTour() {
   const [run, setRun] = useState(false);
