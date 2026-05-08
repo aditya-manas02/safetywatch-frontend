@@ -537,11 +537,11 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                         <div className="w-full space-y-2 mb-8 text-[13px] font-mono tracking-wider">
                             <div className="flex justify-between items-center px-4 py-3 bg-white/5 rounded-xl border border-white/5">
                                 <span className="text-slate-500 uppercase">Current</span>
-                                <span className="text-white font-bold">{currentVersion || '1.4.7'}</span>
+                                <span className="text-white font-bold">{currentVersion || '1.4.7'} <span className="text-[10px] text-slate-500 font-normal">(Build: {currentBuild || '0'})</span></span>
                             </div>
                             <div className="flex justify-between items-center px-4 py-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
                                 <span className="text-purple-400 uppercase">Target</span>
-                                <span className="text-white font-bold">{versionInfo.version}</span>
+                                <span className="text-white font-bold">{versionInfo.version} <span className="text-[10px] text-purple-400 font-normal">(Build: {versionInfo.buildId || '0'})</span></span>
                             </div>
                         </div>
 
