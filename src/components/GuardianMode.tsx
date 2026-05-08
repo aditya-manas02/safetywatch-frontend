@@ -186,6 +186,46 @@ const GuardianMode = () => {
         });
     };
 
+    // Live Tracking for active SOS (Sender side)
+    useEffect(() => {
+        let watchId: any;
+        
+        if (active && sosIncidentId && token) {
+            console.log("[SOS] Starting live location tracking...");
+            
+            const updateLiveLocation = async (lat: number, lng: number) => {
+                try {
+                    await fetch(`${API_BASE}/incidents/sos/${sosIncidentId}/location`, {
+                        method: "PATCH",
+                        headers: getAuthHeaders(token),
+                        body: JSON.stringify({ latitude: lat, longitude: lng }),
+                        signal: AbortSignal.timeout(5000)
+                    });
+                } catch (err) {
+                    console.warn("[SOS] Live sync failed", err);
+                }
+            };
+
+            // Use watchPosition for real-time tracking while moving
+            Geolocation.watchPosition({
+                enableHighAccuracy: true,
+                timeout: 10000
+            }, (position) => {
+                if (position) {
+                    updateLiveLocation(position.coords.latitude, position.coords.longitude);
+                }
+            }).then(id => {
+                watchId = id;
+            });
+        }
+
+        return () => {
+            if (watchId) {
+                Geolocation.clearWatch({ id: watchId });
+            }
+        };
+    }, [active, sosIncidentId, token]);
+
     // Background check for active SOS in the area
     useEffect(() => {
         const checkActiveSOS = async (retryCount = 0) => {
