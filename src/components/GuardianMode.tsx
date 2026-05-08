@@ -326,6 +326,7 @@ const GuardianMode = () => {
                     </svg>
 
                     <motion.button
+                        id="tour-guardian-mode"
                         whileTap={{ scale: 0.9 }}
                         onMouseDown={startHold}
                         onMouseUp={endHold}

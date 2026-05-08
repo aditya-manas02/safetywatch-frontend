@@ -657,7 +657,7 @@ export default function Index() {
               <PollsWidget />
               <NewsFeed />
 
-              <div className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden relative group">
+              <div id="tour-heatmap" className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden relative group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                   <img
                     src="/assets/splash.png"

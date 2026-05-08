@@ -67,6 +67,7 @@ export default function Navbar() {
                             </Button>
 
                             <Button
+                                id="tour-navbar-circles"
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => navigate("/circles")}
@@ -102,10 +103,21 @@ export default function Navbar() {
                             </Button>
                         </>
                     ) : (
-                        <Button size="sm" onClick={() => navigate("/auth")} className="shadow-xl shadow-primary/20 bg-primary text-primary-foreground font-black px-6 h-11 rounded-xl hover:scale-105 active:scale-95 transition-all">
-                            <LogIn className="mr-2 h-4 w-4" />
-                            Get Started
-                        </Button>
+                        <>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.dispatchEvent(new Event("start-app-tour"))}
+                                className="hidden lg:flex border-primary/20 text-primary hover:bg-primary/10 font-bold rounded-xl px-4 transition-all"
+                            >
+                                <Info className="mr-2 h-4 w-4" />
+                                App Tour
+                            </Button>
+                            <Button size="sm" onClick={() => navigate("/auth")} className="shadow-xl shadow-primary/20 bg-primary text-primary-foreground font-black px-6 h-11 rounded-xl hover:scale-105 active:scale-95 transition-all">
+                                <LogIn className="mr-2 h-4 w-4" />
+                                Get Started
+                            </Button>
+                        </>
                     )}
                 </div>
 

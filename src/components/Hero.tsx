@@ -191,6 +191,7 @@ export default function Hero({
 
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
             <motion.button
+              id="tour-report-btn"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onReportClick}

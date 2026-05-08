@@ -23,6 +23,7 @@ import { AreaCodeSelector } from "./components/AreaCodeSelector";
 import { SuspensionModal } from "./components/SuspensionModal";
 import { Megaphone, X, Bell, ShieldAlert } from "lucide-react";
 import SOSAlert from "./components/SOSAlert";
+import AppTour from "./components/AppTour";
 import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
@@ -747,6 +748,7 @@ const App = () => {
       </QueryClientProvider>
       <Toaster />
       <Sonner />
+      <AppTour />
     </TooltipProvider>
   );
 };
