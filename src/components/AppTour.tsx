@@ -256,8 +256,17 @@ export default function AppTour() {
       },
     ];
 
+    // Only include steps where the target is actually visible on screen
+    // querySelector finds hidden elements too — we need real dimension check
+    const isVisible = (selector: string): boolean => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    };
+
     return allSteps.filter(
-      (step) => step.target === "body" || document.querySelector(step.target as string)
+      (step) => step.target === "body" || isVisible(step.target as string)
     );
   }, []);
 
