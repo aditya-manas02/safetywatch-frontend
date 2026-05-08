@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import Navbar from "./components/Navbar";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import ChatBot from "./components/ChatBot";
 import AnimatedBackground from "./components/AnimatedBackground";
@@ -24,6 +24,7 @@ import { SuspensionModal } from "./components/SuspensionModal";
 import { Megaphone, X, Bell, ShieldAlert } from "lucide-react";
 import SOSAlert from "./components/SOSAlert";
 import { toast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
 
 // Lazy load pages for performance
@@ -45,6 +46,7 @@ const Maintenance = lazy(() => import("./pages/Maintenance"));
 
 const AppContent = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const hideNavbar = ["/admin", "/auth", "/maintenance"].some(path => location.pathname.startsWith(path));
 
   const { isLoading, user, token, refreshUser, signOut, isSuperAdmin } = useAuth();
@@ -230,6 +232,23 @@ const AppContent = () => {
             }
           });
           window.dispatchEvent(event);
+        } else {
+          // Show interactive toast for all other notification types
+          toast({
+            title: title,
+            description: body,
+            action: link && link !== "/" ? (
+              <ToastAction altText="View" onClick={() => {
+                if (link.startsWith("http")) {
+                  window.open(link, "_blank", "noopener,noreferrer");
+                } else {
+                  navigate(link);
+                }
+              }}>
+                View
+              </ToastAction>
+            ) : undefined
+          });
         }
 
         if (Capacitor.isNativePlatform()) {
@@ -648,18 +667,35 @@ const App = () => {
         
         // Handle SOS Alert specifically to show the overlay instantly
         const data = notification.data || notification.notification?.data;
+        const title = notification.title || "SafetyWatch Alert";
+        const body = notification.body || "You have a new alert.";
+
         if (data && (data.type === 'sos_alert' || data.incidentId)) {
           console.log('[PUSH] SOS Alert payload detected. Triggering popup.');
           const event = new CustomEvent('sos_alert_received', {
             detail: {
               incidentId: data.incidentId,
-              userName: notification.title?.split(' ')[0] || notification.body?.split(' ')[0] || 'Someone',
+              userName: title.split(' ')[0] || body.split(' ')[0] || 'Someone',
               latitude: parseFloat(data.latitude),
               longitude: parseFloat(data.longitude),
               status: data.status || 'pending'
             }
           });
           window.dispatchEvent(event);
+        } else {
+          // Show interactive toast for all other notification types
+          const link = data?.link || "/";
+          toast({
+            title: title,
+            description: body,
+            action: link && link !== "/" ? (
+              <ToastAction altText="View" onClick={() => {
+                window.location.href = link;
+              }}>
+                View
+              </ToastAction>
+            ) : undefined
+          });
         }
       });
 
