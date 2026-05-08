@@ -120,18 +120,21 @@ const AppContent = () => {
     user.hasAreaCode === false;
 
   useEffect(() => {
-    const checkMaintenance = async () => {
+    const checkMaintenance = async (retryCount = 0) => {
       if (location.pathname === "/maintenance" || location.pathname === "/auth") return;
       try {
         const { API_BASE, getAuthHeaders } = await import("@/lib/api");
         const res = await fetch(`${API_BASE}/system/config`, {
-          headers: getAuthHeaders(token)
+          headers: getAuthHeaders(token),
+          signal: AbortSignal.timeout(10000) // 10 second timeout
         });
         
         if (res.status === 426) {
           console.warn("[VERSION] App blocked by backend. Stopping boot.");
           return; // SecurityUpdatePanel will show the overlay
         }
+
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
 
         const data = await res.json();
         
@@ -151,8 +154,11 @@ const AppContent = () => {
         } else {
           setPreAlert(null);
         }
-      } catch (e) {
-        console.error("Maintenance check failed", e);
+      } catch (e: any) {
+        console.error("Maintenance check failed", e.message);
+        if (retryCount < 2) {
+          setTimeout(() => checkMaintenance(retryCount + 1), 3000 * (retryCount + 1));
+        }
       }
     };
     checkMaintenance();
@@ -280,26 +286,32 @@ const AppContent = () => {
   useEffect(() => {
     if (!user || !token) return;
 
-    const syncLocation = () => {
-      if (!navigator.geolocation) return;
+    const syncLocation = async (retryCount = 0) => {
+      try {
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: false,
+          timeout: 10000
+        });
 
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const { latitude, longitude } = position.coords;
-            await fetch(`${API_BASE}/users/location`, {
-              method: "PATCH",
-              headers: getAuthHeaders(token),
-              body: JSON.stringify({ latitude, longitude }),
-            });
-            console.log("[LOCATION] Background sync successful");
-          } catch (e) {
-            console.error("[LOCATION] Background sync failed", e);
-          }
-        },
-        (err) => console.warn("[LOCATION] Access denied or unavailable", err),
-        { enableHighAccuracy: false, timeout: 10000 }
-      );
+        const { latitude, longitude } = position.coords;
+        const res = await fetch(`${API_BASE}/users/location`, {
+          method: "PATCH",
+          headers: getAuthHeaders(token),
+          body: JSON.stringify({ latitude, longitude }),
+          signal: AbortSignal.timeout(10000)
+        });
+
+        if (res.ok) {
+          console.log("[LOCATION] Background sync successful");
+        } else if (retryCount < 2) {
+          setTimeout(() => syncLocation(retryCount + 1), 5000);
+        }
+      } catch (e: any) {
+        console.warn("[LOCATION] Sync failed:", e.message);
+        if (retryCount < 2) {
+          setTimeout(() => syncLocation(retryCount + 1), 10000);
+        }
+      }
     };
 
     // Initial sync

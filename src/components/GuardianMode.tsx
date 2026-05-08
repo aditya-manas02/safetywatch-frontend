@@ -170,48 +170,60 @@ const GuardianMode = () => {
 
     // Background check for active SOS in the area
     useEffect(() => {
-        const checkActiveSOS = async () => {
+        const checkActiveSOS = async (retryCount = 0) => {
             // Safety: Don't poll if on auth page or if token missing
             const isAuthPage = window.location.pathname.startsWith('/auth');
             if (!token || isAuthPage) return;
 
             try {
-                navigator.geolocation.getCurrentPosition(async (position) => {
-                    const { latitude, longitude } = position.coords;
-                    const res = await fetch(`${API_BASE}/incidents/sos/active?lat=${latitude}&lng=${longitude}`, {
-                        headers: getAuthHeaders(token)
-                    });
-                    
-                    if (res.ok) {
-                        const data = await res.json();
-                        // Only trigger if it's a NEW SOS or if the status has CHANGED (e.g. to safe)
-                        if (data && (!activeSOS || activeSOS.id !== data.id || activeSOS.status !== data.status)) {
-                            setActiveSOS(data);
-                            console.log("[SOS] Active emergency update detected nearby!");
-                            
-                            // Dispatch custom event to trigger SOSAlert in App.tsx
-                            const event = new CustomEvent('sos_alert_received', {
-                                detail: {
-                                    incidentId: data.id,
-                                    userName: data.user || "Someone",
-                                    latitude: data.latitude,
-                                    longitude: data.longitude,
-                                    status: data.status // Include status!
-                                }
-                            });
-                            window.dispatchEvent(event);
-                        } else if (!data) {
-                            setActiveSOS(null);
-                        }
+                // Use Native Capacitor Geolocation (faster and more reliable on Android)
+                const position = await Geolocation.getCurrentPosition({
+                    enableHighAccuracy: false,
+                    timeout: 5000 // 5 seconds max to wait for GPS
+                });
+
+                const { latitude, longitude } = position.coords;
+                const res = await fetch(`${API_BASE}/incidents/sos/active?lat=${latitude}&lng=${longitude}`, {
+                    headers: getAuthHeaders(token),
+                    signal: AbortSignal.timeout(8000) // 8 second network timeout
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    // Only trigger if it's a NEW SOS or if the status has CHANGED (e.g. to safe)
+                    if (data && (!activeSOS || activeSOS.id !== data.id || activeSOS.status !== data.status)) {
+                        setActiveSOS(data);
+                        console.log("[SOS] Active emergency update detected nearby!");
+                        
+                        // Dispatch custom event to trigger SOSAlert in App.tsx
+                        const event = new CustomEvent('sos_alert_received', {
+                            detail: {
+                                incidentId: data.id,
+                                userName: data.user || "Someone",
+                                latitude: data.latitude,
+                                longitude: data.longitude,
+                                status: data.status 
+                            }
+                        });
+                        window.dispatchEvent(event);
+                    } else if (!data) {
+                        setActiveSOS(null);
                     }
-                }, () => {}, { timeout: 10000 });
-            } catch (err) {
-                console.error("[SOS] Polling failed", err);
+                } else if (res.status >= 500 && retryCount < 2) {
+                    // Server error, retry once
+                    setTimeout(() => checkActiveSOS(retryCount + 1), 2000);
+                }
+            } catch (err: any) {
+                console.warn("[SOS] Polling attempt failed:", err.message);
+                // On network timeout/error, retry once after a short delay
+                if ((err.name === 'AbortError' || err.message?.includes('Network')) && retryCount < 2) {
+                    setTimeout(() => checkActiveSOS(retryCount + 1), 3000);
+                }
             }
         };
 
         checkActiveSOS();
-        const interval = setInterval(checkActiveSOS, 10000); 
+        const interval = setInterval(() => checkActiveSOS(), 10000); 
         return () => clearInterval(interval);
     }, [token, activeSOS]);
 
