@@ -228,7 +228,7 @@ const AppContent = () => {
               userName: payload.data.title?.split(' ')[0] || payload.notification?.title?.split(' ')[0] || 'Someone',
               latitude: parseFloat(payload.data.latitude),
               longitude: parseFloat(payload.data.longitude),
-              status: 'pending'
+              status: payload.data.status || 'pending'
             }
           });
           window.dispatchEvent(event);
@@ -347,10 +347,26 @@ const AppContent = () => {
   useEffect(() => {
     const handleSOS = (event: any) => {
       const { incidentId, userName, latitude, longitude, status } = event.detail;
-      setActiveSOS({ incidentId, userName, latitude, longitude, status });
+      const isSafe = status === 'problem solved';
+
+      // Check if we already have this SOS active (using functional update to get current state without effect dependency)
+      setActiveSOS(prev => {
+        // If it's a "Safe" update but the popup is NOT currently open for this specific incident,
+        // we show a toast instead of re-triggering the big popup.
+        if (isSafe && (!prev || prev.incidentId !== incidentId)) {
+          toast({
+            title: "Neighbor is Safe ✅",
+            description: `${userName} has marked themselves as safe. Thank you for your vigilance!`,
+          });
+          return prev;
+        }
+
+        // Otherwise, show/update the popup
+        return { incidentId, userName, latitude, longitude, status };
+      });
       
       // Play a sound if possible (only for NEW alerts, not updates to safe)
-      if (status !== 'problem solved') {
+      if (!isSafe) {
         try {
           const audio = new Audio('/emergency_alert.mp3');
           audio.play().catch(() => {});
