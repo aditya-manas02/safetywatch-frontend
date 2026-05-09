@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import ChatBot from "./components/ChatBot";
 import AnimatedBackground from "./components/AnimatedBackground";
-import { lazy, Suspense, useEffect, useState, useCallback } from "react";
+import { lazy, Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
@@ -209,18 +209,34 @@ const AppContent = () => {
   }, [user?.email, token]); // Run once when a user session is confirmed
 
   // --- Force system-level notifications even when app is in the foreground ---
+  const lastToastRef = useRef<{ title: string, body: string, time: number } | null>(null);
+
   useEffect(() => {
     if (!user || !token) return;
 
     let unsubscribe: (() => void) | undefined;
+    let isMounted = true;
 
     import("@/lib/fcm").then(({ onForegroundMessage }) => {
+      if (!isMounted) return;
       unsubscribe = onForegroundMessage(async (payload) => {
         console.log("[FCM] Foreground message received:", payload);
         
         const title = payload.notification?.title || payload.data?.title || "SafetyWatch Alert";
         const body = payload.notification?.body || payload.data?.body || "You have a new alert.";
         const link = payload.data?.link || "/";
+
+        // De-duplicate toasts (don't show same content within 2 seconds)
+        const now = Date.now();
+        if (lastToastRef.current && 
+            lastToastRef.current.title === title && 
+            lastToastRef.current.body === body && 
+            (now - lastToastRef.current.time < 2000)) {
+          console.log("[FCM] Suppressing duplicate toast/alert");
+          return;
+        }
+        
+        lastToastRef.current = { title, body, time: now };
 
         if (payload.data?.type === 'sos_alert') {
           console.log("[FCM] SOS Alert detected in foreground push!");
@@ -299,6 +315,7 @@ const AppContent = () => {
     });
 
     return () => {
+      isMounted = false;
       if (unsubscribe) unsubscribe();
     };
   }, [user?.email, token]);
@@ -611,126 +628,109 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    if (!isUpdateCheckDone || !minLoadTimePassed) return;
+
     // Hide splash screen
     SplashScreen.hide().catch(err => console.warn("SplashScreen hide failed:", err));
-
-    // FAILSAFE: Force loading to complete after 5 seconds regardless of update check status
-    const failsafeTimer = setTimeout(() => {
-      if (!isUpdateCheckDone) {
-        console.warn("[APP] Update check failsafe triggered - allowing entry.");
-        setIsUpdateCheckDone(true);
-      }
-    }, 5000);
 
     // Configure Status Bar for native platforms
     if (Capacitor.isNativePlatform()) {
       StatusBar.setOverlaysWebView({ overlay: true }).catch(err => console.warn("StatusBar overlay failed:", err));
-      // Set a default style, can be updated later based on theme
       StatusBar.setStyle({ style: Style.Default }).catch(err => console.warn("StatusBar style set failed:", err));
 
-      setTimeout(() => {
-        requestNativePermissions();
-      }, 2000);
-    }
+      let listeners: any[] = [];
+      const setupNativePush = async () => {
+        try {
+          const { PushNotifications } = await import('@capacitor/push-notifications');
+          const { Geolocation } = await import('@capacitor/geolocation');
+          const { Camera } = await import('@capacitor/camera');
 
-    return () => clearTimeout(failsafeTimer);
-  }, [isUpdateCheckDone]);
+          console.log('[PERMISSIONS] Requesting native permissions...');
+          await Geolocation.requestPermissions().catch(() => {});
+          await Camera.requestPermissions().catch(() => {});
 
-  const requestNativePermissions = async () => {
-    try {
-      console.log('[PERMISSIONS] Proactively requesting native permissions...');
-      await Geolocation.requestPermissions();
-      await Camera.requestPermissions();
-
-      if ('Notification' in window) {
-        await Notification.requestPermission();
-      }
-
-      // Automatically register for push notifications
-      const { PushNotifications } = await import('@capacitor/push-notifications');
-      
-      let permStatus = await PushNotifications.checkPermissions();
-      if (permStatus.receive === 'prompt') {
-        permStatus = await PushNotifications.requestPermissions();
-      }
-
-      if (permStatus.receive === 'granted') {
-        PushNotifications.register();
-      }
-
-      // Add push listeners
-      PushNotifications.addListener('registration', async (token) => {
-        console.log('[PUSH] Registration token: ', token.value);
-        // Sync token with backend if user is logged in
-        const authToken = localStorage.getItem('token');
-        if (authToken) {
-          try {
-            const { API_BASE, getAuthHeaders } = await import('@/lib/api');
-            await fetch(`${API_BASE}/users/fcm-token`, {
-              method: 'POST',
-              headers: getAuthHeaders(authToken),
-              body: JSON.stringify({ token: token.value })
-            });
-          } catch (e) {
-            console.error('[PUSH] Failed to sync token:', e);
+          let permStatus = await PushNotifications.checkPermissions();
+          if (permStatus.receive === 'prompt') {
+            permStatus = await PushNotifications.requestPermissions();
           }
-        }
-      });
 
-      PushNotifications.addListener('registrationError', (error) => {
-        console.error('[PUSH] Error on registration: ', JSON.stringify(error));
-      });
+          if (permStatus.receive === 'granted') {
+            PushNotifications.register();
+          }
 
-      PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        console.log('[PUSH] Received notification in foreground: ', JSON.stringify(notification));
-        
-        // Handle SOS Alert specifically to show the overlay instantly
-        const data = notification.data || notification.notification?.data;
-        const title = notification.title || "SafetyWatch Alert";
-        const body = notification.body || "You have a new alert.";
-
-        if (data && (data.type === 'sos_alert' || data.incidentId)) {
-          console.log('[PUSH] SOS Alert payload detected. Triggering popup.');
-          const event = new CustomEvent('sos_alert_received', {
-            detail: {
-              incidentId: data.incidentId,
-              userName: title.split(' ')[0] || body.split(' ')[0] || 'Someone',
-              latitude: parseFloat(data.latitude),
-              longitude: parseFloat(data.longitude),
-              status: data.status || 'pending'
+          // Registration event
+          const regListener = await PushNotifications.addListener('registration', async (token) => {
+            console.log('[PUSH] Registration token: ', token.value);
+            const authToken = localStorage.getItem('token');
+            if (authToken) {
+              try {
+                const { API_BASE, getAuthHeaders } = await import('@/lib/api');
+                await fetch(`${API_BASE}/users/fcm-token`, {
+                  method: 'POST',
+                  headers: getAuthHeaders(authToken),
+                  body: JSON.stringify({ token: token.value })
+                });
+              } catch (e) {
+                console.error('[PUSH] Failed to sync token:', e);
+              }
             }
           });
-          window.dispatchEvent(event);
-        } else {
-          // Show interactive toast for all other notification types
-          const link = data?.link || "/";
-          toast({
-            title: title,
-            description: body,
-            action: link && link !== "/" ? (
-              <ToastAction altText="View" onClick={() => {
-                window.location.href = link;
-              }}>
-                View
-              </ToastAction>
-            ) : undefined
+          listeners.push(regListener);
+
+          // Push received event (Foreground)
+          const receivedListener = await PushNotifications.addListener('pushNotificationReceived', (notification) => {
+            console.log('[PUSH] Received in foreground: ', notification.id);
+            
+            // De-duplicate: Use notification ID or title/body hash
+            const title = notification.title || "SafetyWatch Alert";
+            const body = notification.body || "You have a new alert.";
+            const data = notification.data || {};
+
+            if (data.type === 'sos_alert' || data.incidentId) {
+              const event = new CustomEvent('sos_alert_received', {
+                detail: {
+                  incidentId: data.incidentId,
+                  userName: title.split(' ')[0] || body.split(' ')[0] || 'Someone',
+                  latitude: parseFloat(data.latitude),
+                  longitude: parseFloat(data.longitude),
+                  status: data.status || 'pending'
+                }
+              });
+              window.dispatchEvent(event);
+            } else {
+              const link = data.link || "/";
+              toast({
+                title: title,
+                description: body,
+                action: link && link !== "/" ? (
+                  <ToastAction altText="View" onClick={() => { window.location.href = link; }}>View</ToastAction>
+                ) : undefined
+              });
+            }
           });
-        }
-      });
+          listeners.push(receivedListener);
 
-      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-        console.log('[PUSH] Action performed: ', JSON.stringify(notification));
-        // You can use the notification.data payload to navigate
-        const data = notification.notification.data;
-        if (data && data.link) {
-          window.location.href = data.link;
-        }
-      });
+          // Action performed (Tap)
+          const actionListener = await PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+            const data = notification.notification.data;
+            if (data && data.link) {
+              window.location.href = data.link;
+            }
+          });
+          listeners.push(actionListener);
 
-    } catch (e) {
-      console.warn('[PERMISSIONS] Proactive request failed:', e);
+        } catch (e) {
+          console.warn('[PUSH] Native setup failed:', e);
+        }
+      };
+
+      setupNativePush();
+
+      return () => {
+        listeners.forEach(l => l.remove());
+      };
     }
-  };
+  }, [isUpdateCheckDone, minLoadTimePassed]);
 
   return (
     <TooltipProvider>
