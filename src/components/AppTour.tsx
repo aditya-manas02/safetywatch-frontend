@@ -256,18 +256,7 @@ export default function AppTour() {
       },
     ];
 
-    // Only include steps where the target is actually visible on screen
-    // querySelector finds hidden elements too — we need real dimension check
-    const isVisible = (selector: string): boolean => {
-      const el = document.querySelector(selector) as HTMLElement | null;
-      if (!el) return false;
-      const rect = el.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0;
-    };
-
-    return allSteps.filter(
-      (step) => step.target === "body" || isVisible(step.target as string)
-    );
+    return allSteps;
   }, []);
 
   // Restart-safe: fully stop, reset steps, then restart with a clean slate
@@ -329,8 +318,10 @@ export default function AppTour() {
       continuous
       scrollToFirstStep
       showSkipButton
-      disableScrollParentFix
+      disableScrollParentFix={false}
       disableOverlayClose
+      scrollOffset={120}
+      spotlightClicks={true}
       tooltipComponent={ThemedTooltip}
       callback={handleJoyrideCallback}
       floaterProps={{ disableAnimation: false }}
@@ -338,10 +329,10 @@ export default function AppTour() {
         options: {
           primaryColor: "#f97316",
           zIndex: 100000,
-          overlayColor: "rgba(0,0,0,0.5)",
-          spotlightShadow: "0 0 0 9999px rgba(0,0,0,0.5)",
+          overlayColor: "rgba(0,0,0,0.6)",
+          spotlightShadow: "0 0 0 9999px rgba(0,0,0,0.6)",
         },
-        spotlight: { borderRadius: "12px" },
+        spotlight: { borderRadius: "18px" },
       }}
     />
   );
