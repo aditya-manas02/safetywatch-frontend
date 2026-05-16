@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -87,6 +87,21 @@ export default function DashboardStats() {
     load();
   }, []);
 
+  const safeIncidentsByDay = useMemo(() => {
+    return (Array.isArray(stats?.incidentsByDay) ? stats.incidentsByDay : []).map((d: any) => ({
+      ...d,
+      count: typeof d.count === 'number' ? d.count : 0
+    }));
+  }, [stats?.incidentsByDay]);
+
+  const safeTypeDistribution = useMemo(() => {
+    return (Array.isArray(stats?.typeDistribution) ? stats.typeDistribution : []).map((d: any) => ({
+      ...d,
+      name: d.name || "Other",
+      value: typeof d.value === 'number' ? d.value : 0
+    }));
+  }, [stats?.typeDistribution]);
+
   if (loading) return <DashboardSkeleton />;
 
   if (!stats) {
@@ -165,7 +180,7 @@ export default function DashboardStats() {
             </CardHeader>
             <CardContent className="h-[250px] md:h-[300px] pt-4 pl-0">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={Array.isArray(stats?.incidentsByDay) ? stats.incidentsByDay : []}>
+                <LineChart data={safeIncidentsByDay}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
                   <XAxis
                     dataKey="date"
@@ -220,7 +235,7 @@ export default function DashboardStats() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={Array.isArray(stats?.typeDistribution) ? stats.typeDistribution : []}
+                    data={safeTypeDistribution}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -228,7 +243,7 @@ export default function DashboardStats() {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {(Array.isArray(stats?.typeDistribution) ? stats.typeDistribution : []).map((_entry: { name: string; value: number }, index: number) => (
+                    {safeTypeDistribution.map((_entry: { name: string; value: number }, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>

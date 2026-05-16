@@ -142,8 +142,9 @@ export const YetiAnimation = ({
                         <circle id={`armMaskPath-${uniqueId}`} cx="100" cy="100" r="100" />
                         <motion.path
                             id={`mouthMaskPath-${uniqueId}`}
+                            d={mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6"}
                             animate={{
-                                d: mouthState?.d || "M0 0",
+                                d: mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6",
                                 x: movement.mouthX || 0,
                                 y: movement.mouthY || 0,
                                 rotate: movement.mouthR || 0
@@ -282,8 +283,9 @@ export const YetiAnimation = ({
                     {/* Mouth */}
                     <g className="mouth">
                         <motion.path
+                            d={mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6"}
                             animate={{
-                                d: mouthState?.d || "M0 0",
+                                d: mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6",
                                 x: movement.mouthX,
                                 y: movement.mouthY,
                                 rotate: movement.mouthR
@@ -309,8 +311,9 @@ export const YetiAnimation = ({
                         </g>
                         <motion.path
                             className="mouthOutline"
+                            d={mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6"}
                             animate={{
-                                d: mouthState?.d || "M0 0",
+                                d: mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6",
                                 x: movement.mouthX || 0,
                                 y: movement.mouthY || 0,
                                 rotate: movement.mouthR || 0

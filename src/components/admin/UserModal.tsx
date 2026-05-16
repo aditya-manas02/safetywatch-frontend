@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { User, Incident } from "@/types";
+import { BASE_URL } from "@/lib/api";
 
 export interface UserModalProps {
   user: User | null;
@@ -68,7 +69,7 @@ export default function UserModal({
             <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-[2rem] bg-card border-[6px] border-card shadow-2xl flex items-center justify-center overflow-hidden transition-transform hover:scale-105 duration-300">
               {user.profilePicture ? (
                 <img 
-                  src={user.profilePicture} 
+                  src={user.profilePicture.startsWith('http') ? user.profilePicture : `${BASE_URL}${user.profilePicture}`} 
                   alt={user.name} 
                   className="h-full w-full object-cover"
                   onError={(e) => {
