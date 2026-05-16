@@ -14,15 +14,15 @@ interface Signal {
     priority: number;
 }
 
-const SafetyPulse = () => {
+const SafetyPulse = ({ initialData = null }: { initialData?: any }) => {
     const [stats, setStats] = useState({
-        incidentsToday: 0,
-        safeScore: 100,
-        activeUsers: 0
+        incidentsToday: initialData?.pulse?.incidentsToday || 0,
+        safeScore: initialData?.pulse?.safetyScore || 100,
+        activeUsers: initialData?.stats?.activeUsers || 0
     });
-    const [announcements, setAnnouncements] = useState<any[]>([]);
-    const [latestIncidents, setLatestIncidents] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [announcements, setAnnouncements] = useState<any[]>(initialData?.announcements || []);
+    const [latestIncidents, setLatestIncidents] = useState<any[]>(initialData?.latest || []);
+    const [loading, setLoading] = useState(!initialData);
     const [t, setT] = useState({
         intelFeed: "Intelligence Feed",
         intel: "INTEL"
@@ -70,15 +70,41 @@ const SafetyPulse = () => {
     };
 
     useEffect(() => {
-        fetchPulse();
+        if (initialData) {
+            setStats({
+                incidentsToday: initialData.pulse?.incidentsToday || 0,
+                safeScore: initialData.pulse?.safetyScore || 100,
+                activeUsers: initialData.stats?.activeUsers || 0
+            });
+            setAnnouncements(initialData.announcements || []);
+            setLatestIncidents(initialData.latest || []);
+            setLoading(false);
+        }
+    }, [initialData]);
+
+    useEffect(() => {
+        const handlePulse = (e: any) => {
+            const data = e.detail;
+            setStats(prev => ({
+                ...prev,
+                incidentsToday: data.incidentsToday,
+                safeScore: data.safetyScore
+            }));
+        };
+        window.addEventListener('pulse_update', handlePulse);
+
+        if (!initialData) {
+            fetchPulse();
+        }
         const lang = localStorage.getItem("app_lang") || "en";
         translateUI(lang);
 
         const interval = setInterval(fetchPulse, 45000);
         return () => {
             clearInterval(interval);
+            window.removeEventListener('pulse_update', handlePulse);
         };
-    }, []);
+    }, [initialData]);
 
     const [translatedSignals, setTranslatedSignals] = useState<Signal[]>([]);
     const currentLang = localStorage.getItem("app_lang") || "en";

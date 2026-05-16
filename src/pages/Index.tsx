@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -6,8 +6,8 @@ import Hero from "@/components/Hero";
 import IncidentCard, { Incident } from "@/components/IncidentCard";
 import ReportForm from "@/components/ReportForm";
 import HowItWorks from "@/components/HowItWorks";
-import RealHeatmap from "@/components/RealHeatmap";
 import Footer from "@/components/Footer";
+const RealHeatmap = lazy(() => import("@/components/RealHeatmap"));
 import ThemeToggle from "@/components/ThemeToggle";
 import { Capacitor } from "@capacitor/core";
 
@@ -57,6 +57,9 @@ export default function Index() {
   const [loadingPopular, setLoadingPopular] = useState(true);
   const [loadingNearby, setLoadingNearby] = useState(false);
   const [loadingMyReports, setLoadingMyReports] = useState(false);
+  
+  // Dashboard Bundle state
+  const [dashboardBundle, setDashboardBundle] = useState<any>(null);
 
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [focusedIncident, setFocusedIncident] = useState<Incident | null>(null);
@@ -149,17 +152,24 @@ export default function Index() {
   const fetchPopular = useCallback(async () => {
     setLoadingPopular(true);
     try {
-      const resp = await fetch(`${API_BASE}/incidents/popular`, {
+      // NEW: Fetch Bundle instead of just popular
+      const resp = await fetch(`${API_BASE}/stats/bundle`, {
         headers: VERSION_HEADERS
       });
-      if (!resp.ok) throw new Error("Failed to fetch popular incidents");
-      const data = await resp.json();
-      const filtered = (Array.isArray(data) ? data : []).map(mapIncident).filter((i: Incident) =>
+      if (!resp.ok) throw new Error("Failed to fetch dashboard bundle");
+      const bundle = await resp.json();
+      
+      // 1. Process Popular Incidents
+      const filteredPopular = (Array.isArray(bundle.popular) ? bundle.popular : []).map(mapIncident).filter((i: Incident) =>
         (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
       );
-      rawPopular.current = filtered;
+      rawPopular.current = filteredPopular;
       const lang = localStorage.getItem("app_lang") || "en";
-      setPopularIncidents(await translateIncidents(filtered, lang));
+      setPopularIncidents(await translateIncidents(filteredPopular, lang));
+
+      // 2. Set Bundle Data
+      setDashboardBundle(bundle);
+
     } catch (err) {
       console.error("Failed to fetch popular incidents:", err);
     } finally {
@@ -391,13 +401,15 @@ export default function Index() {
     >
       <PullToRefresh onRefresh={handleRefresh}>
         <div id="tour-safety-pulse">
-          <SafetyPulse />
+          <SafetyPulse initialData={dashboardBundle} />
         </div>
 
         {/* HERO */}
         <Hero
           onReportClick={() => user ? setShowReportForm(true) : navigate("/auth")}
           onViewReports={() => document.getElementById("popular-section")?.scrollIntoView({ behavior: "smooth" })}
+          initialStats={dashboardBundle?.stats}
+          initialLatest={dashboardBundle?.latest}
         />
 
         {/* MAIN */}
@@ -674,7 +686,9 @@ export default function Index() {
                   {t.liveHeatmap}
                 </h4>
                 <div className="rounded-xl overflow-hidden border">
-                  <RealHeatmap />
+                  <Suspense fallback={<div className="h-48 w-full bg-muted/20 animate-pulse flex items-center justify-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Initialising Heatmap...</div>}>
+                    <RealHeatmap />
+                  </Suspense>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-4 text-center font-bold tracking-widest uppercase">
                   {t.heatmapDesc}

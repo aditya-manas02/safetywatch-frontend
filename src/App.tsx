@@ -618,7 +618,7 @@ const App = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setMinLoadTimePassed(true);
-    }, 1500); // Reduced to 1.5 seconds for snappier startup
+    }, 400); // Reduced to 400ms for snappier startup
     return () => clearTimeout(timer);
   }, []);
 

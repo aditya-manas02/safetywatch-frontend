@@ -41,18 +41,30 @@ interface Incident {
 interface HeroProps {
   onReportClick: () => void;
   onViewReports: () => void;
+  initialStats?: Stats | null;
+  initialLatest?: Incident[];
 }
 
 export default function Hero({
   onReportClick,
   onViewReports,
+  initialStats = null,
+  initialLatest = []
 }: HeroProps) {
   // Platform check - static since app doesn't change platform mid-life
   const isNative = Capacitor.isNativePlatform();
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [latest, setLatest] = useState<Incident[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<Stats | null>(initialStats);
+  const [latest, setLatest] = useState<Incident[]>(initialLatest);
+  const [loading, setLoading] = useState(!initialStats);
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  useEffect(() => {
+    if (initialStats) {
+      setStats(initialStats);
+      setLatest(initialLatest);
+      setLoading(false);
+    }
+  }, [initialStats, initialLatest]);
 
   const DEFAULT_T = {
     empowering: "Empowering Communities",
@@ -79,10 +91,12 @@ export default function Hero({
   const isFetching = useRef(false);
 
   useEffect(() => {
-    loadData();
+    if (!initialStats) {
+      loadData();
+    }
     const interval = setInterval(loadData, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [initialStats]);
 
   useEffect(() => {
     setT({
@@ -97,36 +111,28 @@ export default function Hero({
     isFetching.current = true;
 
     try {
-      let statsData;
-      let latestData;
+      let bundleData;
 
       if (isNative) {
-        const statsResponse = await CapacitorHttp.get({
-          url: `${API_BASE}/stats/public`,
+        const response = await CapacitorHttp.get({
+          url: `${API_BASE}/stats/bundle`,
           headers: { ...VERSION_HEADERS, "Content-Type": "application/json" }
         });
-        if (statsResponse.status >= 200 && statsResponse.status < 300) statsData = statsResponse.data;
-
-        const latestResponse = await CapacitorHttp.get({
-          url: `${API_BASE}/incidents/latest`,
-          headers: { ...VERSION_HEADERS, "Content-Type": "application/json" }
-        });
-        if (latestResponse.status >= 200 && latestResponse.status < 300) latestData = latestResponse.data;
+        if (response.status >= 200 && response.status < 300) bundleData = response.data;
       } else {
-        const statsRes = await fetch(`${API_BASE}/stats/public`, { headers: VERSION_HEADERS });
-        if (statsRes.ok) statsData = await statsRes.json();
-
-        const latestRes = await fetch(`${API_BASE}/incidents/latest`, { headers: VERSION_HEADERS });
-        if (latestRes.ok) latestData = await latestRes.json();
+        const res = await fetch(`${API_BASE}/stats/bundle`, { headers: VERSION_HEADERS });
+        if (res.ok) bundleData = await res.json();
       }
 
-      setStats(statsData);
-      setLatest(latestData || []);
-      setT({
-        ...DEFAULT_T,
-        commonType: statsData?.mostCommonType || "",
-        latestIncidents: latestData || []
-      });
+      if (bundleData) {
+        setStats(bundleData.stats);
+        setLatest(bundleData.latest || []);
+        
+        // Also fire a pulse event if we have one
+        if (bundleData.pulse) {
+          window.dispatchEvent(new CustomEvent('pulse_update', { detail: bundleData.pulse }));
+        }
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "Connection Failed");
     } finally {
