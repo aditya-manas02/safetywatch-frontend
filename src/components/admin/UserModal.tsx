@@ -62,10 +62,10 @@ export default function UserModal({
           </button>
         </div>
 
-        <div className="px-5 sm:px-8 pb-6 sm:pb-8 -mt-12">
+        <div className="px-5 sm:px-10 pb-8 sm:pb-10 -mt-14 relative z-10">
           {/* Header with Icon and Roles */}
-          <div className="flex justify-between items-end mb-8">
-            <div className="h-24 w-24 rounded-3xl bg-card border-4 border-card shadow-xl flex items-center justify-center overflow-hidden">
+          <div className="flex justify-between items-end mb-8 gap-4">
+            <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-[2rem] bg-card border-[6px] border-card shadow-2xl flex items-center justify-center overflow-hidden transition-transform hover:scale-105 duration-300">
               {user.profilePicture ? (
                 <img 
                   src={user.profilePicture} 
@@ -76,15 +76,15 @@ export default function UserModal({
                   }}
                 />
               ) : (
-                <div className="h-full w-full rounded-2xl bg-primary flex items-center justify-center">
-                  <Shield className="h-10 w-10 text-white" />
+                <div className="h-full w-full rounded-[1.5rem] bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-inner">
+                  <Shield className="h-12 w-12 text-white" />
                 </div>
               )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 mb-2">
               {user.roles.map((r: string) => (
-                <Badge key={r} className="capitalize bg-blue-500/10 text-blue-500 border border-blue-500/20 px-3 font-black tracking-widest text-[10px]">
+                <Badge key={r} className="capitalize bg-blue-500/10 text-blue-500 border border-blue-500/20 px-4 py-1 font-black tracking-widest text-[10px] rounded-full">
                   {r}
                 </Badge>
               ))}
