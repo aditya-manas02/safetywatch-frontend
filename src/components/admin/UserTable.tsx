@@ -150,7 +150,6 @@ export default function UserTable({ users, onView }: UserTableProps) {
 
                   <td className="px-4 md:px-6 py-4">
                     <div className="flex flex-wrap gap-2">
-                      ...
                       {u.roles?.map((role: string) => (
                         <Badge
                           key={role}

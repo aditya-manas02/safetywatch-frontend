@@ -23,8 +23,9 @@ interface ChallengeCardProps {
 export function ChallengeCard({ challenge }: ChallengeCardProps) {
     const percentage = Math.min(Math.round((challenge.progress / challenge.targetValue) * 100), 100);
 
-    // Dynamically get icon
-    const IconComponent = (LucideIcons as any)[challenge.icon] || Target;
+    // Dynamically get icon with safety fallback
+    const IconName = challenge.icon || "Target";
+    const IconComponent = (LucideIcons as any)[IconName] || Target;
 
     return (
         <motion.div

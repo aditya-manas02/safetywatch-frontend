@@ -14,6 +14,7 @@ export const YetiAnimation = ({
     showPassword,
     emailValue,
 }: YetiAnimationProps) => {
+    const uniqueId = useMemo(() => Math.random().toString(36).substring(7), []);
     const [isBlinking, setIsBlinking] = useState(false);
     const [caretX, setCaretX] = useState(0);
     const measureRef = useRef<HTMLDivElement>(null);
@@ -138,9 +139,9 @@ export const YetiAnimation = ({
             <div className="w-44 h-44 sm:w-56 sm:h-56 relative overflow-hidden rounded-full transition-all duration-300">
                 <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-sm">
                     <defs>
-                        <circle id="armMaskPath" cx="100" cy="100" r="100" />
+                        <circle id={`armMaskPath-${uniqueId}`} cx="100" cy="100" r="100" />
                         <motion.path
-                            id="mouthMaskPath"
+                            id={`mouthMaskPath-${uniqueId}`}
                             animate={{
                                 d: mouthState?.d || "M0 0",
                                 x: movement.mouthX || 0,
@@ -151,8 +152,8 @@ export const YetiAnimation = ({
                             transition={{ duration: 0.45, ease: expoOut }}
                         />
                     </defs>
-                    <clipPath id="armMask"><circle cx="100" cy="100" r="100" /></clipPath>
-                    <clipPath id="mouthMask"><use href="#mouthMaskPath" overflow="visible" /></clipPath>
+                    <clipPath id={`armMask-${uniqueId}`}><circle cx="100" cy="100" r="100" /></clipPath>
+                    <clipPath id={`mouthMask-${uniqueId}`}><use href={`#mouthMaskPath-${uniqueId}`} overflow="visible" /></clipPath>
 
                     <circle cx="100" cy="100" r="100" fill="#a9ddf3" />
 
@@ -291,7 +292,7 @@ export const YetiAnimation = ({
                             fill="#617E92"
                             transition={{ duration: 0.45, ease: expoOut }}
                         />
-                        <g clipPath="url(#mouthMask)">
+                        <g clipPath={`url(#mouthMask-${uniqueId})`}>
                             <motion.g
                                 className="tongue"
                                 animate={{ x: movement.mouthX, y: movement.mouthY + mouthState.tongueY }}
@@ -331,7 +332,7 @@ export const YetiAnimation = ({
                     />
 
                     {/* Arms */}
-                    <g className="arms" clipPath="url(#armMask)">
+                    <g className="arms" clipPath={`url(#armMask-${uniqueId})`}>
                         <AnimatePresence>
                             {isPasswordFocused && (
                                 <>

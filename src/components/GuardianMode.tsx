@@ -320,7 +320,7 @@ const GuardianMode = () => {
                             className="stroke-red-500 fill-none transition-all duration-75"
                             strokeWidth="4"
                             strokeDasharray="188.4" 
-                            strokeDashoffset={188.4 - (188.4 * progress) / 100}
+                            strokeDashoffset={188.4 - (188.4 * (progress || 0)) / 100}
                             strokeLinecap="round"
                         />
                     </svg>

@@ -21,7 +21,7 @@ import {
   Info,
   Maximize2,
   ArrowRight,
-  GanttChartSquare,
+  LayoutDashboard,
   ArrowLeft,
   X,
   MessageSquare,
@@ -371,7 +371,7 @@ export function IncidentCard({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center opacity-20">
-                      <GanttChartSquare className="h-16 w-16" />
+                      <LayoutDashboard className="h-16 w-16" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
@@ -567,7 +567,7 @@ export function IncidentCard({
               {/* DESCRIPTION SECTION */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-primary/80 font-black text-[10px] uppercase tracking-[0.3em] pl-1">
-                  <GanttChartSquare className="h-4 w-4" /> Comprehensive Summary
+                  <LayoutDashboard className="h-4 w-4" /> Comprehensive Summary
                 </div>
                 <div className="bg-white/5 border border-white/5 p-8 rounded-3xl italic leading-relaxed text-slate-300 text-lg shadow-inner selection:bg-primary/30">
                   "{typeof (incident.translatedDesc || incident.description) === 'string' ? (incident.translatedDesc || incident.description) : ((incident.translatedDesc || incident.description) ? JSON.stringify(incident.translatedDesc || incident.description) : "Official report analysis pending for this entry.")}"
