@@ -460,6 +460,20 @@ export default function Admin() {
               const res = await fetch(`${API_BASE}/users/${id}`, { method: "DELETE", headers: getAuthHeaders(token) });
               if (res.ok) { toast({ title: "User Deleted" }); fetchUsers(); setSelectedUser(null); }
             }}
+            onSuspend={async (id: string, reason: string, days: number) => {
+              const res = await fetch(`${API_BASE}/users/${id}/suspend`, {
+                method: "PATCH",
+                headers: getAuthHeaders(token),
+                body: JSON.stringify({ isSuspended: true, reason, suspensionDays: days })
+              });
+              if (res.ok) {
+                toast({ title: "User Suspended" });
+                fetchUsers();
+                setSelectedUser(null);
+              } else {
+                toast({ title: "Failed to suspend", variant: "destructive" });
+              }
+            }}
             onUnsuspend={async (id: string) => {
               const res = await fetch(`${API_BASE}/users/${id}/unsuspend`, { method: "PATCH", headers: getAuthHeaders(token) });
               if (res.ok) {

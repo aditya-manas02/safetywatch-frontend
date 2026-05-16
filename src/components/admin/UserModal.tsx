@@ -12,6 +12,7 @@ export interface UserModalProps {
   onPromote: (id: string) => void;
   onDemote: (id: string) => void;
   onDelete: (id: string) => void;
+  onSuspend?: (id: string, reason: string, days: number) => void;
   onUnsuspend?: (id: string) => void;
 }
 
@@ -22,6 +23,7 @@ export default function UserModal({
   onPromote,
   onDemote,
   onDelete,
+  onSuspend,
   onUnsuspend
 }: UserModalProps) {
   if (!user) return null;
@@ -63,10 +65,21 @@ export default function UserModal({
         <div className="px-5 sm:px-8 pb-6 sm:pb-8 -mt-12">
           {/* Header with Icon and Roles */}
           <div className="flex justify-between items-end mb-8">
-            <div className="h-24 w-24 rounded-3xl bg-card border-4 border-card shadow-xl flex items-center justify-center">
-              <div className="h-full w-full rounded-2xl bg-primary flex items-center justify-center">
-                <Shield className="h-10 w-10 text-white" />
-              </div>
+            <div className="h-24 w-24 rounded-3xl bg-card border-4 border-card shadow-xl flex items-center justify-center overflow-hidden">
+              {user.profilePicture ? (
+                <img 
+                  src={user.profilePicture} 
+                  alt={user.name} 
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
+                  }}
+                />
+              ) : (
+                <div className="h-full w-full rounded-2xl bg-primary flex items-center justify-center">
+                  <Shield className="h-10 w-10 text-white" />
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -149,6 +162,22 @@ export default function UserModal({
                 {isSuperAdmin && !isSelf && (
                   <Button variant="destructive" className="rounded-xl shadow-lg shadow-destructive/20" onClick={() => { if (window.confirm("Permanently delete user profile?")) onDelete(user._id); }}>
                     <Trash2 className="mr-2 h-4 w-4" /> Remove Profile
+                  </Button>
+                )}
+
+                {!user.isSuspended && isSuperAdmin && !isSelf && onSuspend && (
+                  <Button
+                    variant="outline"
+                    className="border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-500/10 rounded-xl"
+                    onClick={() => {
+                      const reason = prompt("Reason for suspension?");
+                      const days = prompt("Duration in days? (Leave empty for indefinite)");
+                      if (reason !== null) {
+                        onSuspend(user._id, reason, days ? parseInt(days) : 0);
+                      }
+                    }}
+                  >
+                    <Ban className="mr-2 h-4 w-4" /> Suspend Citizen
                   </Button>
                 )}
 
