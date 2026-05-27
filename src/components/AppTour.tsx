@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import { Joyride, CallBackProps, STATUS, Step, TooltipRenderProps } from "react-joyride";
-import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 
 // ─── Custom Animated Tooltip ─────────────────────────────────────────────────
@@ -119,10 +118,19 @@ function CustomTooltip({
 export default function AppTour() {
   const [run, setRun] = useState(false);
   const [steps, setSteps] = useState<Step[]>([]);
-  const { theme, systemTheme } = useTheme();
+  const [isDark, setIsDark] = useState(false);
 
-  const currentTheme = theme === "system" ? systemTheme : theme;
-  const isDark = currentTheme === "dark";
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   const buildSteps = useCallback((): Step[] => {
     const allSteps: Step[] = [
