@@ -35,7 +35,7 @@ function CustomTooltip({
       }}
     >
       {/* Gradient header with progress bar */}
-      <div style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)", padding: "14px 18px 12px" }}>
+      <div style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))", padding: "14px 18px 12px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
           <span style={{ color: "rgba(255,255,255,0.85)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase" }}>
             SafetyWatch Tour · {index + 1} / {size}
@@ -94,10 +94,10 @@ function CustomTooltip({
           <button
             onClick={primaryProps.onClick}
             style={{
-              background: "linear-gradient(135deg, #f97316, #ea580c)",
+              background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))",
               border: "none", borderRadius: "9px", padding: "8px 18px", cursor: "pointer",
               color: "white", fontSize: "13px", fontWeight: 800,
-              boxShadow: "0 4px 14px rgba(249,115,22,0.4)",
+              boxShadow: "0 4px 14px hsl(var(--primary) / 0.4)",
               transform: "scale(1)",
               transition: "transform 0.1s ease, box-shadow 0.1s ease",
             }}
@@ -138,7 +138,7 @@ export default function AppTour() {
         target: "body",
         content: (
           <div>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "8px", color: "#f97316" }}>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "8px", color: "hsl(var(--primary))" }}>
               Welcome to SafetyWatch! 🛡️
             </h2>
             <p style={{ fontSize: "0.85rem", opacity: 0.75, margin: 0 }}>
@@ -251,7 +251,7 @@ export default function AppTour() {
         target: "body",
         content: (
           <div>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "8px", color: "#f97316" }}>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "8px", color: "hsl(var(--primary))" }}>
               You're all set! 🎉
             </h2>
             <p style={{ fontSize: "0.85rem", opacity: 0.75, margin: 0 }}>
@@ -335,7 +335,7 @@ export default function AppTour() {
       floaterProps={{ disableAnimation: false }}
       styles={{
         options: {
-          primaryColor: "#f97316",
+          primaryColor: "hsl(var(--primary))",
           zIndex: 100000,
           overlayColor: "rgba(0,0,0,0.6)",
           spotlightShadow: "0 0 0 9999px rgba(0,0,0,0.6)",
