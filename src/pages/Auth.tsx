@@ -458,6 +458,27 @@ const Auth = () => {
                                 type="text"
                                 maxLength={1}
                                 value={otp[i] || ""}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Backspace") {
+                                    e.preventDefault();
+                                    const newOtp = otp.split("");
+                                    if (otp[i]) {
+                                      newOtp[i] = "";
+                                      setOtp(newOtp.join(""));
+                                    } else if (i > 0) {
+                                      newOtp[i - 1] = "";
+                                      setOtp(newOtp.join(""));
+                                      const prevInput = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                      prevInput?.focus();
+                                    }
+                                  } else if (e.key === "ArrowLeft" && i > 0) {
+                                    e.preventDefault();
+                                    (e.currentTarget.previousElementSibling as HTMLInputElement)?.focus();
+                                  } else if (e.key === "ArrowRight" && i < 5) {
+                                    e.preventDefault();
+                                    (e.currentTarget.nextElementSibling as HTMLInputElement)?.focus();
+                                  }
+                                }}
                                 onChange={(e) => {
                                   const val = e.target.value.replace(/\D/g, "");
                                   const newOtp = otp.split("");
