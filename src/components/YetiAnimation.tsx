@@ -144,7 +144,6 @@ export const YetiAnimation = ({
                             id={`mouthMaskPath-${uniqueId}`}
                             d={mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6"}
                             animate={{
-                                d: mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6",
                                 x: movement.mouthX || 0,
                                 y: movement.mouthY || 0,
                                 rotate: movement.mouthR || 0
@@ -191,7 +190,7 @@ export const YetiAnimation = ({
                         animate={{ x: movement.faceX * 0.4, y: movement.faceY * 0.4 }}
                         transition={{ duration: 0.45, ease: quadOut }}
                     >
-                        <motion.path
+                        <path
                             d={isPasswordFocused
                                 ? "M200,122 c0,0-35,0-35,0 L150.1,122 V72 c0-27.6-22.4-50-50-50 c-27.6,0-50,22.4-50,50 v50 L35,122 c0,0-35,0-35,0 L0,213 h200 L200,122 z"
                                 : "M200,158.5 c0-20.2-14.8-36.5-35-36.5 h-14.9 V72.8 c0-27.4-21.7-50.4-49.1-50.8 c-28-0.5-50.9,22.1-50.9,50 v50 L35,122 C16,122,0,138,0,157.8 L0,213 h200 L200,158.5 z"
@@ -285,7 +284,6 @@ export const YetiAnimation = ({
                         <motion.path
                             d={mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6"}
                             animate={{
-                                d: mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6",
                                 x: movement.mouthX,
                                 y: movement.mouthY,
                                 rotate: movement.mouthR
@@ -313,7 +311,6 @@ export const YetiAnimation = ({
                             className="mouthOutline"
                             d={mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6"}
                             animate={{
-                                d: mouthState?.d || "M100,101.3 c0,0,3.3,1.6,4.6,1.6c1.3,0,4.6-1.6,4.6-1.6",
                                 x: movement.mouthX || 0,
                                 y: movement.mouthY || 0,
                                 rotate: movement.mouthR || 0
