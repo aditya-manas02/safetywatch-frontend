@@ -117,7 +117,7 @@ const AnimatedEye = ({ show, className }: { show: boolean, className?: string })
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, signUp, signIn, forgotPassword, verifyOtp, resendOtp, isLoading } = useAuth();
+  const { user, signUp, signIn, forgotPassword, verifyOtp, resendOtp, verifySuperAdminOtp, resendSuperAdminOtp, isLoading } = useAuth();
 
   // Form States
   const [email, setEmail] = useState("");
@@ -127,6 +127,7 @@ const Auth = () => {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [otp, setOtp] = useState("");
   const [verifyingEmail, setVerifyingEmail] = useState<string | null>(null);
+  const [isSuperAdminVerification, setIsSuperAdminVerification] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("signin");
@@ -200,6 +201,7 @@ const Auth = () => {
     setShowPassword(false);
     setShowConfirmPassword(false);
     setFocusedPasswordField(null);
+    setIsSuperAdminVerification(false);
   }, [activeTab]);
 
   useEffect(() => {
@@ -259,7 +261,7 @@ const Auth = () => {
       return;
     }
     setLoading(true);
-    const { error, needsVerification } = await signIn(email, password);
+    const { error, needsVerification, requireSuperAdminOtp, email: returnedEmail } = await signIn(email, password);
     setLoading(false);
     if (error) {
       if (needsVerification) {
@@ -268,6 +270,10 @@ const Auth = () => {
       } else {
         toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
       }
+    } else if (requireSuperAdminOtp && returnedEmail) {
+      toast({ title: "Security Code Sent", description: "SuperAdmin portal login requires verification." });
+      setIsSuperAdminVerification(true);
+      setVerifyingEmail(returnedEmail);
     } else {
       navigate("/");
     }
@@ -278,7 +284,9 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     if (verifyingEmail) {
-      const { error } = await verifyOtp(verifyingEmail, otp);
+      const { error } = isSuperAdminVerification
+        ? await verifySuperAdminOtp(verifyingEmail, otp)
+        : await verifyOtp(verifyingEmail, otp);
       if (error) toast({ title: "Verification failed", description: error.message, variant: "destructive" });
       else navigate("/");
     }
@@ -289,7 +297,9 @@ const Auth = () => {
     if (resendTimer > 0) return;
     setLoading(true);
     if (verifyingEmail) {
-      const { error, rateLimit } = await resendOtp(verifyingEmail);
+      const { error, rateLimit } = isSuperAdminVerification
+        ? await resendSuperAdminOtp(verifyingEmail)
+        : await resendOtp(verifyingEmail);
       setLoading(false);
 
       if (error) {
@@ -479,7 +489,7 @@ const Auth = () => {
                               {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend Now"}
                             </button>
                           </p>
-                          <button type="button" onClick={() => { setVerifyingEmail(null); setOtp(""); }} className="text-sm font-bold text-muted-foreground hover:text-foreground">Change Email Address</button>
+                          <button type="button" onClick={() => { setVerifyingEmail(null); setOtp(""); setIsSuperAdminVerification(false); }} className="text-sm font-bold text-muted-foreground hover:text-foreground">Change Email Address</button>
                         </div>
                       </form>
                     </motion.div>

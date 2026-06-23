@@ -27,11 +27,13 @@ interface AuthContextType {
   isSuperAdmin: boolean;
   isLoading: boolean;
   signUp: (email: string, password: string, name: string, phone?: string) => Promise<{ error: Error | null; rateLimit?: RateLimitInfo }>;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null; needsVerification?: boolean }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; needsVerification?: boolean; requireSuperAdminOtp?: boolean; email?: string }>;
   signOut: () => void;
   forgotPassword: (email: string) => Promise<{ error: Error | null; tempPassword?: string; rateLimit?: RateLimitInfo }>;
   verifyOtp: (email: string, otp: string) => Promise<{ error: Error | null }>;
   resendOtp: (email: string) => Promise<{ error: Error | null; rateLimit?: RateLimitInfo }>;
+  verifySuperAdminOtp: (email: string, otp: string) => Promise<{ error: Error | null }>;
+  resendSuperAdminOtp: (email: string) => Promise<{ error: Error | null; rateLimit?: RateLimitInfo }>;
   refreshUser: () => Promise<void>;
 }
 
@@ -123,6 +125,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
 
+      if (data.requireSuperAdminOtp) {
+        return {
+          error: null,
+          requireSuperAdminOtp: true,
+          email: data.email
+        };
+      }
+
       // Save token + user
       setToken(data.token);
       localStorage.setItem("token", data.token);
@@ -187,6 +197,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resendOtp = async (email: string) => {
     try {
       const resp = await fetch(`${API_BASE}/auth/resend-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...VERSION_HEADERS
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) return {
+        error: new Error(data.message || "Failed to resend OTP"),
+        rateLimit: data.rateLimit
+      };
+
+      return { error: null, rateLimit: data.rateLimit };
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('An unknown error occurred');
+      return { error };
+    }
+  };
+
+  // ---------------------------
+  // VERIFY SUPERADMIN OTP
+  // ---------------------------
+  const verifySuperAdminOtp = async (email: string, otp: string) => {
+    try {
+      const resp = await fetch(`${API_BASE}/auth/verify-superadmin-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...VERSION_HEADERS
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) return { error: new Error(data.message || "Verification failed") };
+
+      // Save token + user
+      setToken(data.token);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      setUser(data.user);
+      setIsAdmin(data.user.roles?.includes("admin") || data.user.roles?.includes("superadmin"));
+      setIsSuperAdmin(data.user.roles?.includes("superadmin"));
+
+      return { error: null };
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('An unknown error occurred');
+      return { error };
+    }
+  };
+
+  // ---------------------------
+  // RESEND SUPERADMIN OTP
+  // ---------------------------
+  const resendSuperAdminOtp = async (email: string) => {
+    try {
+      const resp = await fetch(`${API_BASE}/auth/resend-superadmin-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -283,6 +353,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         forgotPassword,
         verifyOtp,
         resendOtp,
+        verifySuperAdminOtp,
+        resendSuperAdminOtp,
         refreshUser,
       }}
     >
