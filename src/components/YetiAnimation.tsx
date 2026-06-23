@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface YetiAnimationProps {
@@ -16,8 +16,6 @@ export const YetiAnimation = ({
 }: YetiAnimationProps) => {
     const uniqueId = useMemo(() => Math.random().toString(36).substring(7), []);
     const [isBlinking, setIsBlinking] = useState(false);
-    const [caretX, setCaretX] = useState(0);
-    const measureRef = useRef<HTMLDivElement>(null);
 
     // Constants mapping to the original JS
     const svgSize = 200;
@@ -31,13 +29,6 @@ export const YetiAnimation = ({
     const getAngle = (x1: number, y1: number, x2: number, y2: number) => {
         return Math.atan2(y2 - y1, x2 - x1);
     };
-
-    // Measure caret position
-    useEffect(() => {
-        if (measureRef.current) {
-            setCaretX(measureRef.current.offsetWidth);
-        }
-    }, [emailValue]);
 
     // Idle blinking
     useEffect(() => {
@@ -61,9 +52,12 @@ export const YetiAnimation = ({
             };
         }
 
-        // Map caret position to SVG space (0-200)
-        const parentWidth = measureRef.current?.parentElement?.offsetWidth || 300;
-        let targetX = Math.max(0, Math.min(200, (caretX / parentWidth) * 200));
+        // Map caret position directly to SVG space (0-200) without DOM queries to avoid layout thrashing
+        let targetX = 100;
+        if (isEmailFocused) {
+            // Estimate caret movement: start at 60 (looking left) and progress to 140 (looking right)
+            targetX = Math.min(145, 60 + emailValue.length * 3.5);
+        }
         let targetY = isEmailFocused ? 135 : 100;
 
         if (isPasswordFocused) {
@@ -131,11 +125,7 @@ export const YetiAnimation = ({
     const quadOut = [0.25, 0.46, 0.45, 0.94] as const;
 
     return (
-        <div className="flex justify-center mb-[-24px] sm:mb-[-32px] relative z-20 pointer-events-none select-none">
-            <div ref={measureRef} className="absolute opacity-0 pointer-events-none font-sans text-[1.55em] font-semibold whitespace-pre">
-                {emailValue}
-            </div>
-
+        <div className="hidden sm:flex justify-center mb-[-24px] sm:mb-[-32px] relative z-20 pointer-events-none select-none">
             <div className="w-44 h-44 sm:w-56 sm:h-56 relative overflow-hidden rounded-full transition-all duration-300">
                 <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-sm">
                     <defs>
