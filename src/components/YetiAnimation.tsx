@@ -102,7 +102,7 @@ export const YetiAnimation = ({
             faceX, faceY, faceSkew, eyebrowSkew, outerEarX, outerEarY, hairX, hairS,
             chinS, chinX, chinY
         };
-    }, [isEmailFocused, emailValue, caretX, isPasswordFocused]);
+    }, [isEmailFocused, emailValue, isPasswordFocused]);
 
     // Mouth morphing paths
     const mouthPaths = {
