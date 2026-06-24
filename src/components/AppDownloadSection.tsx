@@ -61,7 +61,7 @@ const AppDownloadSection = () => {
                                     Download Android App
                                 </Button>
                                 <p className="mt-4 text-[11px] text-muted-foreground font-medium uppercase tracking-[0.2em]">
-                                    Direct APK Sync • Version 1.4.7-FINAL
+                                    Direct APK Sync • Version 1.4.8-FINAL
                                 </p>
                             </div>
                         </div>
