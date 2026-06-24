@@ -285,7 +285,7 @@ const Auth = () => {
             gWindow.google.accounts.id.renderButton(btn, {
               theme: "outline",
               size: "large",
-              width: "100%",
+              width: btn.offsetWidth || 400,
               text: "continue_with",
               shape: "rectangular"
             });
