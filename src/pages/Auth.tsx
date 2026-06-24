@@ -238,7 +238,7 @@ const Auth = () => {
           title: "Welcome to SafetyWatch",
           description: "Logged in successfully with Google."
         });
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (err) {
       toast({
