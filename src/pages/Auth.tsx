@@ -117,7 +117,7 @@ const AnimatedEye = ({ show, className }: { show: boolean, className?: string })
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, signUp, signIn, forgotPassword, verifyOtp, resendOtp, verifySuperAdminOtp, resendSuperAdminOtp, isLoading } = useAuth();
+  const { user, signUp, signIn, signInWithGoogle, forgotPassword, verifyOtp, resendOtp, verifySuperAdminOtp, resendSuperAdminOtp, isLoading } = useAuth();
 
   // Form States
   const [email, setEmail] = useState("");
@@ -128,6 +128,11 @@ const Auth = () => {
   const [otp, setOtp] = useState("");
   const [verifyingEmail, setVerifyingEmail] = useState<string | null>(null);
   const [isSuperAdminVerification, setIsSuperAdminVerification] = useState(false);
+
+  // Google Mock States
+  const [isMockGoogleOpen, setIsMockGoogleOpen] = useState(false);
+  const [mockEmail, setMockEmail] = useState("");
+  const [mockName, setMockName] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("signin");
@@ -217,6 +222,95 @@ const Auth = () => {
     }
     return () => clearInterval(timer);
   }, [resendTimer]);
+
+  const handleGoogleLogin = async (idToken: string) => {
+    setLoading(true);
+    try {
+      const { error } = await signInWithGoogle(idToken);
+      if (error) {
+        toast({
+          title: "Google Login Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Welcome to SafetyWatch",
+          description: "Logged in successfully with Google."
+        });
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred during Google sign-in.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMockGoogleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mockEmail || !mockName) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter both name and email.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsMockGoogleOpen(false);
+    const mockToken = `mock-google-token-email-${mockEmail.trim().toLowerCase()}-name-${encodeURIComponent(mockName.trim())}`;
+    handleGoogleLogin(mockToken);
+  };
+
+  useEffect(() => {
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!googleClientId) return;
+
+    const initGoogleSignIn = () => {
+      const gWindow = window as any;
+      if (gWindow.google) {
+        try {
+          gWindow.google.accounts.id.initialize({
+            client_id: googleClientId,
+            callback: (response: any) => {
+              handleGoogleLogin(response.credential);
+            },
+          });
+          const btn = document.getElementById("google-signin-btn");
+          if (btn) {
+            gWindow.google.accounts.id.renderButton(btn, {
+              theme: "outline",
+              size: "large",
+              width: "100%",
+              text: "continue_with",
+              shape: "rectangular"
+            });
+          }
+        } catch (err) {
+          console.error("Failed to initialize Google Sign-in button:", err);
+        }
+      }
+    };
+
+    const gWindow = window as any;
+    if (!document.getElementById("google-gsi-script")) {
+      const script = document.createElement("script");
+      script.id = "google-gsi-script";
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = initGoogleSignIn;
+      document.body.appendChild(script);
+    } else {
+      if (gWindow.google) {
+        initGoogleSignIn();
+      }
+    }
+  }, [activeTab]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -678,6 +772,37 @@ const Auth = () => {
                         </motion.form>
                       </TabsContent>
                     </Tabs>
+
+                    <div className="relative my-6">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border/60" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-3 text-muted-foreground font-semibold">Or continue with</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-center w-full min-h-[44px]">
+                      {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+                        <div id="google-signin-btn" className="w-full max-w-sm flex justify-center"></div>
+                      ) : (
+                        <Button
+                          type="button"
+                          onClick={() => setIsMockGoogleOpen(true)}
+                          className="w-full h-12 rounded-xl border border-border bg-background hover:bg-[#f3fafd] text-foreground font-semibold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99]"
+                        >
+                          <svg className="h-5 w-5" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                            <g transform="matrix(1, 0, 0, 1, 0, 0)">
+                              <path d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.58h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48C21.68,11.75 21.56,11.4 21.35,11.1z" fill="#4285F4" />
+                              <path d="M12,20.73c2.43,0 4.47,-0.8 5.96,-2.19l-3.3,-2.58c-0.9,-0.6 -2.07,-0.97 -3.3,-0.97c-2.37,0 -4.38,-1.6 -5.1,-3.75H2.83v2.66C4.33,16.89 7.91,20.73 12,20.73z" fill="#34A853" />
+                              <path d="M6.9,13.34c-0.18,-0.54 -0.29,-1.11 -0.29,-1.7c0,-0.59 0.11,-1.16 0.29,-1.7V7.28H2.83C2.22,8.5 1.88,9.88 1.88,11.34c0,1.46 0.34,2.84 0.95,4.06l4.07,-3.06z" fill="#FBBC05" />
+                              <path d="M12,5.27c1.32,0 2.5,0.45 3.44,1.35L17.5,4.56C16.01,3.17 13.97,2.37 12,2.37C7.91,2.37 4.33,6.21 2.83,9.22l4.07,3.06c0.72,-2.15 2.73,-3.75 5.1,-3.75z" fill="#EA4335" />
+                            </g>
+                          </svg>
+                          Continue with Google
+                        </Button>
+                      )}
+                    </div>
                   )}
                 </AnimatePresence>
 
@@ -741,6 +866,51 @@ const Auth = () => {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Mock Google Login Dialog */}
+      <Dialog open={isMockGoogleOpen} onOpenChange={setIsMockGoogleOpen}>
+        <DialogContent className="sm:max-w-[400px] rounded-3xl border-border/40 bg-card/95 backdrop-blur-xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Mock Google Login
+            </DialogTitle>
+            <DialogDescription>
+              Simulate a successful Google Sign-in for local development. Name and email will be used to automatically register/login.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleMockGoogleSubmit} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="mockName" className="font-bold text-sm">Full Name</Label>
+              <Input
+                id="mockName"
+                placeholder="Google User"
+                value={mockName}
+                onChange={(e) => setMockName(e.target.value)}
+                className="rounded-xl border-border/60 bg-[#f3fafd] text-[#353538] border-2 border-[#217093]"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mockEmail" className="font-bold text-sm">Email Address</Label>
+              <Input
+                id="mockEmail"
+                type="email"
+                placeholder="google-user@domain.com"
+                value={mockEmail}
+                onChange={(e) => setMockEmail(e.target.value)}
+                className="rounded-xl border-border/60 bg-[#f3fafd] text-[#353538] border-2 border-[#217093]"
+                required
+              />
+            </div>
+            <DialogFooter className="pt-2">
+              <Button type="submit" className="w-full h-11 rounded-xl font-bold bg-primary text-white">
+                Verify Mock Login
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Dialog>
         <DialogTrigger asChild>

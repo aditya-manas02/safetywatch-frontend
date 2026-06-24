@@ -27,3 +27,8 @@ dist-ssr
 android/app/google-services.json
 firebase-service-account.json
 *.json.key
+
+# Environment files
+.env
+.env.*
+

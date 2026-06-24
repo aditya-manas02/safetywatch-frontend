@@ -28,6 +28,7 @@ interface AuthContextType {
   isLoading: boolean;
   signUp: (email: string, password: string, name: string, phone?: string) => Promise<{ error: Error | null; rateLimit?: RateLimitInfo }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null; needsVerification?: boolean; requireSuperAdminOtp?: boolean; email?: string }>;
+  signInWithGoogle: (idToken: string) => Promise<{ error: Error | null }>;
   signOut: () => void;
   forgotPassword: (email: string) => Promise<{ error: Error | null; tempPassword?: string; rateLimit?: RateLimitInfo }>;
   verifyOtp: (email: string, otp: string) => Promise<{ error: Error | null }>;
@@ -130,6 +131,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           error: null,
           requireSuperAdminOtp: true,
           email: data.email
+        };
+      }
+
+      // Save token + user
+      setToken(data.token);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      setUser(data.user);
+      setIsAdmin(data.user.roles?.includes("admin") || data.user.roles?.includes("superadmin"));
+      setIsSuperAdmin(data.user.roles?.includes("superadmin"));
+
+      // Register FCM token for push notifications (best-effort, non-blocking)
+      import("@/lib/fcm").then(({ registerFcmToken }) => {
+        registerFcmToken(data.token).catch(() => {});
+      });
+
+      return { error: null };
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('An unknown error occurred');
+      return { error };
+    }
+  };
+
+  // ---------------------------
+  // SIGN IN WITH GOOGLE
+  // ---------------------------
+  const signInWithGoogle = async (idToken: string) => {
+    // Clear any existing state before a new attempt
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+
+    try {
+      const resp = await fetch(`${API_BASE}/auth/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...VERSION_HEADERS
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          error: new Error(data.message || "Google Login failed")
         };
       }
 
@@ -349,6 +398,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         signUp,
         signIn,
+        signInWithGoogle,
         signOut,
         forgotPassword,
         verifyOtp,
