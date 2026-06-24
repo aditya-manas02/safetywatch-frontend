@@ -29,6 +29,12 @@
         },
         "CapacitorHttp": {
             "enabled": true
+        },
+        "GoogleAuth": {
+            "scopes": ["profile", "email"],
+            "serverClientId": "419789227892-3ftv7o8j3c4lbabpnjlm66fcf1pbu1h7.apps.googleusercontent.com",
+            "androidClientId": "419789227892-n2li9n170g9g4ictn0lit16nv7nv1kdp.apps.googleusercontent.com",
+            "forceCodeForRefreshToken": true
         }
     }
 }

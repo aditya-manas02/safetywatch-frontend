@@ -4,4 +4,5 @@
     <string name="title_activity_main">SafetyWatch</string>
     <string name="package_name">com.safetywatch.app</string>
     <string name="custom_url_scheme">com.safetywatch.app</string>
+    <string name="server_client_id">419789227892-3ftv7o8j3c4lbabpnjlm66fcf1pbu1h7.apps.googleusercontent.com</string>
 </resources>

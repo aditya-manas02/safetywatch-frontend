@@ -14,6 +14,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { YetiAnimation } from "@/components/YetiAnimation";
 import { API_BASE, VERSION_HEADERS, BASE_URL } from "@/lib/api";
 import { Capacitor } from "@capacitor/core";
+import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 
 import {
   Dialog,
@@ -790,13 +791,30 @@ const Auth = () => {
                       ) : (
                         <Button
                           type="button"
-                          onClick={() => {
+                          onClick={async () => {
                             if (Capacitor.isNativePlatform() && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-                              toast({
-                                title: "Platform Not Supported",
-                                description: "Google Sign-In is only available on the web version currently. Please use Email/Password to login.",
-                                variant: "destructive"
-                              });
+                              try {
+                                GoogleAuth.initialize({
+                                  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                                  scopes: ['profile', 'email'],
+                                  grantOfflineAccess: true,
+                                });
+                                const googleUser = await GoogleAuth.signIn();
+                                if (googleUser && googleUser.authentication && googleUser.authentication.idToken) {
+                                  handleGoogleLogin(googleUser.authentication.idToken);
+                                } else {
+                                  throw new Error("No ID Token received from Google");
+                                }
+                              } catch (error: any) {
+                                console.error("Native Google Sign In Error:", error);
+                                // The plugin sometimes throws empty errors if user cancels
+                                const errorMsg = error?.message || (typeof error === 'string' ? error : "Authentication canceled or failed");
+                                toast({
+                                  title: "Sign In Failed",
+                                  description: errorMsg,
+                                  variant: "destructive"
+                                });
+                              }
                             } else {
                               setIsMockGoogleOpen(true);
                             }
