@@ -609,6 +609,7 @@ const Auth = () => {
                       </form>
                     </motion.div>
                   ) : (
+                    <>
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                       <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/30 p-1.5 rounded-2xl border border-border/50">
                         <TabsTrigger value="signin" className="rounded-xl font-bold py-3 data-[state=active]:shadow-xl data-[state=active]:bg-background transition-all">Login</TabsTrigger>
@@ -803,6 +804,7 @@ const Auth = () => {
                         </Button>
                       )}
                     </div>
+                    </>
                   )}
                 </AnimatePresence>
 
