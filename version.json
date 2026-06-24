@@ -1,8 +1,8 @@
 {
-    "version": "1.4.7",
-    "build": 147,
-    "date": "2026-05-07",
+    "version": "1.4.8",
+    "build": 148,
+    "date": "2026-06-24",
     "url": "https://safetywatch-backend.onrender.com/SafetyWatch.apk",
-    "notes": "v1.4.7: Stable Release. Finalized SOS emergency protocols and enhanced notification reliability.",
-    "trigger": "sync-1715063071"
+    "notes": "v1.4.8: Added Native Google Sign-In, disabled zoom for native app feel, and improved authentication flow.",
+    "trigger": "sync-1719225600"
 }
