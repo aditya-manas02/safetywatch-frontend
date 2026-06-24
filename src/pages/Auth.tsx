@@ -784,12 +784,22 @@ const Auth = () => {
                     </div>
 
                     <div className="flex justify-center w-full min-h-[44px]">
-                      {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+                      {import.meta.env.VITE_GOOGLE_CLIENT_ID && !Capacitor.isNativePlatform() ? (
                         <div id="google-signin-btn" className="w-full max-w-sm flex justify-center"></div>
                       ) : (
                         <Button
                           type="button"
-                          onClick={() => setIsMockGoogleOpen(true)}
+                          onClick={() => {
+                            if (Capacitor.isNativePlatform() && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+                              toast({
+                                title: "Platform Not Supported",
+                                description: "Google Sign-In is only available on the web version currently. Please use Email/Password to login.",
+                                variant: "destructive"
+                              });
+                            } else {
+                              setIsMockGoogleOpen(true);
+                            }
+                          }}
                           className="w-full h-12 rounded-xl border border-border bg-background hover:bg-[#f3fafd] text-foreground font-semibold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99]"
                         >
                           <svg className="h-5 w-5" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
