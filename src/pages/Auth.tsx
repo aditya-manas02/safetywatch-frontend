@@ -282,9 +282,9 @@ const Auth = () => {
           });
           const btn = document.getElementById("google-signin-btn");
           if (btn) {
-            const isDark = document.documentElement.classList.contains("dark");
             gWindow.google.accounts.id.renderButton(btn, {
-              theme: isDark ? "filled_black" : "filled_blue",
+              type: "standard",
+              theme: "filled_blue",
               size: "large",
               width: btn.offsetWidth || 400,
               text: "continue_with",
