@@ -807,13 +807,21 @@ const Auth = () => {
                                 }
                               } catch (error: any) {
                                 console.error("Native Google Sign In Error:", error);
-                                // The plugin sometimes throws empty errors if user cancels
                                 const errorMsg = error?.message || (typeof error === 'string' ? error : "Authentication canceled or failed");
-                                toast({
-                                  title: "Sign In Failed",
-                                  description: errorMsg,
-                                  variant: "destructive"
-                                });
+                                
+                                if (errorMsg.includes("not implemented")) {
+                                  toast({
+                                    title: "App Update Required",
+                                    description: "Google Sign-In requires the latest version of the app. Please update from the Play Store or use Email/Password.",
+                                    variant: "destructive"
+                                  });
+                                } else {
+                                  toast({
+                                    title: "Sign In Failed",
+                                    description: errorMsg,
+                                    variant: "destructive"
+                                  });
+                                }
                               }
                             } else {
                               setIsMockGoogleOpen(true);
