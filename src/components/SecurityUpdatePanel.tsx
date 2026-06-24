@@ -301,7 +301,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             try {
                 await Filesystem.deleteFile({
                     path: fileName,
-                    directory: Directory.Cache
+                    directory: Directory.Data
                 });
             } catch (e) { }
 
@@ -323,7 +323,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 const downloadResult = await Filesystem.downloadFile({
                     url: downloadUrl,
                     path: fileName,
-                    directory: Directory.Cache,
+                    directory: Directory.Data,
                     progress: true
                 });
 
@@ -369,7 +369,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                     await Filesystem.writeFile({
                         path: fileName,
                         data: base64Data,
-                        directory: Directory.Cache
+                        directory: Directory.Data
                     });
 
                     clearInterval(simInterval);
@@ -387,7 +387,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
                 const uriResult = await Filesystem.getUri({
                     path: fileName,
-                    directory: Directory.Cache
+                    directory: Directory.Data
                 });
 
                 console.log('[VERSION_DL] Binary verified at:', uriResult.uri);
@@ -427,7 +427,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         if (!installUri) {
             console.log('[VERSION_CHECK] URI missing from state. Searching directories...');
             const fileName = getFileName();
-            const directories = [Directory.Cache, Directory.Data, Directory.Documents];
+            const directories = [Directory.Data, Directory.Cache, Directory.Documents];
 
             for (const dir of directories) {
                 try {
