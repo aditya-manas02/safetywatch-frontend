@@ -459,7 +459,7 @@ const Auth = () => {
             <span className="text-2xl font-bold text-white tracking-tight">SafetyWatch</span>
           </div>
 
-          <h2 className="text-4xl xl:text-5xl font-black text-white leading-tight mb-8">
+          <h2 className="text-4xl xl:text-5xl font-display font-black text-white leading-tight mb-8">
             Securing our <br />
             <span className="text-white/70">communities, together.</span>
           </h2>
@@ -526,7 +526,7 @@ const Auth = () => {
                 />
               </div>
             </motion.div>
-            <motion.h1 variants={itemVariants} className="text-3xl sm:text-4xl font-black tracking-tight mb-2">Welcome to SafetyWatch</motion.h1>
+            <motion.h1 variants={itemVariants} className="text-3xl sm:text-4xl font-display font-black tracking-tight mb-2">Welcome to SafetyWatch</motion.h1>
             <motion.p variants={itemVariants} className="text-muted-foreground font-medium text-lg">Secure your community and stay informed.</motion.p>
           </div>
 
@@ -541,7 +541,7 @@ const Auth = () => {
                         <div className="inline-flex p-4 bg-primary/10 rounded-full mb-2">
                           <Lock className="h-8 w-8 text-primary" />
                         </div>
-                        <h2 className="text-2xl font-black">Verify your identity</h2>
+                        <h2 className="text-2xl font-display font-black">Verify your identity</h2>
                         <p className="text-muted-foreground">
                           Enter the 6-digit code sent to <span className="font-bold text-foreground">{verifyingEmail}</span>
                         </p>
@@ -630,9 +630,9 @@ const Auth = () => {
                             emailValue={email}
                           />
                           <div className="space-y-2">
-                            <Label className="font-bold text-sm ml-1 text-[#217093]">Email Address</Label>
+                            <Label className="font-bold text-sm ml-1 text-primary">Email Address</Label>
                             <div className="relative group">
-                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#217093] group-focus-within:text-[#4eb8dd] transition-colors z-10" />
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:text-accent transition-colors z-10" />
                               <Input
                                 type="email"
                                 placeholder="email@domain.com"
@@ -642,18 +642,18 @@ const Auth = () => {
                                 }}
                                 onFocus={() => setIsEmailFocused(true)}
                                 onBlur={() => setIsEmailFocused(false)}
-                                className="pl-12 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
+                                className="pl-12 h-14 rounded-xl bg-muted/40 border-2 border-border focus-visible:ring-0 focus-visible:border-primary text-base font-semibold text-foreground transition-all"
                                 required
                               />
                             </div>
                           </div>
                           <div className="space-y-2">
                             <div className="flex items-center justify-between ml-1">
-                              <Label className="font-bold text-sm text-[#217093]">Password</Label>
+                              <Label className="font-bold text-sm text-primary">Password</Label>
                               <button type="button" onClick={handleForgotPassword} className="text-xs font-bold text-primary hover:text-primary/80">Forgot password?</button>
                             </div>
                             <div className="relative group">
-                              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#217093] group-focus-within:text-[#4eb8dd] transition-colors" />
+                              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:text-accent transition-colors" />
                               <Input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -661,7 +661,7 @@ const Auth = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 onFocus={() => setFocusedPasswordField('password')}
                                 onBlur={() => setFocusedPasswordField(null)}
-                                className="pl-12 pr-14 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
+                                className="pl-12 pr-14 h-14 rounded-xl bg-muted/40 border-2 border-border focus-visible:ring-0 focus-visible:border-primary text-base font-semibold text-foreground transition-all"
                                 required
                               />
                               <button
@@ -691,23 +691,23 @@ const Auth = () => {
                             emailValue={email}
                           />
                           <div className="space-y-2">
-                            <Label className="font-bold text-sm ml-1 text-[#217093]">Full Name</Label>
+                            <Label className="font-bold text-sm ml-1 text-primary">Full Name</Label>
                             <div className="relative group overflow-hidden">
-                              <Users className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#217093] group-focus-within:text-[4eb8dd] transition-colors" />
+                              <Users className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:text-accent transition-colors" />
                               <Input
                                 type="text"
                                 placeholder="John Doe"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="pl-12 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
+                                className="pl-12 h-14 rounded-xl bg-muted/40 border-2 border-border focus-visible:ring-0 focus-visible:border-primary text-base font-semibold text-foreground transition-all"
                                 required
                               />
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <Label className="font-bold text-sm ml-1 text-[#217093]">Email Address</Label>
+                            <Label className="font-bold text-sm ml-1 text-primary">Email Address</Label>
                             <div className="relative group">
-                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#217093] group-focus-within:text-[#4eb8dd] transition-colors" />
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:text-accent transition-colors" />
                               <Input
                                 type="email"
                                 placeholder="email@domain.com"
@@ -717,16 +717,16 @@ const Auth = () => {
                                 }}
                                 onFocus={() => setIsEmailFocused(true)}
                                 onBlur={() => setIsEmailFocused(false)}
-                                className="pl-12 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
+                                className="pl-12 h-14 rounded-xl bg-muted/40 border-2 border-border focus-visible:ring-0 focus-visible:border-primary text-base font-semibold text-foreground transition-all"
                                 required
                               />
                             </div>
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label className="font-bold text-xs ml-1 text-[#217093]">Password</Label>
+                              <Label className="font-bold text-xs ml-1 text-primary">Password</Label>
                               <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#217093] group-focus-within:text-[#4eb8dd] transition-colors" />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:text-accent transition-colors" />
                                 <Input
                                   type={showPassword ? "text" : "password"}
                                   placeholder="••••••••"
@@ -734,7 +734,7 @@ const Auth = () => {
                                   onChange={(e) => setPassword(e.target.value)}
                                   onFocus={() => setFocusedPasswordField('password')}
                                   onBlur={() => setFocusedPasswordField(null)}
-                                  className="pl-12 pr-14 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
+                                  className="pl-12 pr-14 h-14 rounded-xl bg-muted/40 border-2 border-border focus-visible:ring-0 focus-visible:border-primary text-base font-semibold text-foreground transition-all"
                                   required
                                 />
                                 <button
@@ -748,7 +748,7 @@ const Auth = () => {
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label className="font-bold text-xs ml-1 text-[#217093]">Confirm</Label>
+                              <Label className="font-bold text-xs ml-1 text-primary">Confirm</Label>
                               <div className="relative group">
                                 <CheckCircle2 className={`absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 ${password && confirmPassword ? (password === confirmPassword ? "text-green-500" : "text-red-500") : "text-muted-foreground"}`} />
                                 <Input
@@ -758,7 +758,7 @@ const Auth = () => {
                                   onChange={(e) => setConfirmPassword(e.target.value)}
                                   onFocus={() => setFocusedPasswordField('confirm')}
                                   onBlur={() => setFocusedPasswordField(null)}
-                                  className="pl-12 pr-14 h-14 rounded-xl bg-[#f3fafd] border-2 border-[#217093] focus-visible:ring-0 focus-visible:border-[#4eb8dd] text-base font-semibold text-[#353538] transition-all"
+                                  className="pl-12 pr-14 h-14 rounded-xl bg-muted/40 border-2 border-border focus-visible:ring-0 focus-visible:border-primary text-base font-semibold text-foreground transition-all"
                                   required
                                 />
                                 <button
@@ -852,7 +852,7 @@ const Auth = () => {
                   <div className="bg-primary/10 border border-primary/20 rounded-2xl p-5 w-full max-w-sm relative overflow-hidden group">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
                     <p className="text-sm font-black text-primary mb-1">Want SafetyWatch for your area?</p>
-                    <p className="text-xs font-medium text-muted-foreground mb-3 leading-relaxed">Get this complete system for your community organization or local security group.</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-3 leading-relaxed">If anyone wants this system they can contact us to get it for their community organization or local security group.</p>
                     <a href="mailto:safetywatch4neighbour@gmail.com" className="inline-flex items-center justify-center h-11 px-5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all w-full shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]">
                       Contact Us: safetywatch4neighbour@gmail.com
                     </a>
