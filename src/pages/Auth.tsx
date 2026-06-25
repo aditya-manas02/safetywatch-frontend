@@ -482,9 +482,8 @@ const Auth = () => {
           </ul>
         </motion.div>
 
-        <div className="relative z-10 text-white/50 text-sm font-medium space-y-2">
-          <p>&copy; 2026 SafetyWatch Platform. All rights reserved.</p>
-          <p className="text-white/40">If anyone wants this system they can contact us by email: <a href="mailto:safetywatch4neighbour@gmail.com" className="text-white hover:text-white/80 transition-colors underline underline-offset-4 font-bold">safetywatch4neighbour@gmail.com</a></p>
+        <div className="relative z-10 text-white/50 text-sm font-medium">
+          &copy; 2026 SafetyWatch Platform. All rights reserved.
         </div>
       </div>
 
@@ -849,12 +848,22 @@ const Auth = () => {
                   )}
                 </AnimatePresence>
 
-                <div className="mt-10 pt-8 border-t border-border/40 text-center">
-                  <p className="text-sm font-medium text-muted-foreground mb-4">Need technical assistance?</p>
-                  <Dialog open={isSupportOpen} onOpenChange={setIsSupportOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="rounded-xl font-bold bg-background/50 hover:bg-background border-border/50 transition-all gap-2 h-11 px-6"><LifeBuoy className="h-4 w-4 text-primary" />Contact Support</Button>
-                    </DialogTrigger>
+                <div className="mt-8 pt-8 border-t border-border/40 text-center flex flex-col items-center gap-6">
+                  <div className="bg-primary/10 border border-primary/20 rounded-2xl p-5 w-full max-w-sm relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                    <p className="text-sm font-black text-primary mb-1">Want SafetyWatch for your area?</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-3 leading-relaxed">Get this complete system for your community organization or local security group.</p>
+                    <a href="mailto:safetywatch4neighbour@gmail.com" className="inline-flex items-center justify-center h-11 px-5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all w-full shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]">
+                      Contact Us: safetywatch4neighbour@gmail.com
+                    </a>
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-3">Need technical assistance?</p>
+                    <Dialog open={isSupportOpen} onOpenChange={setIsSupportOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="rounded-xl font-bold bg-background/50 hover:bg-background border-border/50 transition-all gap-2 h-11 px-6"><LifeBuoy className="h-4 w-4 text-primary" />Contact Support</Button>
+                      </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px] rounded-3xl border-border/40 bg-card/90 backdrop-blur-xl">
                       <DialogHeader>
                         <DialogTitle className="text-2xl font-black flex items-center gap-3"><HelpCircle className="h-6 w-6 text-primary" />Support Center</DialogTitle>
@@ -881,6 +890,7 @@ const Auth = () => {
                       </form>
                     </DialogContent>
                   </Dialog>
+                </div>
                 </div>
               </CardContent>
             </Card>

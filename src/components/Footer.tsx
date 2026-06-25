@@ -140,9 +140,19 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 border-t mt-16 pt-8 text-center text-sm font-medium text-muted-foreground space-y-2">
-        <p>&copy; {new Date().getFullYear()} SafetyWatch Global. Designed for safer neighborhoods.</p>
-        <p>If anyone wants this system they can contact us by email: <a href="mailto:safetywatch4neighbour@gmail.com" className="hover:text-primary transition-colors underline underline-offset-4 font-bold">safetywatch4neighbour@gmail.com</a></p>
+      <div className="container mx-auto px-6 mt-16 pt-8 border-t border-border">
+        <div className="bg-primary/10 border border-primary/20 rounded-3xl p-8 mb-12 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+          <div className="text-center md:text-left">
+            <h3 className="text-xl md:text-2xl font-black text-primary mb-2">Want SafetyWatch for your area?</h3>
+            <p className="text-sm md:text-base text-muted-foreground font-medium">If anyone wants this system they can contact us to get it for their community organization or local security group.</p>
+          </div>
+          <a href="mailto:safetywatch4neighbour@gmail.com" className="shrink-0 inline-flex items-center justify-center h-14 px-8 rounded-2xl bg-primary text-white text-base font-bold hover:bg-primary/90 transition-all shadow-xl shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]">
+            Email: safetywatch4neighbour@gmail.com
+          </a>
+        </div>
+        <div className="text-center text-sm font-medium text-muted-foreground pb-8">
+          &copy; {new Date().getFullYear()} SafetyWatch Global. Designed for safer neighborhoods.
+        </div>
       </div>
     </footer>
   );
