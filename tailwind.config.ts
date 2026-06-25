@@ -14,6 +14,11 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        display: ['Outfit', 'sans-serif'],
+        mono: ['Space Mono', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -92,11 +97,25 @@ export default {
         "shimmer": {
           "100%": { transform: "translateX(100%)" },
         },
+        "radar-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: ".5" },
+        },
+        "radar-ping": {
+          "75%, 100%": { transform: "scale(2)", opacity: "0" },
+        },
+        "slow-breathe": {
+          "0%, 100%": { opacity: "0.8", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.05)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "shimmer": "shimmer 2s infinite linear",
+        "radar-pulse": "radar-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "radar-ping": "radar-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite",
+        "slow-breathe": "slow-breathe 3s ease-in-out infinite",
       },
     },
   },

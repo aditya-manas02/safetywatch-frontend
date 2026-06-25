@@ -296,7 +296,7 @@ const GuardianMode = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
-                            className="bg-black/80 text-white text-xs px-3 py-1.5 rounded-full mb-2 font-bold backdrop-blur-sm border border-white/10"
+                            className="bg-card/90 text-foreground text-xs px-4 py-2 rounded-xl mb-2 font-bold backdrop-blur-md border border-border shadow-lg"
                         >
                             {loading ? "Activating Beacon..." : "Hold to Activate SOS"}
                         </motion.div>
@@ -310,14 +310,14 @@ const GuardianMode = () => {
                             cx="50%"
                             cy="50%"
                             r="30"
-                            className="stroke-red-500/20 fill-none"
+                            className="stroke-destructive/20 fill-none"
                             strokeWidth="4"
                         />
                         <circle
                             cx="50%"
                             cy="50%"
                             r="30"
-                            className="stroke-red-500 fill-none transition-all duration-75"
+                            className="stroke-destructive fill-none transition-all duration-75"
                             strokeWidth="4"
                             strokeDasharray="188.4" 
                             strokeDashoffset={188.4 - (188.4 * (progress || 0)) / 100}
@@ -334,9 +334,9 @@ const GuardianMode = () => {
                         onTouchStart={startHold}
                         onTouchEnd={endHold}
                         disabled={loading}
-                        className={`h-14 w-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 relative ${active ? "bg-rose-600 animate-pulse ring-4 ring-rose-500/50" : "bg-card border border-border hover:bg-muted/80"} ${loading ? "opacity-50 cursor-wait" : ""}`}
+                        className={`h-14 w-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 relative ${active ? "bg-destructive animate-radar-pulse ring-4 ring-destructive/30" : "bg-card border border-border hover:bg-muted/80"} ${loading ? "opacity-50 cursor-wait" : ""}`}
                     >
-                        <ShieldAlert className={`h-6 w-6 ${active ? "text-white" : "text-rose-600"}`} />
+                        <ShieldAlert className={`h-6 w-6 ${active ? "text-destructive-foreground" : "text-destructive"}`} />
                     </motion.button>
                 </div>
             </div>
@@ -348,52 +348,55 @@ const GuardianMode = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-rose-950/98 backdrop-blur-2xl flex items-center justify-center p-6"
+                        className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-2xl flex items-center justify-center p-6 overflow-hidden"
                     >
+                        {/* Radar Ping Screen Edge Effect */}
+                        <div className="absolute inset-0 border-[8px] sm:border-[16px] border-destructive/20 pointer-events-none z-0"></div>
+                        <div className="absolute inset-0 border-[8px] sm:border-[16px] border-destructive pointer-events-none z-0 animate-radar-ping"></div>
+
                         <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
+                            initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="max-w-md w-full bg-black/40 border-2 border-rose-500/50 p-8 rounded-[2.5rem] shadow-[0_0_80px_rgba(225,29,72,0.4)] space-y-8 backdrop-blur-3xl"
+                            className="max-w-md w-full bg-card border border-destructive/30 p-8 rounded-[2rem] shadow-premium relative z-10 space-y-8"
                         >
-                            <div className="flex justify-center">
-                                <div className="h-28 w-28 rounded-full bg-red-600/30 flex items-center justify-center border-4 border-red-500/50 relative">
-                                    <div className="absolute inset-0 rounded-full border-4 border-red-500 animate-ping opacity-40"></div>
-                                    <ShieldAlert className="h-14 w-14 text-red-500" />
+                            <div className="flex justify-center mb-2">
+                                <div className="h-28 w-28 rounded-full bg-destructive/10 flex items-center justify-center border border-destructive/30">
+                                    <ShieldAlert className="h-12 w-12 text-destructive" />
                                 </div>
                             </div>
 
                             <div className="space-y-4 text-center">
-                                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Emergency Broadcaster</h2>
-                                <p className="text-rose-200/80 text-lg font-medium">
+                                <h2 className="text-3xl sm:text-4xl font-display font-black text-foreground uppercase tracking-tight leading-none">Emergency Broadcast</h2>
+                                <p className="text-muted-foreground text-base">
                                     Your live coordinates are being shared with nearby safety agents and verified neighbors.
                                 </p>
                             </div>
 
                             {/* WARNING BOX */}
-                            <div className="bg-red-500/20 border-2 border-red-500/50 p-4 rounded-2xl">
-                                <p className="text-red-400 text-xs font-black uppercase tracking-widest text-center mb-1">STRICT WARNING</p>
-                                <p className="text-white text-xs font-bold text-center leading-relaxed">
-                                    If the system found this broadcast fake, strict action will be taken against the user (including legal action).
+                            <div className="bg-destructive/10 border border-destructive/20 p-5 rounded-2xl">
+                                <p className="text-destructive text-xs font-black uppercase tracking-widest text-center mb-2">Strict Warning</p>
+                                <p className="text-foreground text-sm font-medium text-center leading-relaxed">
+                                    If the system finds this broadcast fake, strict legal action will be taken against the account owner.
                                 </p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-red-500/10 p-5 rounded-3xl border border-red-500/20 text-center">
-                                    <div className="text-3xl font-black text-white tabular-nums">{formatDuration(duration)}</div>
-                                    <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest mt-1">Duration</div>
+                                <div className="bg-destructive/5 p-5 rounded-2xl border border-destructive/10 text-center">
+                                    <div className="text-3xl font-mono font-bold text-destructive tabular-nums">{formatDuration(duration)}</div>
+                                    <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider mt-2">Duration</div>
                                 </div>
-                                <div className="bg-red-500/10 p-5 rounded-3xl border border-red-500/20 text-center">
-                                    <div className="text-3xl font-black text-white animate-pulse">LIVE</div>
-                                    <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest mt-1">Status</div>
+                                <div className="bg-destructive/5 p-5 rounded-2xl border border-destructive/10 text-center">
+                                    <div className="text-3xl font-display font-black text-destructive animate-radar-pulse">LIVE</div>
+                                    <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider mt-2">Status</div>
                                 </div>
                             </div>
 
                             <Button
                                 onClick={deactivate}
                                 size="lg"
-                                className="w-full h-16 text-xl font-black bg-white text-rose-950 hover:bg-white/90 rounded-2xl shadow-xl transition-transform active:scale-95"
+                                className="w-full h-16 text-lg font-bold bg-foreground text-background hover:bg-foreground/90 rounded-xl transition-transform active:scale-95 shadow-xl"
                             >
-                                <X className="mr-3 h-6 w-6" />
+                                <X className="mr-2 h-6 w-6" />
                                 I AM SAFE - CANCEL
                             </Button>
                         </motion.div>
