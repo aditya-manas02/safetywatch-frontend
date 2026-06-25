@@ -167,8 +167,8 @@ const SafetyPulse = ({ initialData = null }: { initialData?: any }) => {
 
     const getSignalStyle = (cls: SignalClass) => {
         switch (cls) {
-            case "ALPHA": return "bg-red-500/20 text-red-500 border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
-            case "INTEL": return "bg-blue-500/20 text-blue-400 border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.1)]";
+            case "ALPHA": return "bg-destructive/20 text-destructive border-destructive/30 shadow-[0_0_10px_rgba(220,38,38,0.2)]";
+            case "INTEL": return "bg-primary/20 text-primary border-primary/30 shadow-[0_0_10px_rgba(13,148,136,0.1)]";
             case "SIGMA": return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
             case "PULSE": return "bg-amber-500/20 text-amber-500 border-amber-500/30";
             default: return "bg-muted text-muted-foreground border-border";
