@@ -179,8 +179,8 @@ export default function Circles() {
                                 <ArrowLeft className="h-5 w-5" />
                             </Button>
                             <div>
-                                <h1 className="text-3xl font-black tracking-tight">Invite Circles</h1>
-                                <p className="text-muted-foreground text-sm">Stay connected with your inner circle</p>
+                                <h1 className="text-3xl font-display font-black tracking-tight">Invite Circles</h1>
+                                <p className="text-muted-foreground text-sm font-medium mt-1">Stay connected with your inner circle</p>
                             </div>
                         </div>
                         <Users className="h-10 w-10 text-primary opacity-20 hidden sm:block" />
@@ -190,14 +190,14 @@ export default function Circles() {
                     <div className="grid grid-cols-2 gap-4 mb-10">
                         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                             <DialogTrigger asChild>
-                                <Button className="h-24 rounded-3xl flex flex-col gap-2 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-95">
+                                <Button className="h-24 rounded-3xl flex flex-col gap-2 shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground transition-all active:scale-95">
                                     <Plus className="h-6 w-6" />
                                     <span className="font-bold">Create Circle</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="rounded-3xl border-white/10 bg-[#020817]/95 backdrop-blur-xl">
+                            <DialogContent className="rounded-3xl border-border bg-card/95 backdrop-blur-xl shadow-premium">
                                 <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black">Create a New Circle</DialogTitle>
+                                    <DialogTitle className="text-2xl font-display font-black">Create a New Circle</DialogTitle>
                                 </DialogHeader>
                                 <div className="space-y-4 py-4">
                                     <div className="space-y-2">
@@ -206,13 +206,13 @@ export default function Circles() {
                                             placeholder="e.g. My Family"
                                             value={newName}
                                             onChange={(e) => setNewName(e.target.value)}
-                                            className="h-12 rounded-xl bg-white/5 border-white/10 focus:border-primary"
+                                            className="h-12 rounded-xl bg-muted/30 border-border focus:border-primary shadow-inner"
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Circle Type</label>
                                         <Select value={newType} onValueChange={setNewType}>
-                                            <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10">
+                                            <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-border shadow-inner">
                                                 <SelectValue placeholder="Select type" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -243,23 +243,24 @@ export default function Circles() {
 
                         <Dialog open={isJoinOpen} onOpenChange={setIsJoinOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="h-24 rounded-3xl flex flex-col gap-2 border-white/10 bg-white/5 hover:bg-white/10 transition-all active:scale-95">
-                                    <UserPlus className="h-6 w-6" />
-                                    <span className="font-bold">Join Circle</span>
+                                <Button variant="outline" className="h-24 rounded-3xl flex flex-col gap-2 border-border bg-card hover:bg-muted transition-all active:scale-95 shadow-sm">
+                                    <UserPlus className="h-6 w-6 text-primary" />
+                                    <span className="font-bold text-foreground">Join Circle</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="rounded-3xl border-white/10 bg-[#020817]/95 backdrop-blur-xl">
+                            <DialogContent className="rounded-3xl border-border bg-card/95 backdrop-blur-xl shadow-premium">
                                 <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black">Join a Circle</DialogTitle>
+                                    <DialogTitle className="text-2xl font-display font-black">Join a Circle</DialogTitle>
                                 </DialogHeader>
                                 <div className="space-y-4 py-4">
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Invite Code</label>
                                         <Input
-                                            placeholder="ENTER CODE"
+                                            placeholder="Enter 6-digit code"
                                             value={inviteCode}
                                             onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                                            className="h-14 text-center text-2xl font-black tracking-[0.3em] rounded-xl bg-white/5 border-white/10 focus:border-primary placeholder:tracking-normal placeholder:font-medium placeholder:text-base"
+                                            className="h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-xl bg-muted/30 border-border focus:border-primary shadow-inner"
+                                            maxLength={6}
                                         />
                                     </div>
                                     <p className="text-center text-xs text-muted-foreground">Ask the circle admin for a 8-character invite code.</p>
@@ -291,9 +292,9 @@ export default function Circles() {
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="bg-white/5 border border-dashed border-white/10 rounded-[2rem] p-12 text-center"
+                                className="bg-card border border-dashed border-border rounded-[2rem] p-12 text-center shadow-sm"
                             >
-                                <div className="h-16 w-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <div className="h-16 w-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto mb-6">
                                     <Users className="h-8 w-8 text-muted-foreground" />
                                 </div>
                                 <h3 className="text-xl font-black mb-2">No active circles</h3>
@@ -311,7 +312,7 @@ export default function Circles() {
                                         transition={{ delay: index * 0.1 }}
                                     >
                                         <Card
-                                            className="overflow-hidden border-white/10 bg-white/5 hover:bg-white/10 transition-all cursor-pointer rounded-[2rem] group"
+                                            className="overflow-hidden border-border bg-card hover:bg-muted/50 transition-all cursor-pointer rounded-[2rem] group shadow-sm"
                                             onClick={() => navigate(`/circles/${circle._id}`)}
                                         >
                                             <div className="p-6 flex items-center gap-4">
@@ -322,8 +323,8 @@ export default function Circles() {
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2 mb-1">
-                                                        <h3 className="text-lg font-black">{circle.name}</h3>
-                                                        <Badge variant="outline" className="text-[9px] uppercase tracking-widest px-2 py-0 h-4 border-white/10 bg-white/5">
+                                                        <h3 className="text-lg font-display font-black">{circle.name}</h3>
+                                                        <Badge variant="outline" className="text-[9px] uppercase tracking-widest px-2 py-0 h-4 border-border bg-muted/30 text-muted-foreground">
                                                             {circle.type}
                                                         </Badge>
                                                     </div>

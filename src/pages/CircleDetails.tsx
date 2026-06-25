@@ -271,30 +271,30 @@ export default function CircleDetails() {
                             variant="ghost"
                             size="icon"
                             onClick={() => navigate("/circles")}
-                            className="rounded-full bg-white/5 hover:bg-white/10"
+                            className="rounded-full bg-card hover:bg-muted border border-border shadow-sm"
                         >
                             <ArrowLeft className="h-5 w-5" />
                         </Button>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h1 className="text-2xl font-black tracking-tight">{circle.name}</h1>
-                                <Badge variant="outline" className="text-[9px] uppercase tracking-widest border-white/10">{circle.type}</Badge>
+                                <h1 className="text-2xl font-display font-black tracking-tight">{circle.name}</h1>
+                                <Badge variant="outline" className="text-[9px] uppercase tracking-widest border-border bg-muted/30">{circle.type}</Badge>
                             </div>
                             <p className="text-xs text-muted-foreground font-bold tracking-widest uppercase mt-1">
-                                SECURE CODE: <span className="text-primary">{circle.inviteCode}</span>
+                                SECURE CODE: <span className="text-primary font-mono">{circle.inviteCode}</span>
                             </p>
                         </div>
                     </div>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-full bg-white/5">
+                            <Button variant="ghost" size="icon" className="rounded-full bg-card border border-border hover:bg-muted shadow-sm">
                                 <MoreVertical className="h-5 w-5" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 rounded-2xl bg-[#020817] border-white/10">
+                        <DropdownMenuContent align="end" className="w-56 rounded-2xl bg-card border-border shadow-premium">
                             <DropdownMenuItem
-                                className="rounded-xl py-3 focus:bg-white/10 cursor-pointer"
+                                className="rounded-xl py-3 focus:bg-muted cursor-pointer"
                                 onClick={() => {
                                     navigator.clipboard.writeText(circle.inviteCode);
                                     toast.success("Invite code copied!");
