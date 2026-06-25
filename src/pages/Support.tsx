@@ -149,7 +149,7 @@ export default function Support() {
                   <div className="h-24 w-24 rounded-full bg-emerald-500 flex items-center justify-center mb-8 shadow-2xl shadow-emerald-500/40 text-white">
                     <CheckCircle2 className="h-12 w-12" />
                   </div>
-                  <h2 className="text-3xl font-black text-foreground mb-4">Transmission Successful</h2>
+                  <h2 className="text-3xl font-display font-black text-foreground mb-4">Transmission Successful</h2>
                   <p className="text-muted-foreground text-lg mb-10 max-w-sm">
                     Your request has been prioritized. A moderator will review your inquiry within the next 24 hours.
                   </p>
@@ -162,7 +162,7 @@ export default function Support() {
                   <Card className="relative bg-card border border-border shadow-2xl rounded-3xl overflow-hidden">
                     <div className="h-1.5 bg-gradient-to-r from-primary to-accent w-full"></div>
                     <CardHeader className="px-8 pt-10 pb-6">
-                      <CardTitle className="text-2xl font-black text-foreground">Send Transmission</CardTitle>
+                      <CardTitle className="text-2xl font-display font-black text-foreground">Send Transmission</CardTitle>
                       <CardDescription className="text-muted-foreground font-medium">Please detail your request for the moderation team.</CardDescription>
                     </CardHeader>
                     <CardContent className="px-8 pb-10">

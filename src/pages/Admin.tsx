@@ -258,7 +258,7 @@ export default function Admin() {
               </div>
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-foreground">{info.title}</h1>
+              <h1 className="text-2xl font-display font-black tracking-tight text-foreground">{info.title}</h1>
               <p className="text-xs text-muted-foreground font-semibold">{info.desc}</p>
             </div>
           </div>
