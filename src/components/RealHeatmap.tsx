@@ -78,9 +78,9 @@ export default function RealHeatmap() {
           blur: 20,
           maxZoom: 15,
           gradient: {
-            0.0: '#3b82f6',
-            0.5: '#f59e0b',
-            1.0: '#ef4444'
+            0.0: '#0D9488', // Teal
+            0.5: '#F59E0B', // Amber
+            1.0: '#DC2626'  // Red
           }
         }).addTo(map);
 
@@ -94,12 +94,17 @@ export default function RealHeatmap() {
         const markers: L.Layer[] = [];
         data.forEach((i: any) => {
           if (i.latitude && i.longitude) {
+            // Use amber (warning) for pins unless it's a critical SOS
+            const isCritical = i.status === "EMERGENCY" || i.type === "sos";
+            const ringColor = isCritical ? "border-destructive animate-radar-ping" : "border-amber-500/50 animate-slow-breathe";
+            const pinColor = isCritical ? "bg-destructive text-destructive-foreground" : "bg-amber-500 text-white";
+
             const customIcon = L.divIcon({
               className: "bg-transparent border-none",
               html: `
                       <div class="relative flex items-center justify-center w-8 h-8 group cursor-pointer">
-                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-20 duration-1000"></span>
-                        <div class="relative flex items-center justify-center bg-red-600 text-white rounded-full p-1.5 shadow-lg border-2 border-white transform hover:scale-110 transition-transform duration-200">
+                        <span class="absolute inset-[-4px] rounded-full border-2 ${ringColor}"></span>
+                        <div class="relative flex items-center justify-center ${pinColor} rounded-full p-1.5 shadow-lg border-2 border-background transform hover:scale-110 transition-transform duration-200">
                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                         </div>
                       </div>
@@ -136,19 +141,19 @@ export default function RealHeatmap() {
 
   return (
     <motion.div
-      className="relative bg-card border rounded-xl shadow-sm overflow-hidden"
+      className="relative bg-card border border-border rounded-2xl shadow-sm overflow-hidden"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
     >
       {/* Header */}
-      <div className="bg-primary/5 border-b px-3 py-2 flex items-center justify-between">
+      <div className="bg-primary/5 border-b border-border px-4 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary" />
-          <h4 className="font-semibold text-xs">Live Heatmap</h4>
+          <h4 className="font-display font-bold text-sm">Live Heatmap</h4>
         </div>
         {!loading && (
-          <span className="text-[10px] text-muted-foreground font-medium">
+          <span className="text-xs text-muted-foreground font-mono font-medium">
             {incidentCount} incidents
           </span>
         )}
@@ -162,18 +167,20 @@ export default function RealHeatmap() {
           </div>
         )}
 
-        {/* Pulse effect */}
-        <div className="absolute inset-0 bg-primary/5 animate-pulse pointer-events-none z-10" />
-
         <div
           id="real-heatmap"
           className="w-full h-48 relative z-0"
         />
       </div>
 
-      {/* Footer Info */}
-      <div className="bg-muted/30 px-3 py-1.5 text-[10px] text-muted-foreground text-center border-t">
-        Real-time incident density map
+      {/* Footer Info & Legend */}
+      <div className="bg-muted/30 px-4 py-2 flex items-center justify-between text-xs text-muted-foreground border-t border-border font-medium">
+        <span>Real-time density</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] uppercase tracking-wider opacity-70">Low</span>
+          <div className="h-1.5 w-16 rounded-full bg-gradient-to-r from-teal-600 via-amber-500 to-red-600"></div>
+          <span className="text-[10px] uppercase tracking-wider opacity-70">High</span>
+        </div>
       </div>
     </motion.div>
   );

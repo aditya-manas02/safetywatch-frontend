@@ -6,14 +6,20 @@ import { Button } from "./ui/button";
 import { Navigation } from "lucide-react";
 import { toast } from "sonner";
 
-// Fix default marker icon
-const defaultIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
+// Custom premium marker for the picker
+const customPickerIcon = L.divIcon({
+  className: "bg-transparent border-none",
+  html: `
+    <div class="relative flex items-center justify-center w-8 h-8 group cursor-pointer">
+      <span class="absolute inset-[-4px] rounded-full border-2 border-primary/50 animate-slow-breathe"></span>
+      <div class="relative flex items-center justify-center bg-primary text-primary-foreground rounded-full p-1.5 shadow-lg border-2 border-background transform transition-transform duration-200">
+         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+    </div>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 28],
 });
-L.Marker.prototype.options.icon = defaultIcon;
 
 interface MapPickerProps {
   onSelect: (lat: number, lng: number) => void;
@@ -59,9 +65,8 @@ function LocationButton({ onSelect, setPosition }: {
       <Button
         type="button"
         size="sm"
-        variant="secondary"
         onClick={handleLocate}
-        className="shadow-md bg-white hover:bg-gray-100 text-primary border border-primary/20 font-bold px-4 py-2"
+        className="shadow-md bg-card hover:bg-primary/10 text-primary border border-primary/30 font-bold px-4 py-2 rounded-xl transition-all"
       >
         <Navigation className="h-4 w-4 mr-2" />
         Use My Location
@@ -87,16 +92,16 @@ export default function MapPicker({ onSelect, initialPosition, readonly }: MapPi
   const center = initialPosition || { lat: 28.6139, lng: 77.2090 };
 
   return (
-    <div className="w-full h-80 rounded-xl overflow-hidden border border-border shadow-inner relative">
+    <div className="w-full h-80 rounded-2xl overflow-hidden border border-border shadow-sm relative bg-muted/20">
       <MapContainer
         center={center}
         zoom={initialPosition ? 16 : 13}
-        className="w-full h-full"
+        className="w-full h-full z-0"
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {!readonly && <MapEvents />}
         {!readonly && <LocationButton onSelect={onSelect} setPosition={setPosition} />}
-        {position && <Marker position={position} />}
+        {position && <Marker position={position} icon={customPickerIcon} />}
       </MapContainer>
     </div>
   );
