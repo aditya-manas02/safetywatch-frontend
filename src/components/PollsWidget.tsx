@@ -122,7 +122,7 @@ export default function PollsWidget() {
                     <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest mb-1">
                         <Vote className="h-3.5 w-3.5" /> {t.communityPulse}
                     </div>
-                    <h3 className="text-xl font-black">{t.activePolls}</h3>
+                    <h3 className="text-xl font-display font-black text-foreground">{t.activePolls}</h3>
                 </div>
             </div>
 
@@ -141,11 +141,11 @@ export default function PollsWidget() {
                             <Card className="relative border border-border/50 shadow-xl overflow-hidden bg-card/50 backdrop-blur-3xl rounded-[2rem] group">
                                 <CardHeader className="p-6 pb-2">
                                     <div className="flex justify-between items-start gap-4">
-                                        <CardTitle className="text-lg font-black tracking-tight leading-tight">
+                                        <CardTitle className="text-lg font-display font-black tracking-tight leading-tight">
                                             {poll.question}
                                         </CardTitle>
                                         {poll.expiresAt && (
-                                            <Badge variant="outline" className="text-[9px] uppercase tracking-tighter shrink-0 border-white/10">
+                                            <Badge variant="outline" className="text-[9px] uppercase tracking-tighter shrink-0 border-border">
                                                 <Clock className="h-3 w-3 mr-1" />
                                                 {new Date(poll.expiresAt).toLocaleDateString()}
                                             </Badge>

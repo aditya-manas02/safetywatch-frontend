@@ -17,7 +17,7 @@ export default function NotificationCenter() {
 
     const getIcon = (type: string) => {
         switch (type) {
-            case "announcement": return <Info className="h-4 w-4 text-blue-500" />;
+            case "announcement": return <Info className="h-4 w-4 text-primary" />;
             case "incident_update": return <CheckCircle className="h-4 w-4 text-emerald-500" />;
             case "system_alert": return <AlertTriangle className="h-4 w-4 text-amber-500" />;
             default: return <Bell className="h-4 w-4" />;
@@ -38,7 +38,7 @@ export default function NotificationCenter() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80 p-0 rounded-2xl border-border shadow-2xl bg-card">
                 <div className="p-4 border-b border-border flex items-center justify-between">
-                    <h3 className="font-bold text-sm tracking-tight">Notifications</h3>
+                    <h3 className="font-display font-black text-sm tracking-tight">Notifications</h3>
                     {hasUnread && (
                         <Button variant="ghost" size="sm" onClick={markAllAsRead} className="h-7 text-[11px] font-bold text-primary hover:text-primary/80 px-2">
                             <Check className="h-3 w-3 mr-1" /> Mark all read
