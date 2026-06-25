@@ -35,7 +35,7 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
                 "relative overflow-hidden group rounded-2xl border transition-all duration-300",
                 challenge.isCompleted
                     ? "bg-emerald-500/5 border-emerald-500/20"
-                    : "bg-white/5 border-white/10 hover:border-primary/30 hover:bg-white/10"
+                    : "bg-card border-border hover:border-primary/30 hover:bg-muted shadow-sm"
             )}
         >
             {/* Glow Effect */}
@@ -53,7 +53,7 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
                             <IconComponent className="h-5 w-5" />
                         </div>
                         <div>
-                            <h4 className="text-sm font-black text-white uppercase tracking-tight leading-tight">
+                            <h4 className="text-sm font-display font-black text-foreground uppercase tracking-tight leading-tight">
                                 {challenge.title}
                             </h4>
                             <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
@@ -67,7 +67,7 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
                             <CheckCircle2 className="h-3 w-3 mr-1" /> DONE
                         </Badge>
                     ) : (
-                        <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest border-white/10">
+                        <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest border-border text-muted-foreground">
                             {challenge.points} PTS
                         </Badge>
                     )}
@@ -75,14 +75,14 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
 
                 <div className="space-y-2">
                     <div className="flex justify-between items-end">
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                             Progress: {percentage}%
                         </span>
-                        <span className="text-[11px] font-bold text-white">
+                        <span className="text-[11px] font-bold text-foreground">
                             {challenge.progress} / {challenge.targetValue}
                         </span>
                     </div>
-                    <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-2 w-full bg-muted/50 rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${percentage}%` }}

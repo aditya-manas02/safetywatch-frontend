@@ -35,7 +35,7 @@ export function ChallengesSection() {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[1, 2].map(i => (
-                    <Skeleton key={i} className="h-40 w-full rounded-2xl bg-white/5" />
+                    <Skeleton key={i} className="h-40 w-full rounded-2xl bg-muted/30" />
                 ))}
             </div>
         );
@@ -47,18 +47,18 @@ export function ChallengesSection() {
         <div className="space-y-6">
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
+                    <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20 shadow-sm">
                         <Trophy className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-white tracking-tight">COMMUNITY CAMPAIGNS</h3>
+                        <h3 className="text-xl font-display font-black text-foreground tracking-tight">COMMUNITY CAMPAIGNS</h3>
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.2em]">Active Challenges • Earn Recognition</p>
                     </div>
                 </div>
 
-                <div className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+                <div className="hidden sm:flex items-center gap-2 bg-muted/30 border border-border px-3 py-1.5 rounded-full shadow-sm">
                     <TrendingUp className="h-3 w-3 text-emerald-400" />
-                    <span className="text-[9px] font-black text-white/60 tracking-widest uppercase">Safety Score +12%</span>
+                    <span className="text-[9px] font-black text-muted-foreground tracking-widest uppercase">Safety Score +12%</span>
                 </div>
             </div>
 
@@ -71,11 +71,11 @@ export function ChallengesSection() {
             {/* Decorative motivational line */}
             <div className="flex flex-col items-center gap-3 pt-4 opacity-20">
                 <div className="flex items-center gap-4 w-full">
-                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white" />
-                    <Sparkles className="h-4 w-4 text-white" />
-                    <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white" />
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-foreground" />
+                    <Sparkles className="h-4 w-4 text-foreground" />
+                    <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-foreground" />
                 </div>
-                <p className="text-[9px] font-black tracking-[0.3em] text-white uppercase italic">
+                <p className="text-[9px] font-black tracking-[0.3em] text-foreground uppercase italic">
                     Your participation directy improves neighborhood safety
                 </p>
             </div>

@@ -157,7 +157,7 @@ export default function Leaderboard() {
                                 <Trophy className="h-8 w-8 text-primary" />
                             </div>
                             <div className="space-y-1">
-                                <h1 className="text-4xl font-black tracking-tight uppercase">Guardian Elite</h1>
+                                <h1 className="text-4xl font-display font-black tracking-tight uppercase">Guardian Elite</h1>
                                 <p className="text-muted-foreground font-bold text-sm uppercase tracking-widest flex items-center gap-2">
                                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                     {viewMode === "local" ? `Sector: ${sectorName} • 10km Radius` : "Global Defense Network"}
@@ -254,7 +254,7 @@ export default function Leaderboard() {
 
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-3">
-                                                        <h3 className="text-xl font-black tracking-tight">{guardian.name}</h3>
+                                                        <h3 className="text-xl font-display font-black tracking-tight">{guardian.name}</h3>
                                                         {guardian._id === user?.id && (
                                                             <Badge className="bg-primary text-primary-foreground font-black text-[10px] px-2">YOU</Badge>
                                                         )}
@@ -316,7 +316,7 @@ export default function Leaderboard() {
 
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-3">
-                                                        <h3 className="text-xl font-black tracking-tight">{userRank.name}</h3>
+                                                        <h3 className="text-xl font-display font-black tracking-tight">{userRank.name}</h3>
                                                         <Badge className="bg-primary text-primary-foreground font-black text-[10px] px-2">YOU</Badge>
                                                     </div>
                                                     <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">
