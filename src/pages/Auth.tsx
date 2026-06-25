@@ -852,7 +852,7 @@ const Auth = () => {
                   <div className="bg-primary/10 border border-primary/20 rounded-2xl p-5 w-full max-w-sm relative overflow-hidden group">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
                     <p className="text-sm font-black text-primary mb-1">Want SafetyWatch for your area?</p>
-                    <p className="text-xs font-medium text-muted-foreground mb-3 leading-relaxed">If anyone wants this system they can contact us to get it for their community organization or local security group.</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-3 leading-relaxed">Bringing SafetyWatch to your neighborhood or security team — contact us to get started.</p>
                     <a href="mailto:safetywatch4neighbour@gmail.com" className="inline-flex items-center justify-center h-11 px-5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all w-full shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]">
                       Contact Us: safetywatch4neighbour@gmail.com
                     </a>
