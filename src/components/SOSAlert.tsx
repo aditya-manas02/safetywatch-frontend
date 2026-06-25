@@ -61,7 +61,7 @@ const SOSAlert: React.FC<SOSAlertProps> = ({ incidentId, userName, latitude, lon
       <div className={`relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-premium animate-in zoom-in-95 duration-300 border-2 ${isSafe ? 'border-emerald-500' : 'border-destructive'}`}>
         <div className={`${isSafe ? 'bg-emerald-500' : 'bg-destructive'} p-6 text-center text-white`}>
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
-            {isSafe ? <ShieldAlert size={48} className="text-white" /> : <ShieldAlert size={48} className="text-white" />}
+            {isSafe ? <ShieldAlert size={48} className="text-white" /> : <ShieldAlert size={48} className="text-white animate-slow-breathe" />}
           </div>
           <h2 className="text-2xl font-display font-black uppercase tracking-tight">
             {isSafe ? "Emergency Resolved" : "Emergency Alert"}
