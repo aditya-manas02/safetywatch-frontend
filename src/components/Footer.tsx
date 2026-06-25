@@ -140,8 +140,9 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 border-t mt-16 pt-8 text-center text-sm font-medium text-muted-foreground">
-        &copy; {new Date().getFullYear()} SafetyWatch Global. Designed for safer neighborhoods.
+      <div className="container mx-auto px-6 border-t mt-16 pt-8 text-center text-sm font-medium text-muted-foreground space-y-2">
+        <p>&copy; {new Date().getFullYear()} SafetyWatch Global. Designed for safer neighborhoods.</p>
+        <p>If anyone wants this system they can contact us by email: <a href="mailto:safetywatch4neighbour@gmail.com" className="hover:text-primary transition-colors underline underline-offset-4 font-bold">safetywatch4neighbour@gmail.com</a></p>
       </div>
     </footer>
   );

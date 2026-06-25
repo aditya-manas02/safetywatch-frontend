@@ -482,8 +482,9 @@ const Auth = () => {
           </ul>
         </motion.div>
 
-        <div className="relative z-10 text-white/50 text-sm font-medium">
-          &copy; 2026 SafetyWatch Platform. All rights reserved.
+        <div className="relative z-10 text-white/50 text-sm font-medium space-y-2">
+          <p>&copy; 2026 SafetyWatch Platform. All rights reserved.</p>
+          <p className="text-white/40">If anyone wants this system they can contact us by email: <a href="mailto:safetywatch4neighbour@gmail.com" className="text-white hover:text-white/80 transition-colors underline underline-offset-4 font-bold">safetywatch4neighbour@gmail.com</a></p>
         </div>
       </div>
 
