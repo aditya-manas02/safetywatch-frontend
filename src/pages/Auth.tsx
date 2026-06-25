@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, CheckCircle2, MapPin, Bell, Users, Eye, EyeOff, LifeBuoy, Flag, Sparkles, HelpCircle, Smartphone } from "lucide-react";
+import { Mail, Lock, CheckCircle2, MapPin, Bell, Users, Eye, EyeOff, LifeBuoy, Flag, Sparkles, HelpCircle, Smartphone, Trophy, MessageSquare, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -444,8 +444,8 @@ const Auth = () => {
       </div>
 
       <div className="hidden lg:flex flex-col justify-between p-12 bg-primary relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+        <motion.div animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-gradient-to-br from-white/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl pointer-events-none"></motion.div>
+        <motion.div animate={{ scale: [1, 1.5, 1], rotate: [0, -90, 0] }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-gradient-to-tr from-black/30 to-transparent rounded-full translate-y-1/3 -translate-x-1/4 blur-3xl pointer-events-none"></motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
           <div className="flex items-center gap-3 mb-12">
@@ -467,8 +467,11 @@ const Auth = () => {
           <ul className="space-y-6">
             {[
               { icon: MapPin, text: "Real-time incident mapping & tracking" },
-              { icon: Bell, text: "Instant neighborhood alerts & notifications" },
-              { icon: Users, text: "Collaborative safety network with neighbors" },
+              { icon: Shield, text: "Private neighborhood watch circles" },
+              { icon: Bell, text: "Instant emergency SOS alerts & notifications" },
+              { icon: MessageSquare, text: "Secure neighborhood inbox & messaging" },
+              { icon: Trophy, text: "Community safety leaderboards & rewards" },
+              { icon: LifeBuoy, text: "24/7 dedicated community support" },
               { icon: CheckCircle2, text: "Verified reports and admin oversight" }
             ].map((item, i) => (
               <motion.li key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 * (i + 1) }} className="flex items-center gap-4 text-white/90">
@@ -597,7 +600,7 @@ const Auth = () => {
                           </div>
                         </div>
 
-                        <Button type="submit" className="w-full h-14 rounded-2xl font-black text-lg bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/25 transition-all active:scale-[0.98]" disabled={loading}>{loading ? "Verifying..." : "Verify Identity"}</Button>
+                        <Button type="submit" className="w-full h-14 rounded-2xl font-black text-lg bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/25 transition-all active:scale-[0.98]" disabled={loading}><div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />{loading ? "Verifying..." : "Verify Identity"}</Button>
 
                         <div className="flex flex-col items-center gap-4 mt-6">
                           <p className="text-sm text-muted-foreground font-medium">
@@ -673,7 +676,7 @@ const Auth = () => {
                           </div>
                           <div>
                             <Button type="submit" className="w-full h-14 rounded-2xl font-black text-lg bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading || forgotLoading}>
-                              {loading ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}><Sparkles className="h-5 w-5" /></motion.div> : "Login to Account"}
+                              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />{loading ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}><Sparkles className="h-5 w-5" /></motion.div> : "Login to Account"}
                             </Button>
                           </div>
                         </motion.form>
@@ -770,7 +773,7 @@ const Auth = () => {
                             </div>
                           </div>
                           <div className="pt-2">
-                            <Button type="submit" className="w-full h-14 rounded-2xl font-black text-lg bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading}>{loading ? "Creating Account..." : "Create Free Account"}</Button>
+                            <Button type="submit" className="w-full h-14 rounded-2xl font-black text-lg bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading}><div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />{loading ? "Creating Account..." : "Create Free Account"}</Button>
                           </div>
                         </motion.form>
                       </TabsContent>
@@ -827,7 +830,7 @@ const Auth = () => {
                               setIsMockGoogleOpen(true);
                             }
                           }}
-                          className="w-full h-12 rounded-xl border border-border bg-background hover:bg-[#f3fafd] text-foreground font-semibold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99]"
+                          className="w-full h-14 rounded-2xl border border-border/50 bg-card hover:bg-muted/50 hover:border-primary/50 text-foreground font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm"
                         >
                           <svg className="h-5 w-5" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
                             <g transform="matrix(1, 0, 0, 1, 0, 0)">
