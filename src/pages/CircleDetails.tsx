@@ -332,7 +332,7 @@ export default function CircleDetails() {
                                     CHECK-IN NOW
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="rounded-[2.5rem] border-white/10 bg-[#020817]/95 backdrop-blur-2xl p-8">
+                            <DialogContent className="rounded-[2.5rem] border-white/10 bg-surface-overlay/95 backdrop-blur-2xl p-8">
                                 <DialogHeader className="mb-6">
                                     <DialogTitle className="text-3xl font-black text-center">Status Update</DialogTitle>
                                 </DialogHeader>
@@ -530,7 +530,7 @@ export default function CircleDetails() {
                                                         <MoreVertical className="h-4 w-4" />
                                                      </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="bg-[#020817] border-white/10 rounded-xl">
+                                                <DropdownMenuContent align="end" className="bg-surface-overlay border-white/10 rounded-xl">
                                                     <DropdownMenuItem 
                                                         className="py-2 cursor-pointer"
                                                         onClick={() => window.open(`tel:${member.user.phone}`)}

@@ -71,10 +71,10 @@ export default function AdCarousel() {
                             <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md border border-primary/30 px-3 py-1 rounded-full text-[10px] font-black tracking-tighter text-primary uppercase">
                                 Promoted
                             </div>
-                            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter leading-none uppercase">
+                            <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tighter leading-none uppercase">
                                 {ads[currentIndex].title}
                             </h2>
-                            <Button size="sm" className="h-8 rounded-full mt-4 bg-white text-black hover:bg-white/90">
+                            <Button size="sm" className="h-8 rounded-full mt-4 bg-foreground text-background hover:bg-foreground/90">
                                 LEARN MORE <ExternalLink className="h-3 w-3 ml-2" />
                             </Button>
                         </div>
@@ -86,13 +86,13 @@ export default function AdCarousel() {
                 <>
                     <button
                         onClick={(e) => { e.stopPropagation(); setCurrentIndex((prev) => (prev - 1 + ads.length) % ads.length); }}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/20 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity text-white hover:bg-black/40"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-foreground/20 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity text-foreground hover:bg-foreground/40"
                     >
                         <ChevronLeft className="h-5 w-5" />
                     </button>
                     <button
                         onClick={(e) => { e.stopPropagation(); setCurrentIndex((prev) => (prev + 1) % ads.length); }}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/20 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity text-white hover:bg-black/40"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-foreground/20 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity text-foreground hover:bg-foreground/40"
                     >
                         <ChevronRight className="h-5 w-5" />
                     </button>
@@ -102,7 +102,7 @@ export default function AdCarousel() {
                                 key={i}
                                 className={cn(
                                     "h-1 transition-all duration-300 rounded-full",
-                                    i === currentIndex ? "w-6 bg-primary" : "w-1.5 bg-white/30"
+                                    i === currentIndex ? "w-6 bg-primary" : "w-1.5 bg-foreground/30"
                                 )}
                             />
                         ))}

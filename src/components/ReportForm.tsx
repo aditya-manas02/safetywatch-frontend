@@ -208,7 +208,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full hover:bg-red-500/10 hover:text-red-500 transition-all h-10 w-10"
+                className="rounded-full hover:bg-critical/10 hover:text-critical transition-all h-10 w-10"
                 onClick={onClose}
                 type="button"
               >
@@ -391,7 +391,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
                     {formData.allowMessages ? (
                       <MessageSquareText className="h-4 w-4 text-primary" />
                     ) : (
-                      <MessageSquareOff className="h-4 w-4 text-rose-500" />
+                      <MessageSquareOff className="h-4 w-4 text-critical" />
                     )}
                     <Label className="text-sm font-black tracking-tight cursor-pointer">
                       Allow Community Messaging

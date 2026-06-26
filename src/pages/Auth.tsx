@@ -750,7 +750,7 @@ const Auth = () => {
                             <div className="space-y-2">
                               <Label className="font-bold text-xs ml-1 text-primary">Confirm</Label>
                               <div className="relative group">
-                                <CheckCircle2 className={`absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 ${password && confirmPassword ? (password === confirmPassword ? "text-green-500" : "text-red-500") : "text-muted-foreground"}`} />
+                                <CheckCircle2 className={`absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 ${password && confirmPassword ? (password === confirmPassword ? "text-success" : "text-critical") : "text-muted-foreground"}`} />
                                 <Input
                                   type={showConfirmPassword ? "text" : "password"}
                                   placeholder="••••••••"
@@ -940,7 +940,7 @@ const Auth = () => {
                 placeholder="Google User"
                 value={mockName}
                 onChange={(e) => setMockName(e.target.value)}
-                className="rounded-xl border-border/60 bg-[#f3fafd] text-[#353538] border-2 border-[#217093]"
+                className="px-4 h-12 rounded-xl bg-muted/40 border-2 border-border focus-visible:ring-0 focus-visible:border-primary text-sm font-semibold text-foreground transition-all"
                 required
               />
             </div>
@@ -952,7 +952,7 @@ const Auth = () => {
                 placeholder="google-user@domain.com"
                 value={mockEmail}
                 onChange={(e) => setMockEmail(e.target.value)}
-                className="rounded-xl border-border/60 bg-[#f3fafd] text-[#353538] border-2 border-[#217093]"
+                className="px-4 h-12 rounded-xl bg-muted/40 border-2 border-border focus-visible:ring-0 focus-visible:border-primary text-sm font-semibold text-foreground transition-all"
                 required
               />
             </div>

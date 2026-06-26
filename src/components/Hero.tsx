@@ -149,21 +149,21 @@ export default function Hero({
       case "harassment":
       case "vandalism":
       case "suspicious":
-        return { icon: Shield, color: "bg-blue-500/20 text-blue-500" };
+        return { icon: Shield, color: "bg-info/20 text-info" };
       case "fire":
-        return { icon: Flame, color: "bg-orange-500/20 text-orange-500" };
+        return { icon: Flame, color: "bg-warning/20 text-warning" };
       case "medical":
-        return { icon: Activity, color: "bg-red-500/20 text-red-500" };
+        return { icon: Activity, color: "bg-critical/20 text-critical" };
       case "hazard":
-        return { icon: AlertTriangle, color: "bg-amber-500/20 text-amber-500" };
+        return { icon: AlertTriangle, color: "bg-warning/20 text-warning" };
       case "traffic":
-        return { icon: Car, color: "bg-indigo-500/20 text-indigo-500" };
+        return { icon: Car, color: "bg-primary/20 text-primary" };
       case "infrastructure":
-        return { icon: UtilityPole, color: "bg-cyan-500/20 text-cyan-500" };
+        return { icon: UtilityPole, color: "bg-info/20 text-info" };
       case "nuisance":
-        return { icon: Volume2, color: "bg-slate-500/20 text-slate-500" };
+        return { icon: Volume2, color: "bg-muted text-muted-foreground" };
       case "missing":
-        return { icon: UserSearch, color: "bg-emerald-500/20 text-emerald-500" };
+        return { icon: UserSearch, color: "bg-success/20 text-success" };
       default:
         return { icon: Info, color: "bg-primary/20 text-primary" };
     }
@@ -188,7 +188,7 @@ export default function Hero({
 
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-[1.1] mb-6 sm:mb-8 tracking-tight text-foreground">
             {t.safetyIn} <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">{t.neighborhood}</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-info">{t.neighborhood}</span>
           </h1>
 
           <p className="text-base sm:text-xl text-muted-foreground mb-8 sm:mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
@@ -248,17 +248,17 @@ export default function Hero({
               </p>
               <div className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-critical opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-critical"></span>
                 </span>
-                <span className="text-[10px] font-bold text-rose-500 tracking-wider uppercase">{t.liveUplink}</span>
+                <span className="text-[10px] font-bold text-critical tracking-wider uppercase">{t.liveUplink}</span>
               </div>
             </div>
 
             {loading ? (
               <div className="h-64 flex flex-col items-center justify-center text-muted-foreground animate-pulse font-bold tracking-widest text-xs gap-4">
                 <p>Establishing Connection...</p>
-                <p className="text-[10px] text-rose-500 max-w-[80%] text-center normal-case opacity-80">{errorMsg}</p>
+                <p className="text-[10px] text-critical max-w-[80%] text-center normal-case opacity-80">{errorMsg}</p>
               </div>
             ) : (
               <div className="relative z-10">
@@ -268,7 +268,7 @@ export default function Hero({
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mt-1">{t.reports}</p>
                   </div>
                   <div className="bg-background/40 rounded-2xl p-3 border border-border/50 backdrop-blur-sm">
-                    <p className="text-3xl font-black text-amber-500"><AnimatedCounter value={stats?.activeAlerts ?? 0} /></p>
+                    <p className="text-3xl font-black text-warning"><AnimatedCounter value={stats?.activeAlerts ?? 0} /></p>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mt-1">{t.alerts}</p>
                   </div>
                   <div className="bg-background/40 rounded-2xl p-3 border border-border/50 backdrop-blur-sm">
@@ -317,7 +317,7 @@ export default function Hero({
                                   {inc.type} • {inc.location}
                                 </p>
                               </div>
-                              <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
+                              <div className="h-2 w-2 rounded-full bg-success shadow-lg shadow-success/50 animate-pulse" />
                             </motion.div>
                           );
                         })

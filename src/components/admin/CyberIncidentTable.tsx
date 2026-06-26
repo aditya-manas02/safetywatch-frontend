@@ -189,14 +189,14 @@ export default function CyberIncidentTable({
                       <div className="flex flex-col gap-1">
                         <span
                           className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border text-center ${inc.status === "approved"
-                            ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                            ? "bg-success/10 text-success border-success/20"
                             : inc.status === "rejected"
-                              ? "bg-red-500/10 text-red-500 border-red-500/20"
+                              ? "bg-critical/10 text-critical border-critical/20"
                               : inc.status === "under process"
-                                ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                                ? "bg-info/10 text-info border-info/20"
                                 : inc.status === "problem solved"
-                                  ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                                  : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                                  ? "bg-primary/10 text-primary border-primary/20"
+                                  : "bg-warning/10 text-warning border-warning/20"
                             }`}
                         >
                           {inc.status}
@@ -224,7 +224,7 @@ export default function CyberIncidentTable({
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-500/10"
+                            className="h-8 w-8 text-critical hover:text-critical hover:bg-critical/10"
                             onClick={() => onDelete(inc._id)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -270,14 +270,14 @@ export default function CyberIncidentTable({
                 <div className="flex flex-col items-end gap-1 shrink-0">
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${inc.status === "approved"
-                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                      ? "bg-success/10 text-success border-success/20"
                       : inc.status === "rejected"
-                        ? "bg-red-500/10 text-red-500 border-red-500/20"
+                        ? "bg-critical/10 text-critical border-critical/20"
                         : inc.status === "under process"
-                          ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                          ? "bg-info/10 text-info border-info/20"
                           : inc.status === "problem solved"
-                            ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                            : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                            ? "bg-primary/10 text-primary border-primary/20"
+                            : "bg-warning/10 text-warning border-warning/20"
                       }`}
                   >
                     {inc.status}
@@ -326,7 +326,7 @@ export default function CyberIncidentTable({
                   <Button
                     size="icon"
                     variant="destructive"
-                    className="h-9 w-9 bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/20 border rounded-lg"
+                    className="h-9 w-9 bg-critical/10 text-critical hover:bg-critical/20 border-critical/20 border rounded-lg"
                     onClick={() => onDelete(inc._id)}
                   >
                     <Trash2 className="h-4 w-4" />

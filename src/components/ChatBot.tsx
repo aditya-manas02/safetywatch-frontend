@@ -83,7 +83,7 @@ export default function ChatBot() {
                         }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         // DESKTOP UI FIX: Fixed width (380px) and nicer shadow/border
-                        className="w-[90vw] sm:w-[380px] bg-[#09090b]/95 backdrop-blur-xl border border-purple-500/30 rounded-3xl shadow-[0_0_50px_-10px_rgba(168,85,247,0.4)] overflow-hidden flex flex-col mb-4 ring-1 ring-white/10 pointer-events-auto"
+                        className="w-[90vw] sm:w-[380px] bg-background/95 backdrop-blur-xl border border-primary/30 rounded-3xl shadow-2xl shadow-primary/40 overflow-hidden flex flex-col mb-4 ring-1 ring-border/50 pointer-events-auto"
                     >
                         {/* Nexus Header */}
                         <div
@@ -117,7 +117,7 @@ export default function ChatBot() {
                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-200/50 hover:text-purple-300 hover:bg-purple-900/50 rounded-full transition-colors" onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}>
                                     {isMinimized ? <Maximize2 className="h-3.5 w-3.5" /> : <Minus className="h-3.5 w-3.5" />}
                                 </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-red-300/50 hover:text-red-400 hover:bg-red-900/30 rounded-full transition-colors" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-critical/50 hover:text-critical hover:bg-critical/30 rounded-full transition-colors" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}>
                                     <X className="h-3.5 w-3.5" />
                                 </Button>
                             </div>
@@ -126,7 +126,7 @@ export default function ChatBot() {
                         {/* Chat Body */}
                         {!isMinimized && (
                             <>
-                                <ScrollArea className="flex-1 p-4 bg-[#0a0a0a] relative">
+                                <ScrollArea className="flex-1 p-4 bg-background relative">
                                     {/* Subtle grid background */}
                                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#8b5cf610_1px,transparent_1px),linear-gradient(to_bottom,#8b5cf610_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
 
@@ -139,14 +139,14 @@ export default function ChatBot() {
                                                 className={`flex items-start gap-2.5 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                                             >
                                                 {m.role === "bot" && (
-                                                    <div className="h-7 w-7 rounded-lg bg-purple-900/40 border border-purple-500/30 flex items-center justify-center shrink-0 mt-1">
-                                                        <BrainCircuit className="h-4 w-4 text-purple-400" />
+                                                    <div className="h-7 w-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0 mt-1">
+                                                        <BrainCircuit className="h-4 w-4 text-primary" />
                                                     </div>
                                                 )}
 
                                                 <div className={`max-w-[85%] px-4 py-3 text-sm font-medium leading-relaxed shadow-lg backdrop-blur-sm ${m.role === "user"
-                                                    ? "bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-sm shadow-purple-500/20"
-                                                    : "bg-[#18181b] border border-[#27272a] text-gray-200 rounded-2xl rounded-tl-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                                                    ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm shadow-primary/20"
+                                                    : "bg-muted border border-border text-foreground rounded-2xl rounded-tl-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                                                     }`}>
                                                     {m.content}
                                                 </div>
@@ -162,7 +162,7 @@ export default function ChatBot() {
                                                 <div className="h-7 w-7 rounded-lg bg-purple-900/40 border border-purple-500/30 flex items-center justify-center shrink-0">
                                                     <Sparkles className="h-3.5 w-3.5 text-purple-400 animate-spin-slow" />
                                                 </div>
-                                                <div className="flex gap-1 bg-[#18181b] px-3 py-2.5 rounded-2xl border border-[#27272a]">
+                                                <div className="flex gap-1 bg-card px-3 py-2.5 rounded-2xl border border-border">
                                                     <motion.span
                                                         animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                                                         transition={{ repeat: Infinity, duration: 1.5, delay: 0 }}
@@ -186,20 +186,20 @@ export default function ChatBot() {
                                 </ScrollArea>
 
                                 {/* Input Area */}
-                                <div className="p-3 bg-[#09090b] border-t border-purple-500/20">
+                                <div className="p-3 bg-background border-t border-primary/20">
                                     <form onSubmit={handleSend} className="relative flex items-center gap-2">
                                         <input
                                             type="text"
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
                                             placeholder="Ask Nexus..."
-                                            className="flex-1 bg-[#18181b] text-purple-50 placeholder:text-gray-500 border border-[#27272a] rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-purple-500/70 focus:border-purple-500/70 transition-all outline-none"
+                                            className="flex-1 bg-muted text-foreground placeholder:text-muted-foreground border border-border rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-primary/70 focus:border-primary/70 transition-all outline-none"
                                         />
                                         <Button
                                             type="submit"
                                             size="icon"
                                             disabled={!input.trim() || isLoading}
-                                            className="h-11 w-11 rounded-xl bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_15px_-5px_rgba(168,85,247,0.6)] transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                                            className="h-11 w-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                                         >
                                             <Send className="h-4 w-4" />
                                         </Button>
@@ -248,7 +248,7 @@ export default function ChatBot() {
                                 initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
                                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                 exit={{ opacity: 0, scale: 0.5, rotate: 180 }}
-                                className="w-full h-full rounded-[24px] sm:rounded-[30px] bg-[#09090b]/80 backdrop-blur-3xl border border-white/20 flex items-center justify-center shadow-2xl relative z-10"
+                                className="w-full h-full rounded-[24px] sm:rounded-[30px] bg-background/80 backdrop-blur-3xl border border-white/20 flex items-center justify-center shadow-2xl relative z-10"
                             >
                                 <X className="h-8 w-8 text-white" />
                                 {/* Internal light leak */}

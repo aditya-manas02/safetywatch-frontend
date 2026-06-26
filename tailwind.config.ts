@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 import tailwindAnimate from "tailwindcss-animate";
 
 export default {
-  darkMode: ["class"],
+  darkMode: ["selector", '[data-theme-type="dark"]'],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
@@ -53,15 +53,36 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // New semantic severity colors
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
+        critical: {
+          DEFAULT: "hsl(var(--critical))",
+          foreground: "hsl(var(--critical-foreground))",
+        },
+        // Extended surface tokens
+        "surface-elevated": "hsl(var(--surface-elevated))",
+        "surface-overlay": "hsl(var(--surface-overlay))",
+        // Sidebar tokens (existing)
         sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+          DEFAULT: "hsl(var(--sidebar-background, var(--card)))",
+          foreground: "hsl(var(--sidebar-foreground, var(--card-foreground)))",
+          primary: "hsl(var(--sidebar-primary, var(--primary)))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground, var(--primary-foreground)))",
+          accent: "hsl(var(--sidebar-accent, var(--accent)))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground, var(--accent-foreground)))",
+          border: "hsl(var(--sidebar-border, var(--border)))",
+          ring: "hsl(var(--sidebar-ring, var(--ring)))",
         },
       },
       backgroundImage: {
@@ -69,8 +90,8 @@ export default {
         'gradient-hero': 'var(--gradient-hero)',
       },
       boxShadow: {
-        'card': 'var(--shadow-card)',
-        'elevated': 'var(--shadow-elevated)',
+        'card': 'var(--shadow-card, var(--shadow-md))',
+        'elevated': 'var(--shadow-elevated, var(--shadow-lg))',
       },
       borderRadius: {
         lg: "var(--radius)",

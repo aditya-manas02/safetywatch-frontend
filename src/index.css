@@ -3,22 +3,30 @@
 @tailwind utilities;
 
 /* ===========================
-   BASE DESIGN SYSTEM (SAFE)
+   MULTI-THEME DESIGN SYSTEM
+   SafetyWatch — 5 Themes
 =========================== */
 
 @layer base {
-  :root {
-    --background: 210 40% 98%;
-    --foreground: 210 31% 6%;
+  /* ──────────────────────────────
+     THEME 1: TACTICAL CALM (Dark)
+     Default — Obsidian/Teal/Amber
+  ────────────────────────────── */
+  [data-theme="tactical-calm"] {
+    --background: 210 31% 6%;
+    --foreground: 210 40% 98%;
 
-    --primary: 175 84% 32%;
+    --card: 210 29% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --primary: 175 84% 39%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 214 32% 91%;
-    --secondary-foreground: 210 31% 6%;
+    --secondary: 210 29% 15%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 214 32% 91%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 210 29% 15%;
+    --muted-foreground: 215 20% 65%;
 
     --accent: 38 92% 50%;
     --accent-foreground: 0 0% 100%;
@@ -26,24 +34,293 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 31% 6%;
+    --popover: 210 29% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 31% 6%;
-
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 175 84% 32%;
+    --border: 210 29% 15%;
+    --input: 210 29% 15%;
+    --ring: 175 84% 39%;
 
     --radius: 1rem;
 
-    /* Custom Premium Shadows */
+    /* Semantic severity */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --success: 152 69% 42%;
+    --success-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+    --critical: 0 84% 60%;
+    --critical-foreground: 0 0% 100%;
+
+    /* Extended surfaces */
+    --surface-elevated: 210 29% 14%;
+    --surface-overlay: 210 31% 6%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.08);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.12), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.06);
+    --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.4);
+
+    /* Loader / splash */
+    --loader-bg: 210 31% 6%;
+    --loader-glow: 217 91% 60%;
+    --loader-bar-from: 217 91% 40%;
+    --loader-bar-to: 217 91% 60%;
+  }
+
+  /* ──────────────────────────────
+     THEME 2: CIVIC DAYLIGHT (Light)
+     Clean professional light theme
+  ────────────────────────────── */
+  [data-theme="civic-daylight"] {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+
+    --radius: 1rem;
+
+    /* Semantic severity */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+    --critical: 0 84% 60%;
+    --critical-foreground: 0 0% 100%;
+
+    /* Extended surfaces */
+    --surface-elevated: 0 0% 100%;
+    --surface-overlay: 222 47% 11%;
+
+    /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.03), 0 4px 6px -4px rgb(0 0 0 / 0.03);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.02), 0 8px 10px -6px rgb(0 0 0 / 0.02);
     --shadow-premium: 0 20px 50px -12px rgba(15, 23, 42, 0.08);
+
+    /* Loader / splash */
+    --loader-bg: 221 83% 53%;
+    --loader-glow: 221 83% 53%;
+    --loader-bar-from: 221 83% 45%;
+    --loader-bar-to: 221 83% 60%;
+  }
+
+  /* ──────────────────────────────
+     THEME 3: MIDNIGHT COMMAND (Dark)
+     Deep indigo + electric violet
+  ────────────────────────────── */
+  [data-theme="midnight-command"] {
+    --background: 240 21% 5%;
+    --foreground: 226 70% 95%;
+
+    --card: 240 18% 9%;
+    --card-foreground: 226 70% 95%;
+
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 15% 13%;
+    --secondary-foreground: 226 70% 95%;
+
+    --muted: 240 15% 13%;
+    --muted-foreground: 230 15% 55%;
+
+    --accent: 190 95% 55%;
+    --accent-foreground: 240 21% 5%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --popover: 240 18% 9%;
+    --popover-foreground: 226 70% 95%;
+
+    --border: 240 15% 16%;
+    --input: 240 15% 16%;
+    --ring: 262 83% 58%;
+
+    --radius: 1rem;
+
+    /* Semantic severity */
+    --warning: 45 93% 58%;
+    --warning-foreground: 240 21% 5%;
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --info: 190 95% 55%;
+    --info-foreground: 240 21% 5%;
+    --critical: 0 90% 65%;
+    --critical-foreground: 0 0% 100%;
+
+    /* Extended surfaces */
+    --surface-elevated: 240 18% 12%;
+    --surface-overlay: 240 21% 5%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.12);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.12), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.08);
+    --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+
+    /* Loader / splash */
+    --loader-bg: 240 21% 5%;
+    --loader-glow: 262 83% 58%;
+    --loader-bar-from: 262 83% 48%;
+    --loader-bar-to: 262 83% 65%;
+  }
+
+  /* ──────────────────────────────
+     THEME 4: HIGH CONTRAST (Dark)
+     Maximum readability / accessibility
+  ────────────────────────────── */
+  [data-theme="high-contrast"] {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
+
+    --primary: 47 100% 50%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 75%;
+
+    --accent: 47 100% 50%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
+
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 47 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Semantic severity */
+    --warning: 30 100% 50%;
+    --warning-foreground: 0 0% 0%;
+    --success: 120 100% 40%;
+    --success-foreground: 0 0% 0%;
+    --info: 200 100% 55%;
+    --info-foreground: 0 0% 0%;
+    --critical: 0 100% 50%;
+    --critical-foreground: 0 0% 100%;
+
+    /* Extended surfaces */
+    --surface-elevated: 0 0% 10%;
+    --surface-overlay: 0 0% 0%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.15);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.15), 0 4px 6px -4px rgb(0 0 0 / 0.12);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.6);
+
+    /* Loader / splash */
+    --loader-bg: 0 0% 0%;
+    --loader-glow: 47 100% 50%;
+    --loader-bar-from: 47 100% 40%;
+    --loader-bar-to: 47 100% 55%;
+  }
+
+  /* ──────────────────────────────
+     THEME 5: DESERT OPS (Dark)
+     Warm earth tones, low blue light
+  ────────────────────────────── */
+  [data-theme="desert-ops"] {
+    --background: 30 15% 10%;
+    --foreground: 35 30% 88%;
+
+    --card: 28 14% 14%;
+    --card-foreground: 35 30% 88%;
+
+    --primary: 20 80% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 12% 18%;
+    --secondary-foreground: 35 30% 88%;
+
+    --muted: 30 12% 18%;
+    --muted-foreground: 30 15% 55%;
+
+    --accent: 45 90% 55%;
+    --accent-foreground: 30 15% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --popover: 28 14% 14%;
+    --popover-foreground: 35 30% 88%;
+
+    --border: 28 12% 22%;
+    --input: 28 12% 22%;
+    --ring: 20 80% 52%;
+
+    --radius: 1rem;
+
+    /* Semantic severity */
+    --warning: 45 90% 55%;
+    --warning-foreground: 30 15% 10%;
+    --success: 152 69% 42%;
+    --success-foreground: 0 0% 100%;
+    --info: 199 70% 50%;
+    --info-foreground: 0 0% 100%;
+    --critical: 0 84% 60%;
+    --critical-foreground: 0 0% 100%;
+
+    /* Extended surfaces */
+    --surface-elevated: 28 14% 17%;
+    --surface-overlay: 30 15% 10%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.12), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.06);
+    --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.45);
+
+    /* Loader / splash */
+    --loader-bg: 30 15% 10%;
+    --loader-glow: 20 80% 52%;
+    --loader-bar-from: 20 80% 42%;
+    --loader-bar-to: 20 80% 60%;
   }
 
   body {
@@ -67,12 +344,16 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+    @apply bg-foreground/10 rounded-full transition-colors;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-foreground/20;
   }
 
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    scrollbar-color: hsl(var(--foreground) / 0.1) transparent;
   }
 }
 
@@ -89,9 +370,9 @@
   z-index: -1;
   background-color: hsl(var(--background));
   background-image:
-    radial-gradient(at 0% 0%, hsla(217, 91%, 35%, 0.03) 0, transparent 40%),
-    radial-gradient(at 100% 0%, hsla(28, 85%, 55%, 0.03) 0, transparent 40%),
-    radial-gradient(at 50% 100%, hsla(217, 91%, 35%, 0.03) 0, transparent 40%);
+    radial-gradient(at 0% 0%, hsl(var(--primary) / 0.04) 0, transparent 40%),
+    radial-gradient(at 100% 0%, hsl(var(--accent) / 0.04) 0, transparent 40%),
+    radial-gradient(at 50% 100%, hsl(var(--primary) / 0.04) 0, transparent 40%);
   filter: blur(100px);
   will-change: transform;
   animation: mesh-float 40s linear infinite alternate;
@@ -107,10 +388,10 @@
   }
 }
 
-.dark .mesh-bg {
+[data-theme-type="dark"] .mesh-bg {
   background-image:
-    radial-gradient(at 0% 0%, hsla(217, 91%, 60%, 0.06) 0, transparent 40%),
-    radial-gradient(at 100% 100%, hsla(28, 85%, 55%, 0.06) 0, transparent 40%);
+    radial-gradient(at 0% 0%, hsl(var(--primary) / 0.06) 0, transparent 40%),
+    radial-gradient(at 100% 100%, hsl(var(--accent) / 0.06) 0, transparent 40%);
 }
 
 /* ===========================
@@ -191,11 +472,11 @@
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
 }
 
-.dark .input-premium {
-  @apply bg-white/5 border-white/10;
+[data-theme-type="dark"] .input-premium {
+  @apply bg-foreground/5 border-foreground/10;
 }
 
-.dark .input-premium:focus {
+[data-theme-type="dark"] .input-premium:focus {
   @apply bg-card border-primary/40 ring-primary/10;
 }
 
@@ -204,29 +485,38 @@
    ========================= */
 
 .glass-card {
-  @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-premium;
+  @apply backdrop-blur-md border shadow-premium;
+  background: hsl(var(--card) / 0.4);
+  border-color: hsl(var(--foreground) / 0.1);
 }
 
-.dark .glass-card {
-  @apply bg-card/40 backdrop-blur-md border-white/5;
+[data-theme-type="dark"] .glass-card {
+  @apply backdrop-blur-md;
+  background: hsl(var(--card) / 0.4);
+  border-color: hsl(var(--foreground) / 0.05);
 }
 
 .glass-panel {
-  @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl;
+  @apply backdrop-blur-xl border shadow-xl;
+  background: hsl(var(--card) / 0.7);
+  border-color: hsl(var(--foreground) / 0.1);
 }
 
-.dark .glass-panel {
-  @apply bg-card/70 backdrop-blur-xl border-white/10 shadow-2xl;
+[data-theme-type="dark"] .glass-panel {
+  @apply backdrop-blur-xl shadow-2xl;
+  background: hsl(var(--card) / 0.7);
+  border-color: hsl(var(--foreground) / 0.1);
 }
 
 .glass-card-luxury {
-  @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-premium;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+  @apply backdrop-blur-md border shadow-premium;
+  background: linear-gradient(135deg, hsl(var(--card) / 0.4), hsl(var(--card) / 0.1));
+  border-color: hsl(var(--foreground) / 0.1);
 }
 
-.dark .glass-card-luxury {
-  @apply bg-card/40 border-white/5;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.1));
+[data-theme-type="dark"] .glass-card-luxury {
+  background: linear-gradient(135deg, hsl(var(--card) / 0.3), hsl(var(--card) / 0.1));
+  border-color: hsl(var(--foreground) / 0.05);
 }
 
 /* Dashboard feel */
@@ -237,39 +527,4 @@
   border-radius: 1.25rem;
   box-shadow: var(--shadow-premium);
   @apply border border-border/50;
-}
-
-
-/* =========================
-   DARK MODE
-   ========================= */
-
-.dark {
-  --background: 210 31% 6%;
-  --foreground: 210 40% 98%;
-
-  --card: 210 29% 11%;
-  --card-foreground: 210 40% 98%;
-
-  --primary: 175 84% 39%;
-  --primary-foreground: 0 0% 100%;
-
-  --secondary: 210 29% 15%;
-  --secondary-foreground: 210 40% 98%;
-
-  --muted: 210 29% 15%;
-  --muted-foreground: 215 20% 65%;
-
-  --accent: 38 92% 50%;
-  --accent-foreground: 0 0% 100%;
-
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 100%;
-
-  --popover: 210 29% 11%;
-  --popover-foreground: 210 40% 98%;
-
-  --border: 210 29% 15%;
-  --input: 210 29% 15%;
-  --ring: 175 84% 39%;
 }

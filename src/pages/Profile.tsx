@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
+import { THEME_LIST } from "@/components/ThemeProvider";
 import { Badge } from "@/components/ui/badge";
 import { IncidentCard } from "@/components/IncidentCard";
 import { API_BASE, getAuthHeaders, VERSION_HEADERS } from "@/lib/api";
@@ -17,7 +19,7 @@ import * as LucideIcons from "lucide-react";
 import {
     Shield, ArrowLeft, User, Mail, Phone, Save, RefreshCw, Lock,
     Eye, EyeOff, KeyRound, CheckCircle2, Calendar, Edit2, X, Camera,
-    Info, MapPin, Trophy, MessageSquare, Clock, AlertCircle, Zap, Crown, ShieldCheck
+    Info, MapPin, Trophy, MessageSquare, Clock, AlertCircle, Zap, Crown, ShieldCheck, Palette
 } from "lucide-react";
 
 
@@ -25,6 +27,7 @@ export default function Profile() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { user, isSuperAdmin, isLoading: authLoading, signOut } = useAuth();
+    const { theme, setTheme } = useTheme();
 
     const [myReports, setMyReports] = useState<any[]>([]);
     const [loadingReports, setLoadingReports] = useState(false);
@@ -1112,6 +1115,53 @@ export default function Profile() {
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
+                            </CardContent>
+                        </Card>
+                        
+                        {/* THEME CONFIGURATION CARD */}
+                        <Card className="border-none shadow-2xl glass-card-luxury overflow-hidden">
+                            <div className="h-1.5 bg-gradient-to-r from-primary via-indigo-500 to-blue-500 w-full"></div>
+                            <CardHeader>
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20 shadow-inner">
+                                        <Palette className="h-5 w-5 text-primary" />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <CardTitle className="text-xl font-black tracking-tighter uppercase text-foreground">Theme Configuration</CardTitle>
+                                        <CardDescription className="font-bold text-[10px] text-muted-foreground/60 uppercase tracking-[0.2em]">Visual Interface Preferences</CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-6 pt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {THEME_LIST.map((t) => (
+                                        <button
+                                            key={t.id}
+                                            type="button"
+                                            onClick={() => setTheme(t.id)}
+                                            className={`relative overflow-hidden p-4 rounded-2xl border-2 text-left transition-all duration-300 hover:scale-[1.02] active:scale-95 flex flex-col gap-2 ${
+                                                theme === t.id
+                                                    ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
+                                                    : "border-border/50 bg-background/50 hover:bg-muted/50 hover:border-border"
+                                            }`}
+                                        >
+                                            {theme === t.id && (
+                                                <div className="absolute top-3 right-3">
+                                                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                                                </div>
+                                            )}
+                                            <span className="font-black text-sm uppercase tracking-tight text-foreground">{t.name}</span>
+                                            <span className="font-bold text-[10px] text-muted-foreground leading-snug">{t.description}</span>
+                                            
+                                            {/* Preview blocks */}
+                                            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
+                                                <div className="h-4 w-4 rounded-full bg-primary shadow-sm" />
+                                                <div className="h-4 w-4 rounded-full bg-accent shadow-sm" />
+                                                <div className="h-4 w-4 rounded-full bg-background border border-border shadow-sm" />
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

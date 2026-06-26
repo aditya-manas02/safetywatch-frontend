@@ -27,39 +27,39 @@ export class GlobalErrorBoundary extends Component<Props, State> {
     public render() {
         if (this.state.hasError) {
             return (
-                <div className="min-h-screen bg-[#05070b] text-white flex items-center justify-center p-6">
+                <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
                     <div className="max-w-md w-full text-center space-y-8 animate-in fade-in zoom-in duration-500">
                         <div className="relative inline-block">
-                            <div className="h-24 w-24 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20 mb-4 mx-auto">
-                                <AlertTriangle className="h-12 w-12 text-red-500" />
+                            <div className="h-24 w-24 bg-critical/10 rounded-full flex items-center justify-center border border-critical/20 mb-4 mx-auto">
+                                <AlertTriangle className="h-12 w-12 text-critical" />
                             </div>
-                            <div className="absolute inset-0 bg-red-500/20 blur-3xl rounded-full"></div>
+                            <div className="absolute inset-0 bg-critical/20 blur-3xl rounded-full"></div>
                         </div>
 
                         <div className="space-y-3">
                             <h1 className="text-3xl font-black tracking-tight tracking-tighter">System Interrupted</h1>
-                            <p className="text-slate-400 font-medium">SafetyWatch encountered an unexpected logic error. Our security logs have been updated.</p>
+                            <p className="text-muted-foreground font-medium">SafetyWatch encountered an unexpected logic error. Our security logs have been updated.</p>
                         </div>
 
                         <div className="flex flex-col gap-3">
                             <Button
                                 onClick={() => window.location.reload()}
-                                className="w-full bg-white text-black font-black hover:bg-slate-200 h-12 rounded-xl"
+                                className="w-full bg-foreground text-background font-black hover:bg-foreground/90 h-12 rounded-xl"
                             >
                                 <RefreshCw className="mr-2 h-4 w-4" /> REBOOT SYSTEM
                             </Button>
                             <Button
                                 variant="ghost"
                                 onClick={() => window.location.href = '/'}
-                                className="w-full text-slate-500 hover:text-white h-12"
+                                className="w-full text-muted-foreground hover:text-foreground h-12"
                             >
                                 <Home className="mr-2 h-4 w-4" /> RETURN TO BASE
                             </Button>
                         </div>
 
-                        <div className="mt-8 p-4 bg-black/40 border border-white/5 rounded-xl text-left overflow-auto max-h-32">
-                            <p className="text-[10px] font-bold text-red-400 mb-1 uppercase tracking-wider">Error Details for Support:</p>
-                            <pre className="text-[10px] text-red-300/80 whitespace-pre-wrap font-mono select-all">
+                        <div className="mt-8 p-4 bg-surface-overlay/40 border border-border/50 rounded-xl text-left overflow-auto max-h-32">
+                            <p className="text-[10px] font-bold text-critical mb-1 uppercase tracking-wider">Error Details for Support:</p>
+                            <pre className="text-[10px] text-critical/80 whitespace-pre-wrap font-mono select-all">
                                 {this.state.error?.message || "Unknown Error"}
                                 {import.meta.env.DEV && this.state.error?.stack && `\n\n${this.state.error.stack}`}
                             </pre>

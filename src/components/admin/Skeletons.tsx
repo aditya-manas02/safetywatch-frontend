@@ -22,8 +22,8 @@ export const DashboardSkeleton = () => (
 );
 
 export const TableSkeleton = () => (
-    <div className="bg-[#071328] border border-gray-800 rounded-xl overflow-hidden">
-        <div className="p-6 bg-[#0b1220] border-b border-gray-800">
+    <div className="bg-surface-overlay border border-gray-800 rounded-xl overflow-hidden">
+        <div className="p-6 bg-surface-elevated border-b border-gray-800">
             <PremiumSkeleton className="h-6 w-1/4" />
         </div>
         <div className="p-6 space-y-4">

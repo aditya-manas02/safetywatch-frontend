@@ -187,7 +187,7 @@ export default function SupportManager() {
                       <CheckCircle2 className="h-5 w-5" />
                     </Button>
                   )}
-                  <Button size="icon" variant="outline" onClick={() => deleteMessage(selectedMsg._id)} className="h-10 w-10 border-red-500/20 text-red-500 hover:bg-red-500/10 rounded-xl">
+                  <Button size="icon" variant="outline" onClick={() => deleteMessage(selectedMsg._id)} className="h-10 w-10 border-critical/20 text-critical hover:bg-critical/10 rounded-xl">
                     <Trash2 className="h-5 w-5" />
                   </Button>
                   <Button size="icon" variant="outline" onClick={() => setSelectedMsg(null)} className="h-10 w-10 border-border text-muted-foreground hover:bg-muted rounded-xl">

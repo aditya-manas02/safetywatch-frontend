@@ -261,17 +261,17 @@ export function IncidentCard({
   const getStatusConfig = (status?: string) => {
     switch (status) {
       case "pending":
-        return { color: "bg-amber-500/10 text-amber-500 border-amber-500/20", icon: Clock, label: "Pending" };
+        return { color: "bg-warning/10 text-warning border-warning/20", icon: Clock, label: "Pending" };
       case "under process":
-        return { color: "bg-sky-500/10 text-sky-500 border-sky-500/20", icon: Loader2, label: "Processing" };
+        return { color: "bg-info/10 text-info border-info/20", icon: Loader2, label: "Processing" };
       case "approved":
-        return { color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20", icon: CheckCircle2, label: "Verified" };
+        return { color: "bg-success/10 text-success border-success/20", icon: CheckCircle2, label: "Verified" };
       case "rejected":
-        return { color: "bg-rose-500/10 text-rose-500 border-rose-500/20", icon: XCircle, label: "Rejected" };
+        return { color: "bg-critical/10 text-critical border-critical/20", icon: XCircle, label: "Rejected" };
       case "problem solved":
-        return { color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20", icon: CheckCircle2, label: "Resolved" };
+        return { color: "bg-primary/10 text-primary border-primary/20", icon: CheckCircle2, label: "Resolved" };
       default:
-        return { color: "bg-slate-500/10 text-slate-500 border-slate-500/20", icon: AlertTriangle, label: "Reviewing" };
+        return { color: "bg-muted text-muted-foreground border-border", icon: AlertTriangle, label: "Reviewing" };
     }
   };
 
@@ -286,7 +286,7 @@ export function IncidentCard({
       case "fire":
         return { icon: Flame, color: "text-orange-500", bgColor: "bg-orange-500/5" };
       case "medical":
-        return { icon: Activity, color: "text-red-500", bgColor: "bg-red-500/5" };
+        return { icon: Activity, color: "text-critical", bgColor: "bg-critical/5" };
       case "hazard":
         return { icon: AlertTriangle, color: "text-amber-500", bgColor: "bg-amber-500/5" };
       case "traffic":
@@ -339,7 +339,7 @@ export function IncidentCard({
 
                 <div className="flex gap-2">
                   {incident.isImportant && (
-                    <Badge className="bg-rose-600/90 text-white font-black text-[9px] uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-lg shadow-rose-500/20">
+                    <Badge className="bg-critical/90 text-critical-foreground font-black text-[9px] uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-lg shadow-critical/20">
                       Priority
                     </Badge>
                   )}
@@ -355,11 +355,11 @@ export function IncidentCard({
                       variant="secondary"
                       className={cn(
                         "rounded-full h-8 px-3 text-[10px] font-bold backdrop-blur-md border-white/10 transition-all",
-                        isUpvotedLocal ? "bg-orange-500 text-white" : "bg-black/40 text-white/80 hover:bg-black/60"
+                        isUpvotedLocal ? "bg-warning text-warning-foreground" : "bg-surface-overlay/40 text-white/80 hover:bg-surface-overlay/60"
                       )}
                       onClick={handleUpvote}
                     >
-                      <ThumbsUp className={cn("h-3.5 w-3.5 mr-1.5", isUpvotedLocal && "fill-white")} />
+                      <ThumbsUp className={cn("h-3.5 w-3.5 mr-1.5", isUpvotedLocal && "fill-current")} />
                       {upvotesLocal}
                     </Button>
                   </div>
@@ -424,10 +424,10 @@ export function IncidentCard({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full h-full flex flex-col md:flex-row bg-[#020817]/95 backdrop-blur-3xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+          className="relative w-full h-full flex flex-col md:flex-row bg-surface-overlay/95 backdrop-blur-3xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
         >
           {/* LEFT COLUMN: HERO IMAGE (Sticky on Desktop) */}
-          <div className="relative w-full md:w-[45%] h-[250px] md:h-auto overflow-hidden bg-[#020817] flex items-center justify-center border-b md:border-b-0 md:border-r border-white/10">
+          <div className="relative w-full md:w-[45%] h-[250px] md:h-auto overflow-hidden bg-surface-overlay flex items-center justify-center border-b md:border-b-0 md:border-r border-white/10">
             <img
               src={incident.imageUrl || "https://images.unsplash.com/photo-1501854140801-50d01698950b"}
               alt={incident.title}
@@ -457,7 +457,7 @@ export function IncidentCard({
           </div>
 
           {/* RIGHT COLUMN: SCROLLABLE CONTENT */}
-          <div className="flex-1 flex flex-col h-full overflow-hidden relative min-h-0 bg-[#020817]/40">
+          <div className="flex-1 flex flex-col h-full overflow-hidden relative min-h-0 bg-surface-overlay/40">
 
             {/* STICKY HEADER PART */}
             <div className="p-8 pb-4 shrink-0 border-b border-white/5 bg-gradient-to-b from-[#020817] to-transparent flex items-center justify-between gap-4">
@@ -623,7 +623,7 @@ export function IncidentCard({
                     otherUserId={user?.id}
                     incidentTitle={incident.title}
                     isResolved={incident.status === "problem solved"}
-                    className="h-full border-none rounded-none bg-[#0b101b]/50"
+                    className="h-full border-none rounded-none bg-surface-elevated/50"
                   />
                 </div>
               )}

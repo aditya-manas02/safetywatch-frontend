@@ -499,7 +499,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-[#020617]/95 backdrop-blur-md overflow-hidden"
+                className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-surface-overlay/95 backdrop-blur-md overflow-hidden"
             >
                 {/* Digital Noise Background Overlay */}
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
@@ -507,7 +507,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 30 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
-                    className="relative w-full max-w-md bg-[#09090b] border border-purple-500/30 rounded-[2rem] shadow-[0_0_100px_-20px_rgba(168,85,247,0.3)] p-8 md:p-10 overflow-hidden"
+                    className="relative w-full max-w-md bg-card border border-purple-500/30 rounded-[2rem] shadow-[0_0_100px_-20px_rgba(168,85,247,0.3)] p-8 md:p-10 overflow-hidden"
                 >
                     {/* Interior Glow */}
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
@@ -578,15 +578,15 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="w-full mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-left"
+                                    className="w-full mb-8 p-4 bg-critical/10 border border-critical/20 rounded-2xl text-left"
                                 >
                                     <div className="flex items-start gap-3 mb-3">
-                                        <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                        <AlertTriangle className="w-5 h-5 text-critical flex-shrink-0 mt-0.5" />
                                         <div>
-                                            <p className="text-red-500 font-bold text-[13px] uppercase tracking-wider mb-1">
+                                            <p className="text-critical font-bold text-[13px] uppercase tracking-wider mb-1">
                                                 {downloadError === "LEGACY_SHELL_INCOMPATIBILITY" ? "Legacy Version Detected" : "Update Interrupted"}
                                             </p>
-                                            <p className="text-red-200/70 text-[12px] leading-tight italic">
+                                            <p className="text-critical/70 text-[12px] leading-tight italic">
                                                 {downloadError === "LEGACY_SHELL_INCOMPATIBILITY"
                                                     ? "Your current app shell is too old for in-app syncing."
                                                     : `Reason: ${downloadError}`}
@@ -619,7 +619,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                                     setDownloadError(null);
                                                     startDownload();
                                                 }}
-                                                className="w-full bg-red-500/20 hover:bg-red-500/30 text-red-100 border border-red-500/30 font-black tracking-tighter uppercase rounded-xl py-6 h-auto"
+                                                className="w-full bg-critical/20 hover:bg-critical/30 text-critical border border-critical/30 font-black tracking-tighter uppercase rounded-xl py-6 h-auto"
                                             >
                                                 <RefreshCw className="w-4 h-4 mr-2" />
                                                 Retry Update

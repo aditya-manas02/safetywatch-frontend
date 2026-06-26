@@ -99,7 +99,7 @@ export default function Navbar() {
                                 Support
                             </Button>
 
-                            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-rose-600 font-bold hover:bg-rose-500/10 rounded-xl px-4 transition-all">
+                            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-critical font-bold hover:bg-critical/10 rounded-xl px-4 transition-all">
                                 <LogOut className="mr-2 h-4 w-4" />
                                 Sign Out
                             </Button>
@@ -224,7 +224,7 @@ export default function Navbar() {
                             <Button
                                 variant="ghost"
                                 onClick={handleSignOut}
-                                className="justify-start h-12 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 font-bold rounded-xl"
+                                className="justify-start h-12 text-critical hover:text-critical hover:bg-critical/10 font-bold rounded-xl"
                             >
                                 <LogOut className="mr-3 h-5 w-5" />
                                 Sign Out

@@ -54,7 +54,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.95 }}
-                className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-orange-500 text-white shadow-lg hover:shadow-pink-500/50 transition-shadow"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-orange-500 text-white shadow-lg shadow-pink-500/20 hover:shadow-pink-500/50 transition-shadow"
               >
                 <Instagram className="h-5 w-5" />
               </motion.a>
@@ -64,7 +64,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg hover:shadow-slate-500/50 transition-shadow"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-foreground text-background shadow-lg shadow-foreground/20 hover:shadow-foreground/50 transition-shadow"
               >
                 <Github className="h-5 w-5" />
               </motion.a>
@@ -74,7 +74,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, rotate: -5 }}
                 whileTap={{ scale: 0.95 }}
-                className="h-10 w-10 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:shadow-blue-500/50 transition-shadow"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-info text-info-foreground shadow-lg shadow-info/20 hover:shadow-info/50 transition-shadow"
               >
                 <Linkedin className="h-5 w-5" />
               </motion.a>
