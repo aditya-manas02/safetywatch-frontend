@@ -145,8 +145,8 @@ export default function NewsFeed() {
 
     return (
         <>
-            <div className="group relative bg-card/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-500 hover:shadow-primary/10">
-                <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-primary/10 to-transparent">
+            <div className="group relative theme-card-surface transition-all duration-500 hover:shadow-primary/10">
+                <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between theme-card-surface">
                     <div className="flex items-center gap-2">
                         <div className="p-1.5 bg-primary/20 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)]">
                             <Newspaper className="h-4 w-4 text-primary" />

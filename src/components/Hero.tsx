@@ -75,13 +75,13 @@ export default function Hero({
     viewFeedBtn: "View Feed",
     getApp: "Get the App",
     liveOverview: "LIVE OVERVIEW",
-    liveUplink: "Live Uplink",
+    liveUplink: "Live Updates",
     reports: "Reports",
     alerts: "Alerts",
     members: "Members",
-    primaryConcern: "Primary Concern",
+    primaryConcern: "Top Concern",
     mostReported: "Most reported in your area",
-    latestSignals: "LATEST SIGNALS",
+    latestSignals: "RECENT ACTIVITY",
     commonType: "",
     latestIncidents: [] as any[]
   };
@@ -186,9 +186,9 @@ export default function Hero({
             {t.empowering}
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-[1.1] mb-6 sm:mb-8 tracking-tight text-foreground">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-[1.1] mb-6 sm:mb-8 tracking-tight text-foreground theme-hero-heading">
             {t.safetyIn} <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-info">{t.neighborhood}</span>
+            <span className="theme-hero-emphasis">{t.neighborhood}</span>
           </h1>
 
           <p className="text-base sm:text-xl text-muted-foreground mb-8 sm:mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
@@ -235,7 +235,7 @@ export default function Hero({
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="bg-card/40 backdrop-blur-2xl border border-border/50 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+          <div className="theme-card-surface p-8 relative overflow-hidden group">
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"
               animate={{ opacity: [0.3, 0.6, 0.3] }}
@@ -263,15 +263,15 @@ export default function Hero({
             ) : (
               <div className="relative z-10">
                 <div className="grid grid-cols-3 gap-4 text-center mb-8">
-                  <div className="bg-background/40 rounded-2xl p-3 border border-border/50 backdrop-blur-sm">
+                  <div className="theme-stat-card">
                     <p className="text-3xl font-black text-foreground"><AnimatedCounter value={stats?.incidentsToday ?? 0} /></p>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mt-1">{t.reports}</p>
                   </div>
-                  <div className="bg-background/40 rounded-2xl p-3 border border-border/50 backdrop-blur-sm">
+                  <div className="theme-stat-card">
                     <p className="text-3xl font-black text-warning"><AnimatedCounter value={stats?.activeAlerts ?? 0} /></p>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mt-1">{t.alerts}</p>
                   </div>
-                  <div className="bg-background/40 rounded-2xl p-3 border border-border/50 backdrop-blur-sm">
+                  <div className="theme-stat-card">
                     <p className="text-3xl font-black text-primary"><AnimatedCounter value={stats?.activeUsers ?? 0} /></p>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mt-1">{t.members}</p>
                   </div>
@@ -306,7 +306,7 @@ export default function Hero({
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, x: 20 }}
-                              className="flex items-center gap-3 bg-background/40 backdrop-blur-md p-3 rounded-xl border border-border/50 hover:border-primary/40 transition-all duration-300 group/item"
+                              className="flex items-center gap-3 bg-background/40 backdrop-blur-md p-3 rounded-xl border border-border/50 hover:border-primary/40 transition-all duration-300 group/item theme-list-item"
                             >
                               <div className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${config.color}`}>
                                 <Icon className="h-4 w-4" />
@@ -317,7 +317,7 @@ export default function Hero({
                                   {inc.type} • {inc.location}
                                 </p>
                               </div>
-                              <div className="h-2 w-2 rounded-full bg-success shadow-lg shadow-success/50 animate-pulse" />
+                              <div className="theme-icon-indicator" />
                             </motion.div>
                           );
                         })

@@ -326,7 +326,7 @@ export function IncidentCard({
             transition={{ duration: 0.4 }}
             className="h-full cursor-pointer group/card"
           >
-            <Card className="relative h-full flex flex-col border border-border/50 shadow-xl hover:shadow-primary/10 hover:border-primary/30 transition-all duration-500 overflow-hidden bg-card/50 backdrop-blur-3xl group rounded-[2rem]">
+            <Card className="theme-card-surface relative h-full flex flex-col hover:shadow-primary/10 hover:border-primary/30 transition-all duration-500 overflow-hidden group">
               {/* Glossy Overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-foreground/5 to-transparent pointer-events-none" />
 

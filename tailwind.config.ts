@@ -18,6 +18,10 @@ export default {
         sans: ['Inter', 'sans-serif'],
         display: ['Outfit', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
+        lora: ['Lora', 'serif'],
+        grotesk: ['Space Grotesk', 'sans-serif'],
+        hyperlegible: ['Atkinson Hyperlegible', 'sans-serif'],
+        courier: ['Courier Prime', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",

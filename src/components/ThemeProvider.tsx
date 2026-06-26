@@ -7,7 +7,7 @@ const THEME_TYPE_MAP: Record<string, "dark" | "light"> = {
   "civic-daylight": "light",
   "midnight-command": "dark",
   "high-contrast": "dark",
-  "desert-ops": "dark",
+  "community-bulletin": "light",
 };
 
 export const THEME_LIST = [
@@ -15,7 +15,7 @@ export const THEME_LIST = [
   { id: "civic-daylight", name: "Civic Daylight", description: "Clean, bright professional light theme", type: "light" as const },
   { id: "midnight-command", name: "Midnight Command", description: "Deep indigo with electric violet", type: "dark" as const },
   { id: "high-contrast", name: "High Contrast", description: "Maximum readability, accessibility-first", type: "dark" as const },
-  { id: "desert-ops", name: "Desert Ops", description: "Warm earth tones, easy on the eyes", type: "dark" as const },
+  { id: "community-bulletin", name: "Community Bulletin", description: "Warm analog paper board", type: "light" as const },
 ];
 
 export const THEME_IDS = THEME_LIST.map((t) => t.id);
