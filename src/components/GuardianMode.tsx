@@ -288,8 +288,8 @@ const GuardianMode = () => {
 
     return (
         <>
-            {/* Floating Action Button - Moved to Left to avoid ChatBot overlap */}
-            <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-2">
+            {/* Floating Action Button - Moved to avoid ChatBot and Bottom Nav */}
+            <div className="fixed bottom-[calc(90px+env(safe-area-inset-bottom))] md:bottom-6 left-6 z-50 flex flex-col items-center gap-2">
                 <AnimatePresence>
                     {(holding || loading) && (
                         <motion.div

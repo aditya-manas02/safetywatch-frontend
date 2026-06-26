@@ -679,7 +679,7 @@ const AppContent = () => {
         )}
       </AnimatePresence>
 
-      <div className="md:hidden">
+      <div className={location.pathname === '/' ? "block" : "md:hidden"}>
         <GuardianMode />
       </div>
       
