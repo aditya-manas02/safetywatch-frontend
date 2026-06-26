@@ -20,8 +20,6 @@ export default {
         mono: ['Space Mono', 'monospace'],
         lora: ['Lora', 'serif'],
         grotesk: ['Space Grotesk', 'sans-serif'],
-        hyperlegible: ['Atkinson Hyperlegible', 'sans-serif'],
-        courier: ['Courier Prime', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
