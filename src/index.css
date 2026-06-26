@@ -82,7 +82,7 @@
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
 
-    --primary: 221 83% 53%;
+    --primary: 180 100% 40%; /* Vibrant teal for borders/icons */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96%;
@@ -680,4 +680,28 @@
 [data-theme="community-bulletin"] .hero-bg,
 [data-theme="midnight-command"] .hero-bg {
   background: none;
+}
+
+/* ===========================
+   CIVIC DAYLIGHT GLOBAL GRADIENT
+   =========================== */
+
+/* Solid background elements (buttons, active badges) */
+[data-theme="civic-daylight"] .bg-primary {
+  background-image: linear-gradient(to right, #2dd4bf, #2563eb) !important;
+  color: white !important;
+}
+
+/* Text elements (excluding SVGs since they don't support text-fill gradient natively) */
+[data-theme="civic-daylight"] .text-primary:not(svg) {
+  background-image: linear-gradient(to right, #2dd4bf, #2563eb) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* Ensure SVGs inherit the solid teal base color if they use text-primary */
+[data-theme="civic-daylight"] svg.text-primary {
+  color: hsl(var(--primary)) !important;
 }
