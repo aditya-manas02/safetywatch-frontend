@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Map, PlusCircle, MessageSquare, User } from "lucide-react";
+import { Home, Map, PlusCircle, MessageSquare, User, List } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 
@@ -26,7 +26,7 @@ export default function MobileBottomNav({ onReportClick }: MobileBottomNavProps)
 
   const tabs: Tab[] = [
     { id: "home", label: "Home", icon: Home, path: "/" },
-    { id: "map", label: "Map", icon: Map, path: "/map" },
+    { id: "feed", label: "Feed", icon: List, path: "/feed" },
     { id: "report", label: "Report", icon: PlusCircle, action: onReportClick, isCenter: true },
     { id: "messages", label: "Messages", icon: MessageSquare, path: "/inbox" },
     { id: "profile", label: "Profile", icon: User, path: "/profile" },

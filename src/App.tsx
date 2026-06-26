@@ -48,7 +48,7 @@ const Circles = lazy(() => import("./pages/Circles"));
 const CircleDetails = lazy(() => import("./pages/CircleDetails"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Maintenance = lazy(() => import("./pages/Maintenance"));
-const MapPage = lazy(() => import("./pages/MapPage"));
+const FeedPage = lazy(() => import("./pages/FeedPage"));
 
 
 
@@ -591,7 +591,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/map" element={<MapPage />} />
+            <Route path="/feed" element={<FeedPage />} />
             <Route
               path="/admin"
               element={
