@@ -23,8 +23,8 @@ export const THEME_IDS = THEME_LIST.map((t) => t.id);
 function ThemeTypeSync() {
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      const currentTheme = document.documentElement.getAttribute("data-theme") || "tactical-calm";
-      const themeType = THEME_TYPE_MAP[currentTheme] || "dark";
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "civic-daylight";
+      const themeType = THEME_TYPE_MAP[currentTheme] || "light";
       document.documentElement.setAttribute("data-theme-type", themeType);
       // Also toggle the 'dark' class for any remaining .dark CSS selectors in index.css utilities
       if (themeType === "dark") {
@@ -40,8 +40,8 @@ function ThemeTypeSync() {
     });
 
     // Set initial value
-    const currentTheme = document.documentElement.getAttribute("data-theme") || "tactical-calm";
-    const themeType = THEME_TYPE_MAP[currentTheme] || "dark";
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "civic-daylight";
+    const themeType = THEME_TYPE_MAP[currentTheme] || "light";
     document.documentElement.setAttribute("data-theme-type", themeType);
     if (themeType === "dark") {
       document.documentElement.classList.add("dark");
@@ -63,7 +63,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
     <NextThemesProvider
       attribute="data-theme"
-      defaultTheme="tactical-calm"
+      defaultTheme="civic-daylight"
       storageKey="safetywatch-theme"
       themes={THEME_IDS}
       enableSystem={false}
