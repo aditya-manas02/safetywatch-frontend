@@ -48,7 +48,12 @@ export default function Index() {
   const location = useLocation();
   const { user, signOut, token } = useAuth();
 
-
+  const [popularIncidents, setPopularIncidents] = useState<Incident[]>([]);
+  const [nearbyIncidents, setNearbyIncidents] = useState<Incident[]>([]);
+  const [myReports, setMyReports] = useState<Incident[]>([]);
+  const [loadingPopular, setLoadingPopular] = useState(true);
+  const [loadingNearby, setLoadingNearby] = useState(false);
+  const [loadingMyReports, setLoadingMyReports] = useState(false);
   
   // Dashboard Bundle state
   const [dashboardBundle, setDashboardBundle] = useState<any>(null);
@@ -82,7 +87,9 @@ export default function Index() {
     checkPerms();
   }, []);
 
-
+  const rawPopular = useRef<Incident[]>([]);
+  const rawNearby = useRef<Incident[]>([]);
+  const rawMyReports = useRef<Incident[]>([]);
 
   const translateIncidents = async (incidents: Incident[], lang: string) => {
     return [...incidents];
@@ -139,6 +146,80 @@ export default function Index() {
       console.error("Failed to fetch focused incident:", err);
     }
   }, []);
+  const fetchPopular = useCallback(async () => {
+    setLoadingPopular(true);
+    try {
+      // NEW: Fetch Bundle instead of just popular
+      const resp = await fetch(`${API_BASE}/stats/bundle`, {
+        headers: VERSION_HEADERS
+      });
+      if (!resp.ok) throw new Error("Failed to fetch dashboard bundle");
+      const bundle = await resp.json();
+      
+      // 1. Process Popular Incidents
+      const filteredPopular = (Array.isArray(bundle.popular) ? bundle.popular : []).map(mapIncident).filter((i: Incident) =>
+        (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
+      );
+      rawPopular.current = filteredPopular;
+      const lang = localStorage.getItem("app_lang") || "en";
+      setPopularIncidents(await translateIncidents(filteredPopular, lang));
+
+      // 2. Set Bundle Data
+      setDashboardBundle(bundle);
+
+    } catch (err) {
+      console.error("Failed to fetch popular incidents:", err);
+    } finally {
+      setLoadingPopular(false);
+    }
+  }, []);
+
+  /* ---------------------------
+     FETCH NEARBY INCIDENTS
+  ---------------------------- */
+  const fetchNearby = useCallback(async (lat: number, lng: number) => {
+    setLoadingNearby(true);
+    try {
+      const resp = await fetch(`${API_BASE}/incidents/near-me?lat=${lat}&lng=${lng}&radius=10`, {
+        headers: VERSION_HEADERS
+      });
+      if (!resp.ok) throw new Error("Failed to fetch nearby incidents");
+      const data = await resp.json();
+      const filtered = (Array.isArray(data) ? data : []).map(mapIncident).filter((i: Incident) =>
+        (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
+      );
+      rawNearby.current = filtered;
+      const lang = localStorage.getItem("app_lang") || "en";
+      setNearbyIncidents(await translateIncidents(filtered, lang));
+    } catch (err) {
+      console.error("Failed to fetch nearby incidents:", err);
+    } finally {
+      setLoadingNearby(false);
+    }
+  }, []);
+
+  /* ---------------------------
+     FETCH MY REPORTS
+  ---------------------------- */
+  const fetchMyReports = useCallback(async () => {
+    if (!user) return;
+    setLoadingMyReports(true);
+    try {
+      const resp = await fetch(`${API_BASE}/incidents/my-reports`, {
+        headers: getAuthHeaders(token)
+      });
+      if (!resp.ok) throw new Error("Failed to fetch my reports");
+      const data = await resp.json();
+      const mapped = (Array.isArray(data) ? data : []).map(mapIncident);
+      rawMyReports.current = mapped;
+      const lang = localStorage.getItem("app_lang") || "en";
+      setMyReports(await translateIncidents(mapped, lang));
+    } catch (err) {
+      console.error("Failed to fetch my reports:", err);
+    } finally {
+      setLoadingMyReports(false);
+    }
+  }, [user, token]);
 
   function mapIncident(item: any): Incident {
     return {
@@ -158,10 +239,34 @@ export default function Index() {
   }
 
   const handleRefresh = async () => {
-    window.location.reload();
+    console.log('[INDEX] Manual refresh triggered...');
+
+    // Trigger nearby incidents update non-blockingly
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setUserLocation(loc);
+          fetchNearby(loc.lat, loc.lng);
+        },
+        () => console.log("Location access denied"),
+        { timeout: 5000 }
+      );
+    } else if (userLocation) {
+      fetchNearby(userLocation.lat, userLocation.lng);
+    }
+
+    // Force pull-to-refresh spinner to stop after 3 seconds max
+    // even if translation or data fetch is still hanging in the background.
+    const fetchPromises = Promise.all([fetchPopular(), fetchMyReports()]);
+    const timeoutPromise = new Promise(resolve => setTimeout(resolve, 3000));
+    await Promise.race([fetchPromises, timeoutPromise]);
   };
 
   useEffect(() => {
+    fetchPopular();
+    if (user) fetchMyReports();
+
     const params = new URLSearchParams(location.search);
     const incidentId = params.get("incidentId") || params.get("incident");
     const isSos = params.get("sos") === "true";
@@ -178,8 +283,23 @@ export default function Index() {
         });
       }
     }
-  }, [location.search, fetchFocusedIncident]);
 
+    // Attempt to get user location for Nearby section
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setUserLocation(loc);
+          fetchNearby(loc.lat, loc.lng);
+        },
+        () => console.log("Location access denied")
+      );
+    }
+  }, [user, fetchPopular, fetchMyReports, fetchNearby, fetchFocusedIncident, location.search]);
+
+  /* ---------------------------
+     SCROLL HANDLERS
+  ---------------------------- */
   useEffect(() => {
     if (location.state?.scrollTo) {
       setTimeout(() => {
@@ -191,6 +311,12 @@ export default function Index() {
       window.history.replaceState({}, document.title);
     }
   }, [location]);
+
+  const scrollToMyReports = () => {
+    document.getElementById("tracking-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+
 
   function updateMetaTags(incident: Incident) {
     document.title = `${incident.title} | SafetyWatch`;
@@ -237,7 +363,7 @@ export default function Index() {
         <div className={user ? "hidden md:block" : "block"}>
           <Hero
             onReportClick={() => user ? window.dispatchEvent(new CustomEvent("open-report-form")) : navigate("/auth")}
-            onViewReports={() => navigate("/feed")}
+            onViewReports={() => document.getElementById("popular-section")?.scrollIntoView({ behavior: "smooth" })}
             initialStats={dashboardBundle?.stats}
             initialLatest={dashboardBundle?.latest}
           />
@@ -245,12 +371,15 @@ export default function Index() {
 
         {/* MAIN */}
         <main className="container mx-auto px-6 py-12">
+          {/* Notification Permission Banner — ask permission or test push */}
           {showPermissionBanner && notifPermission !== "granted" && (
             <motion.div 
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 sm:p-6 mb-8 flex flex-col gap-4 overflow-hidden"
             >
+
+
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4 text-center sm:text-left">
                   <div className="bg-orange-500/20 p-2 sm:p-3 rounded-xl">
@@ -273,17 +402,29 @@ export default function Index() {
                 <div className="flex gap-2 w-full sm:w-auto">
                   {notifPermission !== "granted" && (
                     <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl shadow-lg shadow-orange-500/20 shrink-0 flex-1 sm:flex-initial" onClick={async () => {
+                      console.log("[FCM] Activate Now clicked. Platform:", Capacitor.getPlatform());
                       let permission: string = "default";
                        try {
+                        console.log("[FCM] Requesting permissions...");
                         if (Capacitor.isNativePlatform()) {
                           const { PushNotifications } = await import("@capacitor/push-notifications");
                           const { LocalNotifications } = await import("@capacitor/local-notifications");
+                          
+                          // Request both Push and Local permissions
+                          console.log("[FCM] Native: Requesting PushPermissions...");
                           const pResult = await PushNotifications.requestPermissions();
+                          console.log("[FCM] Native: Push Result:", pResult.receive);
+                          
+                          console.log("[FCM] Native: Requesting LocalPermissions...");
                           const lResult = await LocalNotifications.requestPermissions();
+                          console.log("[FCM] Native: Local Result:", lResult.display);
+                          
                           permission = (pResult.receive === "granted" || lResult.display === "granted") ? "granted" : "denied";
                         } else {
+                          console.log("[FCM] Web: Requesting Notification.requestPermission...");
                           permission = await Notification.requestPermission();
                         }
+                        console.log("[FCM] Permission result:", permission);
                         setNotifPermission(permission);
                         if (permission === "granted") {
                           setShowPermissionBanner(false);
@@ -295,20 +436,195 @@ export default function Index() {
                           toast({ title: "PERMISSION DENIED", description: "Please enable notifications in your browser/app settings.", variant: "destructive" });
                         }
                       } catch (err) {
+                        console.error("[FCM] Permission request failed:", err);
                         toast({ title: "ERROR", description: "Failed to request notification permissions.", variant: "destructive" });
                       }
                     }}>Activate Now</Button>
+                  )}
+                  {notifPermission === "granted" && user && token && (
+                    <Button size="sm" variant="outline" className="border-orange-500/30 text-orange-500 font-bold px-6 py-2 rounded-xl shrink-0 flex-1 sm:flex-initial" onClick={async () => {
+                      try {
+                        // Step 1: Fire a LOCAL notification immediately
+                        if (Capacitor.isNativePlatform()) {
+                          const { LocalNotifications } = await import("@capacitor/local-notifications");
+                          await LocalNotifications.schedule({
+                            notifications: [{
+                              title: "🔔 Native Test — SafetyWatch",
+                              body: "This is a NATIVE test. If you see this, your phone supports system alerts!",
+                              id: Math.floor(Math.random() * 1000),
+                              schedule: { at: new Date(Date.now() + 1000) },
+                              actionTypeId: "",
+                              extra: null,
+                              channelId: "safetywatch-alerts"
+                            }]
+                          });
+                          toast({ title: "LOCAL TEST SENT", description: "Check your phone's notification tray!" });
+                        } else {
+                          const reg = await navigator.serviceWorker?.ready;
+                          if (reg) {
+                            await reg.showNotification("🔔 Web Test — SafetyWatch", {
+                              body: "This is a WEB test. If you see this, your browser supports system notifications!",
+                              icon: "/logo192.png",
+                              badge: "/logo192.png",
+                              tag: "local-test",
+                            });
+                            toast({ title: "LOCAL TEST SENT", description: "Check your phone's notification tray!" });
+                          } else {
+                            toast({ title: "NO SERVICE WORKER", description: "Service worker not found. Push won't work.", variant: "destructive" });
+                          }
+                        }
+
+                        // Step 2: Also fire a BACKEND test push via FCM
+                        if (!token) {
+                          toast({ title: "NO TOKEN", description: "Missing FCM token. Push might fail.", variant: "destructive" });
+                          return;
+                        }
+
+                        const res = await fetch(`${API_BASE}/users/test-push`, {
+                          method: "POST",
+                          headers: getAuthHeaders(token),
+                        });
+                        const data = await res.json();
+                        console.log("[FCM] Test push result:", data);
+                        if (!res.ok) {
+                          toast({ title: "SERVER TEST FAILED", description: data.message || "Is your backend up?", variant: "destructive" });
+                        } else {
+                          toast({ title: "SERVER TEST SENT", description: "A message was requested from the server." });
+                        }
+                        if (data.result?.success) {
+                          toast({ title: "SERVER PUSH SENT", description: `Sent to ${data.tokenCount} device(s). Check notification tray!` });
+                        } else {
+                          toast({ title: "SERVER PUSH FAILED", description: data.message || "Backend could not send push. Check server logs.", variant: "destructive" });
+                        }
+                      } catch (err) {
+                        console.error("[FCM] Test notification failed:", err);
+                        toast({ title: "TEST FAILED", description: String(err), variant: "destructive" });
+                      }
+                    }}>🔔 Test Notification</Button>
                   )}
                 </div>
               </div>
             </motion.div>
           )}
 
+
           <AdCarousel />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            {/* LEFT: MAIN CONTENT */}
             <div className="lg:col-span-2 space-y-12 sm:space-y-16">
+
+              {/* 0. CHALLENGES & CAMPAIGNS */}
               {user && <ChallengesSection />}
+
+              {/* 1. POPULAR INCIDENTS */}
+              <div className="hidden md:block">
+                <section id="popular-section" className="space-y-6 sm:space-y-8">
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 text-orange-500 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-1">
+                        <Star className="h-3.5 w-3.5 fill-orange-500" /> {t.adminAlerts}
+                      </div>
+                      <h3 className="text-2xl sm:text-3xl font-black">{t.popularIncidents}</h3>
+                      <p className="text-muted-foreground text-sm sm:text-base mt-2">{t.popularDesc}</p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground/20" />
+                  </div>
+
+                  {loadingPopular ? (
+                    <div className="grid gap-4 sm:gap-6 md:grid-cols-2 animate-pulse">
+                      {[1, 2].map(i => <div key={i} className="h-64 bg-card border rounded-2xl"></div>)}
+                    </div>
+                  ) : popularIncidents.length === 0 ? (
+                    <div className="text-center py-12 sm:py-16 bg-muted/10 rounded-2xl border">
+                      <p className="text-muted-foreground text-sm">No popular incidents currently featured.</p>
+                    </div>
+                  ) : (
+                    <IncidentCarousel incidents={popularIncidents} />
+                  )}
+                </section>
+              </div>
+
+              {/* 2. INCIDENTS NEAR YOU */}
+              <div className="hidden md:block">
+                <section id="nearby-section" className="space-y-6 sm:space-y-8">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-blue-600 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-1">
+                        <MapPin className="h-3.5 w-3.5" /> {t.neighborhoodWatch}
+                      </div>
+                      <h3 className="text-2xl sm:text-3xl font-black">{t.nearLocation}</h3>
+                      <p className="text-muted-foreground text-sm sm:text-base mt-2">{t.nearDesc}</p>
+                    </div>
+                  </div>
+
+                  {!userLocation ? (
+                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-6 sm:p-10 text-center">
+                      <MapPin className="h-10 w-10 sm:h-12 sm:w-12 text-blue-500/30 mx-auto mb-4" />
+                      <p className="text-muted-foreground text-sm sm:text-base font-medium mb-6">{t.locationRequired}</p>
+                      <Button variant="outline" size="sm" onClick={() => window.location.reload()}>{t.enableLocation}</Button>
+                    </div>
+                  ) : loadingNearby ? (
+                    <div className="grid gap-4 sm:gap-6 md:grid-cols-2 animate-pulse">
+                      {[1, 2].map(i => <div key={i} className="h-64 bg-card border rounded-2xl"></div>)}
+                    </div>
+                  ) : nearbyIncidents.length === 0 ? (
+                    <div className="text-center py-12 sm:py-16 bg-muted/10 rounded-2xl border">
+                      <p className="text-muted-foreground text-sm">{t.noNearby}</p>
+                    </div>
+                  ) : (
+                    <IncidentCarousel incidents={nearbyIncidents} />
+                  )}
+                </section>
+              </div>
+
+              {/* 3. REPORT TRACKING (FOR LOGGED IN USERS) */}
+              {user && (
+                <div className="hidden md:block">
+                  <section id="tracking-section" className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <div className="relative bg-card border rounded-2xl p-6 sm:p-8 shadow-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+                        <div>
+                          <div className="flex items-center gap-2 text-primary font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-1">
+                            <Clock className="h-3.5 w-3.5" /> {t.liveUpdates}
+                          </div>
+                          <h3 className="text-2xl sm:text-3xl font-black">{t.reportTracking}</h3>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate("/profile")}
+                          className="text-muted-foreground hover:text-primary w-fit p-0 sm:p-2"
+                        >
+                          {t.viewAllReports} <ChevronRight className="ml-1 h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      {loadingMyReports ? (
+                        <div className="flex justify-center py-12">
+                          <div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full"></div>
+                        </div>
+                      ) : myReports.length === 0 ? (
+                        <div className="text-center py-12 bg-muted/20 border border-dashed rounded-xl">
+                          <p className="text-muted-foreground text-sm font-medium mb-4">{t.noReportsYet}</p>
+                          <Button size="sm" onClick={() => window.dispatchEvent(new CustomEvent("open-report-form"))}>{t.fileFirstReport}</Button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                          {myReports.slice(0, 2).map((inc) => (
+                            <div key={inc.id} onClick={() => setFocusedIncident(inc)} className="cursor-pointer">
+                              <IncidentCard incident={inc} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                </div>
+              )}
+
               <div className={user ? "hidden md:block" : "block"}>
                 <HowItWorks />
               </div>
@@ -359,7 +675,7 @@ export default function Index() {
                     {t.instantReport}
                   </Button>
 
-                  <Button variant="ghost" className="text-white hover:bg-white/10 font-bold h-12 rounded-xl" onClick={() => navigate("/feed")}>
+                  <Button variant="ghost" className="text-white hover:bg-white/10 font-bold h-12 rounded-xl" onClick={scrollToMyReports}>
                     {t.trackStatus}
                   </Button>
                 </div>

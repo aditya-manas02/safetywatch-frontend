@@ -41,12 +41,15 @@ export default function FeedPage() {
   const fetchPopular = useCallback(async () => {
     setLoadingPopular(true);
     try {
-      const resp = await fetch(`${API_BASE}/incidents?sort=upvotes&limit=10`, {
+      const resp = await fetch(`${API_BASE}/stats/bundle`, {
         headers: VERSION_HEADERS
       });
       if (resp.ok) {
         const data = await resp.json();
-        setPopularIncidents(data.incidents.map(mapIncident));
+        const filteredPopular = (Array.isArray(data.popular) ? data.popular : []).filter(
+          (i: any) => (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
+        );
+        setPopularIncidents(filteredPopular.map(mapIncident));
       }
     } catch (err) {
       console.error("Failed to fetch popular incidents", err);
@@ -58,12 +61,15 @@ export default function FeedPage() {
   const fetchNearby = useCallback(async (lat: number, lng: number) => {
     setLoadingNearby(true);
     try {
-      const resp = await fetch(`${API_BASE}/incidents/nearby?lat=${lat}&lng=${lng}&radius=10`, {
+      const resp = await fetch(`${API_BASE}/incidents/near-me?lat=${lat}&lng=${lng}&radius=10`, {
         headers: VERSION_HEADERS
       });
       if (resp.ok) {
         const data = await resp.json();
-        setNearbyIncidents(data.map(mapIncident));
+        const filtered = (Array.isArray(data) ? data : []).filter(
+          (i: any) => (i.status === 'approved' || i.isImportant) && i.status !== 'problem solved'
+        );
+        setNearbyIncidents(filtered.map(mapIncident));
       }
     } catch (err) {
       console.error("Failed to fetch nearby incidents", err);
