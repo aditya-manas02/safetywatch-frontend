@@ -10,6 +10,7 @@ interface Tab {
   path?: string;
   action?: () => void;
   isCenter?: boolean;
+  requiresAuth?: boolean;
 }
 
 interface MobileBottomNavProps {
@@ -21,21 +22,30 @@ export default function MobileBottomNav({ onReportClick }: MobileBottomNavProps)
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Don't render if not logged in
-  if (!user) return null;
-
   const tabs: Tab[] = [
     { id: "home", label: "Home", icon: Home, path: "/" },
     { id: "feed", label: "Feed", icon: List, path: "/feed" },
-    { id: "report", label: "Report", icon: PlusCircle, action: onReportClick, isCenter: true },
-    { id: "messages", label: "Messages", icon: MessageSquare, path: "/inbox" },
-    { id: "profile", label: "Profile", icon: User, path: "/profile" },
+    { id: "report", label: "Report", icon: PlusCircle, action: onReportClick, isCenter: true, requiresAuth: true },
+    { id: "messages", label: "Messages", icon: MessageSquare, path: "/inbox", requiresAuth: true },
+    { id: "profile", label: "Profile", icon: User, path: "/profile", requiresAuth: true },
   ];
 
   const isActive = (tab: Tab) => {
     if (!tab.path) return false;
     if (tab.path === "/") return location.pathname === "/";
     return location.pathname.startsWith(tab.path);
+  };
+
+  const handleTabClick = (tab: Tab) => {
+    if (tab.requiresAuth && !user) {
+      navigate("/auth");
+      return;
+    }
+    if (tab.action) {
+      tab.action();
+    } else if (tab.path) {
+      navigate(tab.path);
+    }
   };
 
   return (
@@ -55,7 +65,7 @@ export default function MobileBottomNav({ onReportClick }: MobileBottomNavProps)
               return (
                 <button
                   key={tab.id}
-                  onClick={tab.action}
+                  onClick={() => handleTabClick(tab)}
                   className="relative -mt-5 flex flex-col items-center group"
                   aria-label={tab.label}
                 >
@@ -73,7 +83,7 @@ export default function MobileBottomNav({ onReportClick }: MobileBottomNavProps)
             return (
               <button
                 key={tab.id}
-                onClick={() => tab.path && navigate(tab.path)}
+                onClick={() => handleTabClick(tab)}
                 className={`flex flex-col items-center justify-center py-2 px-3 min-w-[60px] transition-all duration-300 ${
                   active
                     ? "text-primary"
