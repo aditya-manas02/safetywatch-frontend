@@ -186,7 +186,7 @@ export default function Hero({
             {t.empowering}
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-[1.1] mb-6 sm:mb-8 tracking-tight text-foreground theme-hero-heading">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl leading-[1.1] mb-6 sm:mb-8 tracking-tight text-foreground theme-hero-heading">
             {t.safetyIn} <br />
             <span className="theme-hero-emphasis">{t.neighborhood}</span>
           </h1>
