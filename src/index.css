@@ -82,7 +82,7 @@
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
 
-    --primary: 180 100% 40%; /* Vibrant teal for borders/icons */
+    --primary: 180 100% 30%; /* Darker vibrant teal for borders/icons */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96%;
@@ -430,7 +430,7 @@
   @apply text-transparent bg-clip-text bg-gradient-to-r from-primary to-info;
 }
 [data-theme="civic-daylight"] .theme-hero-emphasis {
-  @apply text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-600 font-bold px-2;
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-700 font-bold px-2;
   -webkit-text-fill-color: transparent;
 }
 [data-theme="midnight-command"] .theme-hero-emphasis {
@@ -509,13 +509,13 @@
 
 /* Solid background elements (buttons, active badges) */
 [data-theme="civic-daylight"] .bg-primary {
-  background-image: linear-gradient(to right, #2dd4bf, #2563eb) !important;
+  background-image: linear-gradient(to right, #0d9488, #1d4ed8) !important;
   color: white !important;
 }
 
 /* Text elements (excluding SVGs since they don't support text-fill gradient natively) */
 [data-theme="civic-daylight"] .text-primary:not(svg) {
-  background-image: linear-gradient(to right, #2dd4bf, #2563eb) !important;
+  background-image: linear-gradient(to right, #0d9488, #1d4ed8) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
