@@ -430,8 +430,8 @@
   @apply text-transparent bg-clip-text bg-gradient-to-r from-primary to-info;
 }
 [data-theme="civic-daylight"] .theme-hero-emphasis {
-  @apply text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-700 font-bold px-2;
-  -webkit-text-fill-color: transparent;
+  @apply text-primary font-bold bg-none px-2;
+  -webkit-text-fill-color: initial;
 }
 [data-theme="midnight-command"] .theme-hero-emphasis {
   @apply text-primary bg-none tracking-[0.2em];
@@ -502,27 +502,4 @@
 [data-theme="midnight-command"] .hero-bg {
   background: none;
 }
-
-/* ===========================
-   CIVIC DAYLIGHT GLOBAL GRADIENT
-   =========================== */
-
-/* Solid background elements (buttons, active badges) */
-[data-theme="civic-daylight"] .bg-primary {
-  background-image: linear-gradient(to right, #0d9488, #1d4ed8) !important;
-  color: white !important;
-}
-
-/* Text elements (excluding SVGs since they don't support text-fill gradient natively) */
-[data-theme="civic-daylight"] .text-primary:not(svg) {
-  background-image: linear-gradient(to right, #0d9488, #1d4ed8) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
-}
-
-/* Ensure SVGs inherit the solid teal base color if they use text-primary */
-[data-theme="civic-daylight"] svg.text-primary {
-  color: hsl(var(--primary)) !important;
-}
+
