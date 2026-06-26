@@ -19,7 +19,7 @@ import * as LucideIcons from "lucide-react";
 import {
     Shield, ArrowLeft, User, Mail, Phone, Save, RefreshCw, Lock,
     Eye, EyeOff, KeyRound, CheckCircle2, Calendar, Edit2, X, Camera,
-    Info, MapPin, Trophy, MessageSquare, Clock, AlertCircle, Zap, Crown, ShieldCheck, Palette
+    Info, MapPin, Trophy, MessageSquare, Clock, AlertCircle, Zap, Crown, ShieldCheck, Palette, Settings, Users, LifeBuoy, LogOut
 } from "lucide-react";
 
 
@@ -524,6 +524,52 @@ export default function Profile() {
                 <div className="space-y-2">
                     <h1 className="text-4xl font-black tracking-tight">Profile Settings</h1>
                     <p className="text-muted-foreground font-medium text-lg">Manage your personal information and security preferences.</p>
+                </div>
+
+                {/* MOBILE QUICK LINKS (Replaces Hamburger Menu) */}
+                <div className="md:hidden grid grid-cols-2 gap-3 mb-8">
+                    {isSuperAdmin && (
+                        <Button
+                            variant="outline"
+                            onClick={() => navigate("/admin")}
+                            className="h-auto py-4 flex flex-col items-center justify-center gap-2 border-primary/20 bg-primary/5 text-primary"
+                        >
+                            <Settings className="h-6 w-6" />
+                            <span className="text-xs font-bold">Admin</span>
+                        </Button>
+                    )}
+                    <Button
+                        variant="outline"
+                        onClick={() => navigate("/circles")}
+                        className="h-auto py-4 flex flex-col items-center justify-center gap-2 bg-card"
+                    >
+                        <Users className="h-6 w-6 text-blue-500" />
+                        <span className="text-xs font-bold">My Circles</span>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => navigate("/support")}
+                        className="h-auto py-4 flex flex-col items-center justify-center gap-2 bg-card"
+                    >
+                        <LifeBuoy className="h-6 w-6 text-green-500" />
+                        <span className="text-xs font-bold">Support</span>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => window.dispatchEvent(new Event("start-app-tour"))}
+                        className="h-auto py-4 flex flex-col items-center justify-center gap-2 bg-card"
+                    >
+                        <Info className="h-6 w-6 text-purple-500" />
+                        <span className="text-xs font-bold">App Tour</span>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={signOut}
+                        className="h-auto py-4 flex flex-col items-center justify-center gap-2 border-critical/20 bg-critical/5 text-critical col-span-2"
+                    >
+                        <LogOut className="h-6 w-6" />
+                        <span className="text-xs font-bold">Sign Out</span>
+                    </Button>
                 </div>
 
                 {/* PREMIUM HERO SECTION */}

@@ -29,6 +29,10 @@ import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { API_BASE, getAuthHeaders } from "@/lib/api";
 import { ThemeProvider } from "./components/ThemeProvider";
+import MobileBottomNav from "./components/MobileBottomNav";
+import GuardianMode from "./components/GuardianMode";
+import ReportForm from "./components/ReportForm";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Lazy load pages for performance
 const Index = lazy(() => import("./pages/Index"));
@@ -44,6 +48,7 @@ const Circles = lazy(() => import("./pages/Circles"));
 const CircleDetails = lazy(() => import("./pages/CircleDetails"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Maintenance = lazy(() => import("./pages/Maintenance"));
+const MapPage = lazy(() => import("./pages/MapPage"));
 
 
 
@@ -71,6 +76,46 @@ const AppContent = () => {
 
   // --- Notification Permission State ---
   const [notifPermission, setNotifPermission] = useState<string>("loading");
+
+  // --- Global Mobile State ---
+  const [showGlobalReportForm, setShowGlobalReportForm] = useState(false);
+
+  const handleGlobalReportSubmit = async (report: any) => {
+    let imageUrl: string | null = null;
+    if (report.imageFile) {
+      const form = new FormData();
+      form.append("image", report.imageFile);
+      try {
+        const token = localStorage.getItem("token");
+        const uploadResp = await fetch(`${API_BASE}/upload`, {
+          method: "POST",
+          headers: getAuthHeaders(token),
+          body: form,
+        });
+        const uploadData = await uploadResp.json();
+        imageUrl = uploadData.url || uploadData.imageUrl || null;
+      } catch (err: any) {
+        throw new Error(err.message || "Upload failed");
+      }
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const resp = await fetch(`${API_BASE}/incidents`, {
+        method: "POST",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ ...report, imageUrl }),
+      });
+      if (!resp.ok) throw new Error("Failed to submit");
+      toast({ title: "Success", description: "Incident reported successfully" });
+      setShowGlobalReportForm(false);
+      
+      // Dispatch event to update home page if active
+      window.dispatchEvent(new CustomEvent("report_submitted"));
+    } catch (err: any) {
+      throw err;
+    }
+  };
 
   useEffect(() => {
     const checkPerms = async () => {
@@ -117,6 +162,14 @@ const AppContent = () => {
       }
     };
     checkPerms();
+
+    // Listen for global open-report-form events
+    const handleOpenReport = () => setShowGlobalReportForm(true);
+    window.addEventListener("open-report-form", handleOpenReport);
+    
+    return () => {
+      window.removeEventListener("open-report-form", handleOpenReport);
+    };
   }, []);
 
   // Check if user needs to set area code (not superadmin and hasAreaCode is false)
@@ -531,13 +584,14 @@ const AppContent = () => {
         onLogout={signOut}
       />
       <main className={!hideNavbar
-        ? "pt-[calc(80px+env(safe-area-inset-top))] md:pt-[96px]"
-        : "pt-[env(safe-area-inset-top)]"
+        ? "pt-[calc(80px+env(safe-area-inset-top))] md:pt-[96px] pb-[calc(70px+env(safe-area-inset-bottom))] md:pb-0"
+        : "pt-[env(safe-area-inset-top)] pb-[calc(70px+env(safe-area-inset-bottom))] md:pb-0"
       }>
         <Suspense fallback={<SafetyWatchLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/map" element={<MapPage />} />
             <Route
               path="/admin"
               element={
@@ -595,9 +649,39 @@ const AppContent = () => {
         </Suspense>
       </main>
       <Suspense fallback={null}>
-        {!location.pathname.startsWith("/inbox") && <ChatBot />}
+        {!location.pathname.startsWith("/inbox") && (
+          <div className="hidden md:block">
+            <ChatBot />
+          </div>
+        )}
       </Suspense>
       <ScrollToTop />
+      
+      {!hideNavbar && (
+        <MobileBottomNav onReportClick={() => setShowGlobalReportForm(true)} />
+      )}
+
+      {/* GLOBAL REPORT FORM */}
+      <AnimatePresence>
+        {showGlobalReportForm && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.2 }}
+            className="z-[100]"
+          >
+            <ReportForm
+              onClose={() => setShowGlobalReportForm(false)}
+              onSubmit={handleGlobalReportSubmit}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="md:hidden">
+        <GuardianMode />
+      </div>
       
       {activeSOS && (
         <SOSAlert

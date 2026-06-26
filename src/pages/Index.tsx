@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Hero from "@/components/Hero";
 import IncidentCard, { Incident } from "@/components/IncidentCard";
-import ReportForm from "@/components/ReportForm";
 import HowItWorks from "@/components/HowItWorks";
 import Footer from "@/components/Footer";
 const RealHeatmap = lazy(() => import("@/components/RealHeatmap"));
@@ -33,7 +32,6 @@ import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import SafetyPulse from "@/components/SafetyPulse";
-import GuardianMode from "@/components/GuardianMode";
 import NewsFeed from "@/components/NewsFeed";
 import { Badge } from "@/components/ui/badge";
 import IncidentCarousel from "@/components/IncidentCarousel";
@@ -50,7 +48,6 @@ export default function Index() {
   const location = useLocation();
   const { user, signOut, token } = useAuth();
 
-  const [showReportForm, setShowReportForm] = useState(false);
   const [popularIncidents, setPopularIncidents] = useState<Incident[]>([]);
   const [nearbyIncidents, setNearbyIncidents] = useState<Incident[]>([]);
   const [myReports, setMyReports] = useState<Incident[]>([]);
@@ -319,49 +316,7 @@ export default function Index() {
     document.getElementById("tracking-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  /* ---------------------------
-     HANDLE NEW REPORT
-  ---------------------------- */
-  async function handleNewReport(report: any) {
-    if (!user) {
-      toast({ title: "Login Required", description: "Please sign in to report.", variant: "destructive" });
-      navigate("/auth");
-      return;
-    }
 
-    let imageUrl: string | null = null;
-    if (report.imageFile) {
-      const form = new FormData();
-      form.append("image", report.imageFile);
-      try {
-        const token = localStorage.getItem("token");
-        const uploadResp = await fetch(`${API_BASE}/upload`, {
-          method: "POST",
-          headers: getAuthHeaders(token),
-          body: form,
-        });
-        const uploadData = await uploadResp.json();
-        imageUrl = uploadData.url || uploadData.imageUrl || null;
-      } catch (err: any) {
-        throw new Error(err.message || "Upload failed");
-      }
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const resp = await fetch(`${API_BASE}/incidents`, {
-        method: "POST",
-        headers: getAuthHeaders(token),
-        body: JSON.stringify({ ...report, imageUrl }),
-      });
-      if (!resp.ok) throw new Error("Failed to submit");
-      toast({ title: "Success", description: "Incident reported successfully" });
-      setShowReportForm(false);
-      fetchMyReports(); // Update tracking section
-    } catch (err: any) {
-      throw err;
-    }
-  }
 
   function updateMetaTags(incident: Incident) {
     document.title = `${incident.title} | SafetyWatch`;
@@ -405,12 +360,14 @@ export default function Index() {
         </div>
 
         {/* HERO */}
-        <Hero
-          onReportClick={() => user ? setShowReportForm(true) : navigate("/auth")}
-          onViewReports={() => document.getElementById("popular-section")?.scrollIntoView({ behavior: "smooth" })}
-          initialStats={dashboardBundle?.stats}
-          initialLatest={dashboardBundle?.latest}
-        />
+        <div className={user ? "hidden md:block" : "block"}>
+          <Hero
+            onReportClick={() => user ? window.dispatchEvent(new CustomEvent("open-report-form")) : navigate("/auth")}
+            onViewReports={() => document.getElementById("popular-section")?.scrollIntoView({ behavior: "smooth" })}
+            initialStats={dashboardBundle?.stats}
+            initialLatest={dashboardBundle?.latest}
+          />
+        </div>
 
         {/* MAIN */}
         <main className="container mx-auto px-6 py-12">
@@ -549,7 +506,7 @@ export default function Index() {
               </div>
             </motion.div>
           )}
-          {user && <ChallengesSection />}
+
 
           <AdCarousel />
 
@@ -647,7 +604,7 @@ export default function Index() {
                     ) : myReports.length === 0 ? (
                       <div className="text-center py-12 bg-muted/20 border border-dashed rounded-xl">
                         <p className="text-muted-foreground text-sm font-medium mb-4">{t.noReportsYet}</p>
-                        <Button size="sm" onClick={() => setShowReportForm(true)}>{t.fileFirstReport}</Button>
+                        <Button size="sm" onClick={() => window.dispatchEvent(new CustomEvent("open-report-form"))}>{t.fileFirstReport}</Button>
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -662,7 +619,9 @@ export default function Index() {
                 </section>
               )}
 
-              <HowItWorks />
+              <div className={user ? "hidden md:block" : "block"}>
+                <HowItWorks />
+              </div>
             </div>
 
             {/* RIGHT: ASIDE */}
@@ -705,7 +664,7 @@ export default function Index() {
                 <div className="flex flex-col gap-3 mt-6 relative z-10">
                   <Button
                     className="bg-white text-blue-600 hover:bg-white/90 font-bold h-12 rounded-xl border-none shadow-lg"
-                    onClick={() => user ? setShowReportForm(true) : navigate("/auth")}
+                    onClick={() => user ? window.dispatchEvent(new CustomEvent("open-report-form")) : navigate("/auth")}
                   >
                     {t.instantReport}
                   </Button>
@@ -729,29 +688,13 @@ export default function Index() {
           </div>
         </main>
 
-        <AppDownloadSection />
-        <Footer />
+        <div className={user ? "hidden md:block" : "block"}>
+          <AppDownloadSection />
+          <Footer />
+        </div>
       </PullToRefresh>
 
-      {/* REPORT FORM */}
-      <AnimatePresence>
-        {showReportForm && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.2 }}
-            className="z-[100]"
-          >
-            <ReportForm
-              onClose={() => setShowReportForm(false)}
-              onSubmit={handleNewReport}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      <GuardianMode />
 
       {/* Deep linked incident dialog */}
       {focusedIncident && (

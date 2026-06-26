@@ -11,11 +11,9 @@ import NotificationCenter from "./NotificationCenter";
 export default function Navbar() {
     const navigate = useNavigate();
     const { user, isAdmin, signOut } = useAuth();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleSignOut = () => {
         signOut();
-        setIsMobileMenuOpen(false);
     };
 
     return (
@@ -133,124 +131,12 @@ export default function Navbar() {
                     )}
                 </div>
 
-                {/* Mobile Actions */}
+                {/* Mobile Actions (No longer has hamburger) */}
                 <div className="flex md:hidden items-center gap-2">
                     <ThemeToggle />
                     {user && <NotificationCenter />}
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="p-2 rounded-xl hover:bg-muted/50 transition-colors"
-                    >
-                        {isMobileMenuOpen ? (
-                            <LogOut className="h-6 w-6 rotate-180 transition-transform" /> // Using LogOut icon as 'Close' style or X
-                        ) : (
-                            <div className="space-y-1.5">
-                                <span className="block w-6 h-0.5 bg-foreground"></span>
-                                <span className="block w-4 h-0.5 bg-foreground ml-auto"></span>
-                                <span className="block w-5 h-0.5 bg-foreground ml-auto"></span>
-                            </div>
-                        )}
-                    </button>
                 </div>
             </div>
-
-            {/* Mobile Menu Dropdown */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden absolute top-full left-0 w-full bg-background/95 backdrop-blur-xl border-b border-border shadow-2xl p-4 flex flex-col gap-2 animate-in slide-in-from-top-5 z-[60]">
-                    {user ? (
-                        <>
-                            <div className="px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                                Signed in as {user.email}
-                            </div>
-
-                            {isAdmin && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => { navigate("/admin"); setIsMobileMenuOpen(false); }}
-                                    className="justify-start h-12 border-primary/20 bg-primary/5 text-primary font-bold rounded-xl"
-                                >
-                                    <Settings className="mr-3 h-5 w-5" />
-                                    Admin Console
-                                </Button>
-                            )}
-
-                            <Button
-                                variant="ghost"
-                                onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }}
-                                className="justify-start h-12 text-foreground font-bold rounded-xl"
-                            >
-                                <User className="mr-3 h-5 w-5" />
-                                My Profile
-                            </Button>
-
-                            <Button
-                                variant="ghost"
-                                onClick={() => { navigate("/circles"); setIsMobileMenuOpen(false); }}
-                                className="justify-start h-12 text-foreground font-bold rounded-xl"
-                            >
-                                <Users className="mr-3 h-5 w-5" />
-                                My Circles
-                            </Button>
-
-                            <Button
-                                variant="ghost"
-                                onClick={() => { navigate("/inbox"); setIsMobileMenuOpen(false); }}
-                                className="justify-start h-12 text-foreground font-bold rounded-xl"
-                            >
-                                <MessageSquare className="mr-3 h-5 w-5" />
-                                Messages
-                            </Button>
-
-                            <Button
-                                variant="ghost"
-                                onClick={() => { navigate("/support"); setIsMobileMenuOpen(false); }}
-                                className="justify-start h-12 text-foreground font-bold rounded-xl"
-                            >
-                                <LifeBuoy className="mr-3 h-5 w-5" />
-                                Support Center
-                            </Button>
-
-                            <div className="h-px bg-border/50 my-1" />
-
-                            <Button
-                                variant="outline"
-                                onClick={() => { window.dispatchEvent(new Event("start-app-tour")); setIsMobileMenuOpen(false); }}
-                                className="justify-start h-12 text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 font-bold rounded-xl"
-                            >
-                                <Info className="mr-3 h-5 w-5" />
-                                App Tour
-                            </Button>
-
-                            <Button
-                                variant="ghost"
-                                onClick={handleSignOut}
-                                className="justify-start h-12 text-critical hover:text-critical hover:bg-critical/10 font-bold rounded-xl"
-                            >
-                                <LogOut className="mr-3 h-5 w-5" />
-                                Sign Out
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button
-                                variant="outline"
-                                onClick={() => { window.dispatchEvent(new Event("start-app-tour")); setIsMobileMenuOpen(false); }}
-                                className="h-12 w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 font-bold rounded-xl shadow-sm mb-2"
-                            >
-                                <Info className="mr-2 h-5 w-5" />
-                                App Tour
-                            </Button>
-                            <Button
-                                onClick={() => { navigate("/auth"); setIsMobileMenuOpen(false); }}
-                                className="h-12 w-full bg-primary text-primary-foreground font-black rounded-xl shadow-lg"
-                            >
-                                <LogIn className="mr-2 h-5 w-5" />
-                                Sign In / Register
-                            </Button>
-                        </>
-                    )}
-                </div>
-            )}
         </header>
     );
 }
