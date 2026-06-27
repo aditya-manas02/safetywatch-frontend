@@ -21,9 +21,12 @@ import {
   MapPin,
   Clock,
   LayoutDashboard,
-  ChevronRight,
   TrendingUp,
   Bell,
+  Shield,
+  Trophy,
+  Activity,
+  ArrowRight,
 } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -514,6 +517,71 @@ export default function Index() {
 
             {/* LEFT: MAIN CONTENT */}
             <div className="lg:col-span-2 space-y-12 sm:space-y-16">
+
+              {/* ACTIVITY SUMMARY & GUARDIAN ELITE (Relocated from Profile) */}
+              {user && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
+                  {/* Guardian Elite Banner */}
+                  <div className="p-6 sm:p-8 rounded-[2rem] bg-gradient-to-br from-primary via-indigo-600 to-blue-700 text-primary-foreground shadow-2xl shadow-primary/30 relative overflow-hidden group border border-white/10 flex flex-col justify-between h-full">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 blur-[100px] -translate-y-1/2 translate-x-1/2 rounded-full" />
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/20 blur-[80px] translate-y-1/2 -translate-x-1/2 rounded-full" />
+                    <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-1000 pointer-events-none">
+                      <Shield className="h-24 w-24" />
+                    </div>
+                    <div className="relative z-10 space-y-4">
+                      <div className="space-y-1">
+                        <h3 className="text-xl sm:text-2xl font-black tracking-tighter uppercase">Guardian Elite</h3>
+                        <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest opacity-80">Status: Master Defender</p>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/10 shadow-inner">
+                        <p className="text-xs font-bold leading-relaxed">
+                          Your vigilance maintains neighborhood integrity.
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => navigate("/leaderboard")}
+                      className="w-full h-12 mt-6 rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 font-bold text-[10px] uppercase tracking-[0.15em] shadow-xl transition-all hover:scale-[1.02] active:scale-95 group/btn relative z-10"
+                    >
+                      <Trophy className="mr-2 h-4 w-4 text-yellow-400 group-hover/btn:scale-110 transition-transform" />
+                      View Sector Leaderboard
+                    </Button>
+                  </div>
+
+                  {/* Activity Summary Card */}
+                  <div 
+                    onClick={() => {
+                        navigate("/feed");
+                        // Delay tab switch slightly to let Feed mount if not mounted
+                        setTimeout(() => window.dispatchEvent(new CustomEvent('switch_tab', { detail: 'tracking' })), 100);
+                    }}
+                    className="p-6 sm:p-8 rounded-[2rem] bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between h-full"
+                  >
+                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform duration-1000 pointer-events-none">
+                      <Activity className="h-24 w-24 text-emerald-500" />
+                    </div>
+                    <div className="relative z-10 space-y-4">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 sm:p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 shadow-inner group-hover:scale-110 transition-transform">
+                          <Activity className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-500" />
+                        </div>
+                        <div className="space-y-1">
+                          <h3 className="text-xl sm:text-2xl font-black tracking-tighter uppercase">Your Activity</h3>
+                          <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground">Mission Logs</p>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-4xl font-black text-foreground">{myReports.length}</div>
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Signals Captured</div>
+                      </div>
+                    </div>
+                    <div className="mt-6 flex items-center justify-between text-emerald-600 bg-emerald-500/10 rounded-xl px-4 py-3 font-bold text-xs uppercase tracking-widest relative z-10">
+                      View full history
+                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* 0. CHALLENGES & CAMPAIGNS */}
               {user && <ChallengesSection />}

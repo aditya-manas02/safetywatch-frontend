@@ -660,220 +660,11 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* BADGES DISPLAY SECTION */}
-                {badges.length > 0 && (
-                    <div className="space-y-4 pt-4">
-                        <div className="flex items-center gap-2">
-                            <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500 border border-yellow-500/20">
-                                <Trophy className="h-5 w-5" />
-                            </div>
-                            <h2 className="text-xl font-black uppercase tracking-tight">Earned Honors</h2>
-                        </div>
-                        <div className="flex flex-wrap gap-4">
-                            {badges.map((b: any, i: number) => {
-                                const def = badgeDefinitions.find(d => d.name === b.name);
-                                const isActive = activeBadge === b.name;
-                                const IconComp = (LucideIcons as any)[def?.icon || ''] || Shield;
-                                return (
-                                    <motion.div
-                                        key={i}
-                                        initial={{ scale: 0.8, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: i * 0.1 }}
-                                        onClick={() => handleActiveBadgeChange(b.name)}
-                                        className={cn(
-                                            "px-4 py-2 rounded-2xl border font-black text-xs uppercase tracking-widest shadow-lg flex items-center gap-2 cursor-pointer transition-all hover:scale-105",
-                                            def?.style || "border-border text-muted-foreground",
-                                            isActive && "ring-2 ring-primary ring-offset-4 ring-offset-background scale-110"
-                                        )}
-                                    >
-                                        <IconComp className="h-3.5 w-3.5" />
-                                        {b.name}
-                                        {isActive && <CheckCircle2 className="h-3.5 w-3.5 ml-1" />}
-                                    </motion.div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
 
 
 
-                {/* Report History Section - PLACED PROMINENTLY */}
-                <div ref={reportsRef} className="space-y-6 scroll-mt-6 pt-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between px-2 gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner border border-primary/20">
-                                <Shield className="h-6 w-6" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <h2 className="text-2xl font-black tracking-tighter uppercase text-foreground">Mission Logs</h2>
-                                <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Incident Statistics & Activity</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <Button
-                                variant="outline"
-                                onClick={() => navigate("/")}
-                                className="h-10 px-4 rounded-xl border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 transition-all hover:scale-105"
-                            >
-                                <ArrowLeft className="mr-2 h-3.5 w-3.5" /> Return to Dashboard
-                            </Button>
-                            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-black px-4 py-1.5 uppercase tracking-tighter text-xs rounded-xl shadow-sm h-10 flex items-center">
-                                {myReports.length} Signals Captured
-                            </Badge>
-                        </div>
-                    </div>
 
-                    {loadingReports ? (
-                        <div className="flex justify-center py-20">
-                            <RefreshCw className="h-8 w-8 animate-spin text-primary/40" />
-                        </div>
-                    ) : myReports.length === 0 ? (
-                        <Card className="border-dashed bg-muted/20 border-2 rounded-3xl">
-                            <CardContent className="flex flex-col items-center justify-center py-20 text-center">
-                                <Info className="h-12 w-12 text-muted-foreground mb-4 opacity-5" />
-                                <p className="text-muted-foreground font-black uppercase tracking-widest text-sm">No signals detected in your sector.</p>
-                                <Button variant="link" onClick={() => navigate("/")} className="mt-4 text-primary font-black uppercase tracking-widest text-xs hover:scale-105 transition-transform">Initiate First Report</Button>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid gap-6">
-                            {myReports.map((report) => (
-                                <Card key={report._id} className="overflow-hidden border-none glass-card-luxury group hover:shadow-2xl transition-all duration-500 rounded-3xl">
-                                    <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-border/20">
-                                        <div className="p-8 md:w-3/4 space-y-6">
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center gap-3">
-                                                        <h3 className="font-black text-2xl tracking-tighter text-foreground group-hover:text-primary transition-colors">{report.title}</h3>
-                                                        {report.isImportant && (
-                                                            <Badge className="bg-orange-500 text-white text-[10px] font-black h-6 px-3 leading-none uppercase animate-pulse border-none shadow-lg shadow-orange-500/20 rounded-lg">priority</Badge>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <p className="text-xs text-muted-foreground/70 flex items-center gap-2 font-black uppercase tracking-widest">
-                                                            <Calendar className="h-4 w-4 text-primary/40" />
-                                                            {new Date(report.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <Badge className={`
-                                                    ${report.status === 'problem solved' ? 'bg-purple-600/10 text-purple-600 border-purple-600/20' : ''}
-                                                    ${report.status === 'approved' ? 'bg-emerald-600/10 text-emerald-600 border-emerald-600/20' : ''}
-                                                    ${report.status === 'pending' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : ''}
-                                                    ${report.status === 'under process' ? 'bg-blue-600/10 text-blue-600 border-blue-600/20' : ''}
-                                                    ${report.status === 'rejected' ? 'bg-destructive/10 text-destructive border-destructive/20' : ''}
-                                                    text-[11px] font-black uppercase tracking-[0.15em] px-4 py-1.5 border shadow-sm rounded-xl backdrop-blur-md
-                                                `}>
-                                                    {report.status}
-                                                </Badge>
-                                            </div>
-                                            <p className="text-base text-foreground/70 leading-relaxed italic border-l-4 border-primary/30 pl-6 py-1 font-medium bg-primary/5 rounded-r-2xl">{report.description}</p>
-                                            <div className="flex flex-wrap items-center gap-8 pt-2">
-                                                <div className="flex items-center gap-2.5 text-[11px] font-black uppercase tracking-widest text-muted-foreground/80">
-                                                    <div className="p-1.5 bg-muted rounded-lg shadow-sm border border-border/40">
-                                                        <MapPin className="h-3.5 w-3.5 text-primary" />
-                                                    </div>
-                                                    {report.location}
-                                                </div>
-                                                <div className="flex items-center gap-2.5 text-[11px] font-black uppercase tracking-widest text-muted-foreground/80">
-                                                    <div className="p-1.5 bg-muted rounded-lg shadow-sm border border-border/40">
-                                                        <Shield className="h-3.5 w-3.5 text-primary" />
-                                                    </div>
-                                                    {report.type}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {report.imageUrl && (
-                                            <div className="md:w-1/4 h-56 md:h-auto overflow-hidden relative">
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
-                                                <img
-                                                    src={report.imageUrl}
-                                                    alt={report.title}
-                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                </Card>
-                            ))}
-                        </div>
-                    )}
-                </div>
 
-                {/* PREMIUM BADGE SHOP SECTION */}
-                <div className="space-y-6 pt-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between px-2 gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 shadow-inner border border-indigo-500/20">
-                                <Zap className="h-6 w-6" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <h2 className="text-2xl font-black tracking-tighter uppercase text-foreground">Honor Emporium</h2>
-                                <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Acquire Premium Network Badges</p>
-                            </div>
-                        </div>
-                        <div className="inline-flex items-center rounded-full border border-indigo-500/20 bg-indigo-500/5 px-4 py-1.5 text-[10px] font-black uppercase tracking-tighter text-indigo-500 shadow-sm shadow-indigo-500/5 backdrop-blur-md h-10">
-                            Points Available: {isSuperAdmin ? "Unlimited" : rewardPoints}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {badgeDefinitions.map((badge, idx) => {
-                            const isOwned = badges.some(b => b.name === badge.name);
-                            const canAfford = isSuperAdmin || rewardPoints >= badge.cost;
-                            const IconComp = (LucideIcons as any)[badge.icon] || Shield;
-
-                            return (
-                                <Card key={idx} className={cn(
-                                    "overflow-hidden border-none glass-card-luxury group hover:shadow-2xl transition-all duration-500 rounded-3xl relative",
-                                    isOwned && "opacity-80"
-                                )}>
-                                    {isOwned && (
-                                        <div className="absolute top-4 right-4 z-20">
-                                            <div className="bg-emerald-500 text-white font-black text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-lg border-none shadow-lg shadow-emerald-500/20">OWNED</div>
-                                        </div>
-                                    )}
-                                    <div className="p-6 space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className={cn(
-                                                "p-3 rounded-2xl border shadow-xl transition-transform group-hover:scale-110 duration-500",
-                                                badge.style
-                                            )}>
-                                                <IconComp className="h-6 w-6" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-black text-lg tracking-tight uppercase leading-tight">{badge.name}</h3>
-                                                <div className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-black uppercase mt-1", badge.style)}>{badge.tier}</div>
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-muted-foreground font-medium leading-relaxed">{badge.description}</p>
-                                        <div className="pt-2 flex items-center justify-between">
-                                            <div className="flex items-center gap-1.5">
-                                                <Trophy className="h-4 w-4 text-primary" />
-                                                <span className="font-black text-base tracking-tight">{badge.cost.toLocaleString()} <span className="text-[10px] text-muted-foreground uppercase tracking-wider">PTS</span></span>
-                                            </div>
-                                            <Button
-                                                size="sm"
-                                                disabled={isOwned || !canAfford}
-                                                onClick={() => handlePurchaseBadge(badge.name)}
-                                                className={cn(
-                                                    "rounded-xl font-black text-[10px] uppercase tracking-widest px-4 h-9",
-                                                    isOwned ? "bg-muted text-muted-foreground cursor-not-allowed" :
-                                                        !canAfford ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed" :
-                                                            "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-                                                )}
-                                            >
-                                                {isOwned ? "ACQUIRED" : canAfford ? "PURCHASE" : "INSUFFICIENT"}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </Card>
-                            )
-                        })}
-                    </div>
-                </div>
 
                 <div className="grid lg:grid-cols-3 gap-8 pt-8 border-t border-border/30">
                     <div className="lg:col-span-2 space-y-8">
@@ -1210,6 +1001,44 @@ export default function Profile() {
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {/* LINK: VIEW ACHIEVEMENTS */}
+                        <div
+                            onClick={() => navigate("/achievements")}
+                            className="relative overflow-hidden p-6 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 shadow-lg cursor-pointer group hover:shadow-xl hover:scale-[1.01] transition-all duration-300"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                                        <Trophy className="h-6 w-6 text-indigo-500" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-lg tracking-tight">Achievements & Honors</h3>
+                                        <p className="text-xs text-muted-foreground font-bold">View earned badges and the Honor Emporium</p>
+                                    </div>
+                                </div>
+                                <ArrowLeft className="h-5 w-5 text-muted-foreground rotate-180 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </div>
+
+                        {/* LINK: VIEW ALL REPORTS */}
+                        <div
+                            onClick={() => navigate("/feed#tracking")}
+                            className="relative overflow-hidden p-6 rounded-3xl bg-gradient-to-br from-primary/10 via-blue-500/5 to-transparent border border-primary/20 shadow-lg cursor-pointer group hover:shadow-xl hover:scale-[1.01] transition-all duration-300"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20 group-hover:scale-110 transition-transform">
+                                        <Shield className="h-6 w-6 text-primary" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-lg tracking-tight">Mission Logs</h3>
+                                        <p className="text-xs text-muted-foreground font-bold">{myReports.length} signals captured — view full history</p>
+                                    </div>
+                                </div>
+                                <ArrowLeft className="h-5 w-5 text-muted-foreground rotate-180 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="space-y-8">
@@ -1243,36 +1072,7 @@ export default function Profile() {
                             </CardContent>
                         </Card>
 
-                        <div className="p-8 rounded-[2rem] bg-gradient-to-br from-primary via-indigo-600 to-blue-700 text-primary-foreground shadow-2xl shadow-primary/30 relative overflow-hidden group border border-white/10">
-                            {/* Decorative Mesh */}
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 blur-[100px] -translate-y-1/2 translate-x-1/2 rounded-full" />
-                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/20 blur-[80px] translate-y-1/2 -translate-x-1/2 rounded-full" />
 
-                            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-1000">
-                                <Shield className="h-32 w-32" />
-                            </div>
-
-                            <div className="relative z-10 space-y-6">
-                                <div className="space-y-2">
-                                    <h3 className="text-2xl font-black tracking-tighter uppercase">Guardian Elite</h3>
-                                    <p className="text-[11px] font-black uppercase tracking-widest opacity-60">Status: Master Defender</p>
-                                </div>
-
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-inner">
-                                    <p className="text-xs font-bold leading-relaxed">
-                                        You have successfully broadcasted <strong className="text-white text-sm">{myReports.length}</strong> critical signals. Your vigilance maintains neighborhood integrity.
-                                    </p>
-                                </div>
-
-                                <Button
-                                    onClick={() => navigate("/leaderboard")}
-                                    className="w-full h-14 rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 font-bold text-[10px] uppercase tracking-[0.15em] shadow-2xl transition-all hover:scale-[1.02] active:scale-95 group/btn"
-                                >
-                                    <Trophy className="mr-2 h-4 w-4 text-yellow-400 group-hover/btn:scale-110 transition-transform" />
-                                    View Sector Leaderboard
-                                </Button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
