@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Newspaper, ChevronLeft, ChevronRight, X, ExternalLink, Calendar, Globe } from "lucide-react";
+import { Newspaper, ChevronLeft, ChevronRight, X, ExternalLink, Calendar, Globe, MapPin, RefreshCw, Search } from "lucide-react";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
+
 interface NewsArticle {
     title: string;
     description: string;
@@ -11,23 +12,39 @@ interface NewsArticle {
     source: string;
 }
 
-export default function NewsFeed() {
+interface NewsFeedProps {
+    userLocation?: { lat: number; lng: number } | null;
+}
+
+const STORAGE_KEY = "safetywatch_news_city";
+
+export default function NewsFeed({ userLocation }: NewsFeedProps) {
     const [articles, setArticles] = useState<NewsArticle[]>([]);
     const originalArticles = useRef<NewsArticle[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
     const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
+
+    // Location state
+    const [cityName, setCityName] = useState<string | null>(null);
+    const [manualCityInput, setManualCityInput] = useState("");
+    const [showCityEditor, setShowCityEditor] = useState(false);
+    const [geocoding, setGeocoding] = useState(false);
+    const cityInputRef = useRef<HTMLInputElement>(null);
+
     const DEFAULT_T = {
-        recentNews: "RECENT NEWS",
+        recentNews: "LOCAL NEWS",
         updated: "UPDATED",
         intel: "INTEL",
         broadcastDate: "Broadcast Date",
         protocolStatus: "Protocol Status",
         verifiedIntel: "VERIFIED INTEL",
         originNetwork: "Origin Network",
-        globalSafety: "Global Safety",
+        localSafety: "Local Safety",
         intelDirective: "Intelligence Directive",
         accessTerminal: "Access Source Terminal",
         justNow: "Just now",
@@ -37,12 +54,119 @@ export default function NewsFeed() {
 
     const [t, setT] = useState(DEFAULT_T);
 
-    useEffect(() => {
-        loadNews();
-        const interval = setInterval(loadNews, 300000);
-        return () => clearInterval(interval);
+    // ──────────────────────────────────────────
+    // REVERSE GEOCODE: coords → city name
+    // Uses free Nominatim/OpenStreetMap API
+    // ──────────────────────────────────────────
+    const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string | null> => {
+        try {
+            setGeocoding(true);
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
+                {
+                    headers: {
+                        "User-Agent": "SafetyWatch-App/1.4 (safetywatch4neighbour@gmail.com)"
+                    }
+                }
+            );
+            if (!res.ok) return null;
+            const data = await res.json();
+            // Try city → town → county → state for best granularity
+            const city = data.address?.city
+                || data.address?.town
+                || data.address?.county
+                || data.address?.state_district
+                || data.address?.state
+                || null;
+            return city;
+        } catch (err) {
+            console.error("Reverse geocoding failed:", err);
+            return null;
+        } finally {
+            setGeocoding(false);
+        }
     }, []);
 
+    // ──────────────────────────────────────────
+    // RESOLVE CITY: geolocation → saved → prompt
+    // ──────────────────────────────────────────
+    useEffect(() => {
+        const resolveCity = async () => {
+            // Priority 1: Real geolocation
+            if (userLocation) {
+                const geocoded = await reverseGeocode(userLocation.lat, userLocation.lng);
+                if (geocoded) {
+                    setCityName(geocoded);
+                    // Also save to localStorage so it persists
+                    localStorage.setItem(STORAGE_KEY, geocoded);
+                    return;
+                }
+            }
+
+            // Priority 2: Saved manual city
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                setCityName(saved);
+                return;
+            }
+
+            // Priority 3: No city → will show prompt
+            setCityName(null);
+        };
+
+        resolveCity();
+    }, [userLocation, reverseGeocode]);
+
+    // ──────────────────────────────────────────
+    // LOAD NEWS: fetch from backend with city param
+    // ──────────────────────────────────────────
+    const loadNews = useCallback(async (city: string | null, isManualRefresh = false) => {
+        if (isManualRefresh) setRefreshing(true);
+        else setLoading(true);
+        setError(false);
+
+        try {
+            const url = city
+                ? `${API_BASE}/news?city=${encodeURIComponent(city)}&t=${Date.now()}`
+                : `${API_BASE}/news?t=${Date.now()}`;
+
+            const res = await fetch(url, { headers: VERSION_HEADERS });
+            if (res.ok) {
+                const data = await res.json();
+                const fresh = (data.articles || []).slice(0, 6);
+                originalArticles.current = fresh;
+                setArticles(fresh);
+                setLastUpdated(new Date());
+                setCurrentIndex(0);
+            } else {
+                setError(true);
+            }
+        } catch (err) {
+            console.error("Failed to load news:", err);
+            setError(true);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, []);
+
+    // ──────────────────────────────────────────
+    // AUTO-FETCH: when cityName changes or on interval
+    // ──────────────────────────────────────────
+    useEffect(() => {
+        // Don't fetch if we're still geocoding
+        if (geocoding) return;
+
+        loadNews(cityName);
+
+        // 30-minute refresh interval (stays within free tier)
+        const interval = setInterval(() => loadNews(cityName), 30 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [cityName, geocoding, loadNews]);
+
+    // ──────────────────────────────────────────
+    // AUTO-SLIDE carousel
+    // ──────────────────────────────────────────
     useEffect(() => {
         if (articles.length === 0 || selectedArticle) return;
         const slideInterval = setInterval(() => {
@@ -51,28 +175,26 @@ export default function NewsFeed() {
         }, 6000);
         return () => clearInterval(slideInterval);
     }, [articles.length, selectedArticle]);
+
     useEffect(() => {
         setT(DEFAULT_T);
     }, []);
-    async function loadNews() {
-        try {
-            const res = await fetch(`${API_BASE}/news?t=${Date.now()}`, {
-                headers: VERSION_HEADERS
-            });
-            if (res.ok) {
-                const data = await res.json();
-                const fresh = data.articles.slice(0, 5);
-                originalArticles.current = fresh;
-                setArticles(fresh);
-                setLastUpdated(new Date());
-            }
-        } catch (err) {
-            console.error("Failed to load news:", err);
-        } finally {
-            setLoading(false);
-        }
-    }
 
+    // ──────────────────────────────────────────
+    // MANUAL CITY SAVE
+    // ──────────────────────────────────────────
+    const handleSaveCity = () => {
+        const trimmed = manualCityInput.trim();
+        if (!trimmed) return;
+        localStorage.setItem(STORAGE_KEY, trimmed);
+        setCityName(trimmed);
+        setShowCityEditor(false);
+        setManualCityInput("");
+    };
+
+    // ──────────────────────────────────────────
+    // HELPERS
+    // ──────────────────────────────────────────
     function formatTime(dateString: string) {
         const date = new Date(dateString);
         const now = new Date();
@@ -116,7 +238,53 @@ export default function NewsFeed() {
         setCurrentIndex((prev) => (prev - 1 + articles.length) % articles.length);
     };
 
-    if (loading) {
+    // ──────────────────────────────────────────
+    // CITY EDITOR (inline)
+    // ──────────────────────────────────────────
+    const renderCityEditor = () => (
+        <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-4 pb-4"
+        >
+            <div className="flex gap-2 items-center">
+                <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <input
+                        ref={cityInputRef}
+                        type="text"
+                        value={manualCityInput}
+                        onChange={(e) => setManualCityInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSaveCity()}
+                        placeholder="Enter your city name..."
+                        className="w-full pl-9 pr-3 py-2.5 text-sm bg-muted/50 border border-border/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder:text-muted-foreground/50"
+                        autoFocus
+                    />
+                </div>
+                <button
+                    onClick={handleSaveCity}
+                    disabled={!manualCityInput.trim()}
+                    className="px-4 py-2.5 bg-primary text-primary-foreground text-xs font-black rounded-xl hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-wider"
+                >
+                    Save
+                </button>
+                {cityName && (
+                    <button
+                        onClick={() => setShowCityEditor(false)}
+                        className="p-2.5 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                )}
+            </div>
+        </motion.div>
+    );
+
+    // ──────────────────────────────────────────
+    // LOADING STATE
+    // ──────────────────────────────────────────
+    if (loading && !refreshing) {
         return (
             <div className="bg-card border rounded-2xl p-4 shadow-xl border-white/5 backdrop-blur-md">
                 <div className="flex justify-between items-center mb-4">
@@ -126,6 +294,11 @@ export default function NewsFeed() {
                         </div>
                         <div className="h-4 w-24 bg-muted rounded animate-pulse" />
                     </div>
+                    {geocoding && (
+                        <span className="text-[9px] text-muted-foreground font-mono animate-pulse">
+                            Detecting location...
+                        </span>
+                    )}
                 </div>
                 <div className="flex gap-3 h-[180px]">
                     <div className="w-28 h-full bg-muted rounded-xl animate-pulse" />
@@ -139,10 +312,127 @@ export default function NewsFeed() {
         );
     }
 
-    if (articles.length === 0) return null;
+    // ──────────────────────────────────────────
+    // NO CITY SET — prompt to set area
+    // ──────────────────────────────────────────
+    if (!cityName && !loading && articles.length === 0) {
+        return (
+            <div className="bg-card border rounded-2xl shadow-xl border-white/5 backdrop-blur-md overflow-hidden">
+                <div className="px-4 py-4 border-b border-white/5 flex items-center gap-2">
+                    <div className="p-1.5 bg-primary/20 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                        <Newspaper className="h-4 w-4 text-primary" />
+                    </div>
+                    <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
+                </div>
+                <div className="p-8 flex flex-col items-center text-center gap-4">
+                    <div className="p-4 bg-primary/10 rounded-2xl">
+                        <MapPin className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                        <h5 className="font-black text-base text-foreground mb-1">Set Your Area</h5>
+                        <p className="text-xs text-muted-foreground max-w-[280px]">
+                            SafetyWatch uses your location to show news and alerts relevant to your neighborhood.
+                        </p>
+                    </div>
+                    <div className="w-full max-w-xs flex gap-2">
+                        <div className="flex-1 relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                            <input
+                                type="text"
+                                value={manualCityInput}
+                                onChange={(e) => setManualCityInput(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSaveCity()}
+                                placeholder="Your city name..."
+                                className="w-full pl-9 pr-3 py-2.5 text-sm bg-muted/50 border border-border/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder:text-muted-foreground/50"
+                            />
+                        </div>
+                        <button
+                            onClick={handleSaveCity}
+                            disabled={!manualCityInput.trim()}
+                            className="px-4 py-2.5 bg-primary text-primary-foreground text-xs font-black rounded-xl hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-wider"
+                        >
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ──────────────────────────────────────────
+    // ERROR STATE
+    // ──────────────────────────────────────────
+    if (error && articles.length === 0) {
+        return (
+            <div className="bg-card border rounded-2xl shadow-xl border-white/5 backdrop-blur-md overflow-hidden">
+                <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-primary/20 rounded-lg">
+                            <Newspaper className="h-4 w-4 text-primary" />
+                        </div>
+                        <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
+                    </div>
+                    {cityName && (
+                        <span className="text-[9px] text-muted-foreground/60 font-mono flex items-center gap-1">
+                            <MapPin className="h-2.5 w-2.5" /> {cityName}
+                        </span>
+                    )}
+                </div>
+                <div className="p-8 flex flex-col items-center text-center gap-3">
+                    <Newspaper className="h-10 w-10 text-muted-foreground/30" />
+                    <p className="text-sm text-muted-foreground font-medium">News temporarily unavailable</p>
+                    <button
+                        onClick={() => loadNews(cityName, true)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/10 rounded-xl transition-all"
+                    >
+                        <RefreshCw className="h-3.5 w-3.5" /> Try Again
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // ──────────────────────────────────────────
+    // EMPTY RESULTS STATE (API worked but 0 articles)
+    // ──────────────────────────────────────────
+    if (articles.length === 0 && !loading) {
+        return (
+            <div className="bg-card border rounded-2xl shadow-xl border-white/5 backdrop-blur-md overflow-hidden">
+                <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-primary/20 rounded-lg">
+                            <Newspaper className="h-4 w-4 text-primary" />
+                        </div>
+                        <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
+                    </div>
+                    {cityName && (
+                        <button
+                            onClick={() => setShowCityEditor(true)}
+                            className="text-[9px] text-muted-foreground/60 font-mono flex items-center gap-1 hover:text-primary transition-colors"
+                        >
+                            <MapPin className="h-2.5 w-2.5" /> {cityName} ✎
+                        </button>
+                    )}
+                </div>
+                <AnimatePresence>
+                    {showCityEditor && renderCityEditor()}
+                </AnimatePresence>
+                <div className="p-8 flex flex-col items-center text-center gap-3">
+                    <Newspaper className="h-10 w-10 text-muted-foreground/30" />
+                    <p className="text-sm text-muted-foreground font-medium">
+                        No local safety news for <span className="text-foreground font-bold">{cityName}</span> right now
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/50">Check back later or try a different area</p>
+                </div>
+            </div>
+        );
+    }
 
     const currentArticle = articles[currentIndex];
 
+    // ──────────────────────────────────────────
+    // MAIN NEWS CAROUSEL
+    // ──────────────────────────────────────────
     return (
         <>
             <div className="group relative theme-card-surface transition-all duration-500 hover:shadow-primary/10">
@@ -153,22 +443,52 @@ export default function NewsFeed() {
                         </div>
                         <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
                     </div>
-                    <div className="flex flex-col items-end gap-1.5">
-                        <div className="flex gap-1">
-                            {articles.map((_, i) => (
-                                <div
-                                    key={i}
-                                    className={`h-1 transition-all duration-500 rounded-full ${i === currentIndex ? "w-6 bg-primary shadow-[0_0_8px_#3b82f6]" : "w-1.5 bg-foreground/10"}`}
-                                />
-                            ))}
-                        </div>
-                        {lastUpdated && (
-                            <span className="text-[9px] text-muted-foreground/60 font-mono tracking-tighter uppercase whitespace-nowrap">
-                                {t.updated}: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                    <div className="flex items-center gap-3">
+                        {/* City badge — tappable to edit */}
+                        {cityName && (
+                            <button
+                                onClick={() => {
+                                    setShowCityEditor(!showCityEditor);
+                                    setTimeout(() => cityInputRef.current?.focus(), 100);
+                                }}
+                                className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded-lg text-[9px] font-bold text-primary hover:bg-primary/20 transition-all border border-primary/10"
+                            >
+                                <MapPin className="h-2.5 w-2.5" />
+                                <span className="max-w-[80px] truncate">{cityName}</span>
+                                <span className="text-primary/50">✎</span>
+                            </button>
                         )}
+                        {/* Manual refresh button */}
+                        <button
+                            onClick={() => loadNews(cityName, true)}
+                            disabled={refreshing}
+                            className="p-1.5 text-muted-foreground/50 hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
+                            title="Refresh news"
+                        >
+                            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                        </button>
+                        <div className="flex flex-col items-end gap-1.5">
+                            <div className="flex gap-1">
+                                {articles.map((_, i) => (
+                                    <div
+                                        key={i}
+                                        className={`h-1 transition-all duration-500 rounded-full ${i === currentIndex ? "w-6 bg-primary shadow-[0_0_8px_#3b82f6]" : "w-1.5 bg-foreground/10"}`}
+                                    />
+                                ))}
+                            </div>
+                            {lastUpdated && (
+                                <span className="text-[9px] text-muted-foreground/60 font-mono tracking-tighter uppercase whitespace-nowrap">
+                                    {t.updated}: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
+
+                {/* City editor dropdown */}
+                <AnimatePresence>
+                    {showCityEditor && renderCityEditor()}
+                </AnimatePresence>
 
                 <div className="relative h-[240px] sm:h-[190px] w-full perspective-[1000px] overflow-hidden touch-pan-y">
                     <AnimatePresence initial={false} custom={direction} mode="popLayout">
@@ -348,7 +668,7 @@ export default function NewsFeed() {
                                             <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t.originNetwork}</p>
                                             <div className="flex items-center gap-2 text-foreground/80 font-bold">
                                                 <Globe className="h-4 w-4 text-foreground/30" />
-                                                {t.globalSafety}
+                                                {cityName ? `${cityName} Safety` : t.localSafety}
                                             </div>
                                         </div>
                                     </motion.div>

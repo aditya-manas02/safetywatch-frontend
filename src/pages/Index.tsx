@@ -705,7 +705,7 @@ export default function Index() {
               <div id="tour-polls-widget">
                 <PollsWidget />
               </div>
-              <NewsFeed />
+              <NewsFeed userLocation={userLocation} />
 
               <div id="tour-heatmap" className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden relative group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
