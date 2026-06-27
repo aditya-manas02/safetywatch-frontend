@@ -26,7 +26,7 @@ import {
 export default function Profile() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { user, isSuperAdmin, isLoading: authLoading, signOut } = useAuth();
+    const { user, isAdmin, isSuperAdmin, isLoading: authLoading, signOut } = useAuth();
     const { theme, setTheme } = useTheme();
 
     const [myReports, setMyReports] = useState<any[]>([]);
@@ -528,7 +528,7 @@ export default function Profile() {
 
                 {/* MOBILE QUICK LINKS (Replaces Hamburger Menu) */}
                 <div className="md:hidden grid grid-cols-2 gap-3 mb-8">
-                    {isSuperAdmin && (
+                    {isAdmin && (
                         <Button
                             variant="outline"
                             onClick={() => navigate("/admin")}
