@@ -21,6 +21,7 @@ import {
   MapPin,
   Clock,
   LayoutDashboard,
+  ChevronRight,
   TrendingUp,
   Bell,
   Shield,
