@@ -17,17 +17,21 @@ interface NewsFeedProps {
 }
 
 const STORAGE_KEY = "safetywatch_news_city";
+const TAB_STORAGE_KEY = "safetywatch_news_tab";
 
 export default function NewsFeed({ userLocation }: NewsFeedProps) {
-    const [articles, setArticles] = useState<NewsArticle[]>([]);
-    const originalArticles = useRef<NewsArticle[]>([]);
+    const [activeTab, setActiveTab] = useState<'local' | 'global'>(() => {
+        return (localStorage.getItem(TAB_STORAGE_KEY) as 'local' | 'global') || 'local';
+    });
+
+    const [localData, setLocalData] = useState<{ articles: NewsArticle[], lastUpdated: Date | null, error: boolean }>({ articles: [], lastUpdated: null, error: false });
+    const [globalData, setGlobalData] = useState<{ articles: NewsArticle[], lastUpdated: Date | null, error: boolean }>({ articles: [], lastUpdated: null, error: false });
+
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
     const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-    const [refreshing, setRefreshing] = useState(false);
 
     // Location state
     const [cityName, setCityName] = useState<string | null>(null);
@@ -37,7 +41,7 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
     const cityInputRef = useRef<HTMLInputElement>(null);
 
     const DEFAULT_T = {
-        recentNews: "LOCAL NEWS",
+        recentNews: "NEWS DESK",
         updated: "UPDATED",
         intel: "INTEL",
         broadcastDate: "Broadcast Date",
@@ -45,6 +49,7 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
         verifiedIntel: "VERIFIED INTEL",
         originNetwork: "Origin Network",
         localSafety: "Local Safety",
+        globalSafety: "Global Safety",
         intelDirective: "Intelligence Directive",
         accessTerminal: "Access Source Terminal",
         justNow: "Just now",
@@ -65,13 +70,12 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1&accept-language=en`,
                 {
                     headers: {
-                        "User-Agent": "SafetyWatch-App/1.4 (safetywatch4neighbour@gmail.com)"
+                        "User-Agent": "SafetyWatch-App/1.5 (safetywatch4neighbour@gmail.com)"
                     }
                 }
             );
             if (!res.ok) return null;
             const data = await res.json();
-            // Try city → town → county → state for best granularity
             const city = data.address?.city
                 || data.address?.town
                 || data.address?.county
@@ -92,89 +96,104 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
     // ──────────────────────────────────────────
     useEffect(() => {
         const resolveCity = async () => {
-            // Priority 1: Real geolocation
             if (userLocation) {
                 const geocoded = await reverseGeocode(userLocation.lat, userLocation.lng);
                 if (geocoded) {
                     setCityName(geocoded);
-                    // Also save to localStorage so it persists
                     localStorage.setItem(STORAGE_KEY, geocoded);
                     return;
                 }
             }
-
-            // Priority 2: Saved manual city
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 setCityName(saved);
                 return;
             }
-
-            // Priority 3: No city → will show prompt
             setCityName(null);
         };
-
         resolveCity();
     }, [userLocation, reverseGeocode]);
 
     // ──────────────────────────────────────────
-    // LOAD NEWS: fetch from backend with city param
+    // LOAD NEWS: fetch from backend with caching
     // ──────────────────────────────────────────
-    const loadNews = useCallback(async (city: string | null, isManualRefresh = false) => {
+    const loadNews = useCallback(async (tab: 'local' | 'global', city: string | null, isManualRefresh = false) => {
+        // Prevent auto-fetch spam if we just fetched
+        if (!isManualRefresh) {
+            const lastUpdate = tab === 'local' ? localData.lastUpdated : globalData.lastUpdated;
+            if (lastUpdate && Date.now() - lastUpdate.getTime() < 5 * 60 * 1000) {
+                return; 
+            }
+        }
+
         if (isManualRefresh) setRefreshing(true);
         else setLoading(true);
-        setError(false);
+
+        if (tab === 'local') setLocalData(prev => ({ ...prev, error: false }));
+        else setGlobalData(prev => ({ ...prev, error: false }));
 
         try {
-            const url = city
-                ? `${API_BASE}/news?city=${encodeURIComponent(city)}&t=${Date.now()}`
-                : `${API_BASE}/news?t=${Date.now()}`;
+            let url = `${API_BASE}/news?t=${Date.now()}`;
+            if (tab === 'local' && city) {
+                url = `${API_BASE}/news?city=${encodeURIComponent(city)}&t=${Date.now()}`;
+            }
 
             const res = await fetch(url, { headers: VERSION_HEADERS });
             if (res.ok) {
                 const data = await res.json();
-                const fresh = (data.articles || []).slice(0, 6);
-                originalArticles.current = fresh;
-                setArticles(fresh);
-                setLastUpdated(new Date());
+                const fresh = (data.articles || []).slice(0, 15);
+                
+                if (tab === 'local') {
+                    setLocalData({ articles: fresh, lastUpdated: new Date(), error: false });
+                } else {
+                    setGlobalData({ articles: fresh, lastUpdated: new Date(), error: false });
+                }
                 setCurrentIndex(0);
             } else {
-                setError(true);
+                if (tab === 'local') setLocalData(prev => ({ ...prev, error: true }));
+                else setGlobalData(prev => ({ ...prev, error: true }));
             }
         } catch (err) {
             console.error("Failed to load news:", err);
-            setError(true);
+            if (tab === 'local') setLocalData(prev => ({ ...prev, error: true }));
+            else setGlobalData(prev => ({ ...prev, error: true }));
         } finally {
             setLoading(false);
             setRefreshing(false);
         }
-    }, []);
+    }, [localData.lastUpdated, globalData.lastUpdated]);
 
     // ──────────────────────────────────────────
-    // AUTO-FETCH: when cityName changes or on interval
+    // AUTO-FETCH logic
     // ──────────────────────────────────────────
     useEffect(() => {
-        // Don't fetch if we're still geocoding
         if (geocoding) return;
+        localStorage.setItem(TAB_STORAGE_KEY, activeTab);
+        loadNews(activeTab, activeTab === 'local' ? cityName : null);
 
-        loadNews(cityName);
+        // 60-minute refresh interval
+        const interval = setInterval(() => {
+            loadNews(activeTab, activeTab === 'local' ? cityName : null);
+        }, 60 * 60 * 1000); 
 
-        // 30-minute refresh interval (stays within free tier)
-        const interval = setInterval(() => loadNews(cityName), 30 * 60 * 1000);
         return () => clearInterval(interval);
-    }, [cityName, geocoding, loadNews]);
+    }, [activeTab, cityName, geocoding, loadNews]);
 
     // ──────────────────────────────────────────
     // AUTO-SLIDE carousel
     // ──────────────────────────────────────────
+    const currentArticles = activeTab === 'local' ? localData.articles : globalData.articles;
+    const currentError = activeTab === 'local' ? localData.error : globalData.error;
+    const currentLastUpdated = activeTab === 'local' ? localData.lastUpdated : globalData.lastUpdated;
+
     useEffect(() => {
-        if (articles.length === 0 || selectedArticle) return;
+        if (currentArticles.length === 0 || selectedArticle) return;
         const slideInterval = setInterval(() => {
             setDirection(1);
-            setCurrentIndex((prev) => (prev + 1) % articles.length);
-        }, 6000);
+            setCurrentIndex((prev) => (prev + 1) % currentArticles.length);
+        }, 8000); // Slower interval for readability
         return () => clearInterval(slideInterval);
-    }, [articles.length, selectedArticle]);
+    }, [currentArticles.length, selectedArticle]);
 
     useEffect(() => {
         setT(DEFAULT_T);
@@ -190,6 +209,8 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
         setCityName(trimmed);
         setShowCityEditor(false);
         setManualCityInput("");
+        // Force reload for new city
+        loadNews('local', trimmed, true);
     };
 
     // ──────────────────────────────────────────
@@ -230,12 +251,12 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
 
     const nextSlide = () => {
         setDirection(1);
-        setCurrentIndex((prev) => (prev + 1) % articles.length);
+        setCurrentIndex((prev) => (prev + 1) % currentArticles.length);
     };
 
     const prevSlide = () => {
         setDirection(-1);
-        setCurrentIndex((prev) => (prev - 1 + articles.length) % articles.length);
+        setCurrentIndex((prev) => (prev - 1 + currentArticles.length) % currentArticles.length);
     };
 
     // ──────────────────────────────────────────
@@ -282,30 +303,91 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
     );
 
     // ──────────────────────────────────────────
+    // SHARED HEADER + TOGGLE UI
+    // ──────────────────────────────────────────
+    const renderHeader = () => (
+        <>
+            <div className="px-4 py-4 flex items-center justify-between theme-card-surface">
+                <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-primary/20 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                        <Newspaper className="h-4 w-4 text-primary" />
+                    </div>
+                    <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
+                </div>
+                <div className="flex items-center gap-3">
+                    {/* City badge — ONLY ON LOCAL TAB */}
+                    {activeTab === 'local' && cityName && (
+                        <button
+                            onClick={() => {
+                                setShowCityEditor(!showCityEditor);
+                                setTimeout(() => cityInputRef.current?.focus(), 100);
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded-lg text-[9px] font-bold text-primary hover:bg-primary/20 transition-all border border-primary/10"
+                        >
+                            <MapPin className="h-2.5 w-2.5" />
+                            <span className="max-w-[80px] truncate">{cityName}</span>
+                            <span className="text-primary/50">✎</span>
+                        </button>
+                    )}
+                    {/* Manual refresh button */}
+                    <button
+                        onClick={() => loadNews(activeTab, activeTab === 'local' ? cityName : null, true)}
+                        disabled={refreshing}
+                        className="p-1.5 text-muted-foreground/50 hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
+                        title="Refresh news"
+                    >
+                        <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                    </button>
+                </div>
+            </div>
+
+            {/* SEGMENTED CONTROL: LOCAL / GLOBAL */}
+            <div className="flex bg-muted/50 p-1.5 rounded-2xl mx-4 mb-4 border relative isolate backdrop-blur-xl">
+                <div
+                    className="absolute inset-y-1.5 left-1.5 bg-background rounded-xl shadow-sm transition-transform duration-300 ease-out border border-border/50"
+                    style={{
+                        width: `calc(50% - 6px)`,
+                        transform: `translateX(${activeTab === 'global' ? '100%' : '0'})`,
+                    }}
+                />
+                <button
+                    onClick={() => { setActiveTab('local'); setCurrentIndex(0); setShowCityEditor(false); }}
+                    className={`flex-1 relative z-10 py-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] transition-colors ${activeTab === 'local' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}
+                >
+                    Local
+                </button>
+                <button
+                    onClick={() => { setActiveTab('global'); setCurrentIndex(0); setShowCityEditor(false); }}
+                    className={`flex-1 relative z-10 py-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] transition-colors ${activeTab === 'global' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}
+                >
+                    Global
+                </button>
+            </div>
+        </>
+    );
+
+    // ──────────────────────────────────────────
     // LOADING STATE
     // ──────────────────────────────────────────
-    if (loading && !refreshing) {
+    if (loading && !refreshing && currentArticles.length === 0 && !currentError) {
         return (
-            <div className="bg-card border rounded-2xl p-4 shadow-xl border-white/5 backdrop-blur-md">
-                <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-primary/20 rounded-lg animate-pulse">
-                            <Newspaper className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+            <div className="bg-card border rounded-2xl shadow-xl border-white/5 backdrop-blur-md overflow-hidden pb-4">
+                {renderHeader()}
+                <div className="px-4">
+                    <div className="flex justify-between items-center mb-4">
+                        {geocoding && activeTab === 'local' && (
+                            <span className="text-[9px] text-muted-foreground font-mono animate-pulse">
+                                Detecting location...
+                            </span>
+                        )}
                     </div>
-                    {geocoding && (
-                        <span className="text-[9px] text-muted-foreground font-mono animate-pulse">
-                            Detecting location...
-                        </span>
-                    )}
-                </div>
-                <div className="flex gap-3 h-[180px]">
-                    <div className="w-28 h-full bg-muted rounded-xl animate-pulse" />
-                    <div className="flex-1 space-y-2">
-                        <div className="h-4 w-full bg-muted rounded animate-pulse" />
-                        <div className="h-4 w-3/4 bg-muted rounded animate-pulse" />
-                        <div className="h-12 w-full bg-muted rounded animate-pulse pt-4" />
+                    <div className="flex gap-3 h-[180px]">
+                        <div className="w-28 h-full bg-muted rounded-xl animate-pulse" />
+                        <div className="flex-1 space-y-2">
+                            <div className="h-4 w-full bg-muted rounded animate-pulse" />
+                            <div className="h-4 w-3/4 bg-muted rounded animate-pulse" />
+                            <div className="h-12 w-full bg-muted rounded animate-pulse pt-4" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -313,17 +395,12 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
     }
 
     // ──────────────────────────────────────────
-    // NO CITY SET — prompt to set area
+    // NO CITY SET — prompt to set area (LOCAL ONLY)
     // ──────────────────────────────────────────
-    if (!cityName && !loading && articles.length === 0) {
+    if (activeTab === 'local' && !cityName && !loading && currentArticles.length === 0) {
         return (
             <div className="bg-card border rounded-2xl shadow-xl border-white/5 backdrop-blur-md overflow-hidden">
-                <div className="px-4 py-4 border-b border-white/5 flex items-center gap-2">
-                    <div className="p-1.5 bg-primary/20 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)]">
-                        <Newspaper className="h-4 w-4 text-primary" />
-                    </div>
-                    <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
-                </div>
+                {renderHeader()}
                 <div className="p-8 flex flex-col items-center text-center gap-4">
                     <div className="p-4 bg-primary/10 rounded-2xl">
                         <MapPin className="h-8 w-8 text-primary" />
@@ -334,7 +411,7 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
                             SafetyWatch uses your location to show news and alerts relevant to your neighborhood.
                         </p>
                     </div>
-                    <div className="w-full max-w-xs flex gap-2">
+                    <div className="w-full max-w-xs flex flex-col sm:flex-row gap-2">
                         <div className="flex-1 relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                             <input
@@ -362,27 +439,15 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
     // ──────────────────────────────────────────
     // ERROR STATE
     // ──────────────────────────────────────────
-    if (error && articles.length === 0) {
+    if (currentError && currentArticles.length === 0) {
         return (
             <div className="bg-card border rounded-2xl shadow-xl border-white/5 backdrop-blur-md overflow-hidden">
-                <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-primary/20 rounded-lg">
-                            <Newspaper className="h-4 w-4 text-primary" />
-                        </div>
-                        <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
-                    </div>
-                    {cityName && (
-                        <span className="text-[9px] text-muted-foreground/60 font-mono flex items-center gap-1">
-                            <MapPin className="h-2.5 w-2.5" /> {cityName}
-                        </span>
-                    )}
-                </div>
+                {renderHeader()}
                 <div className="p-8 flex flex-col items-center text-center gap-3">
                     <Newspaper className="h-10 w-10 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground font-medium">News temporarily unavailable</p>
                     <button
-                        onClick={() => loadNews(cityName, true)}
+                        onClick={() => loadNews(activeTab, activeTab === 'local' ? cityName : null, true)}
                         className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/10 rounded-xl transition-all"
                     >
                         <RefreshCw className="h-3.5 w-3.5" /> Try Again
@@ -395,105 +460,61 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
     // ──────────────────────────────────────────
     // EMPTY RESULTS STATE (API worked but 0 articles)
     // ──────────────────────────────────────────
-    if (articles.length === 0 && !loading) {
+    if (currentArticles.length === 0 && !loading) {
         return (
             <div className="bg-card border rounded-2xl shadow-xl border-white/5 backdrop-blur-md overflow-hidden">
-                <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-primary/20 rounded-lg">
-                            <Newspaper className="h-4 w-4 text-primary" />
-                        </div>
-                        <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
-                    </div>
-                    {cityName && (
-                        <button
-                            onClick={() => setShowCityEditor(true)}
-                            className="text-[9px] text-muted-foreground/60 font-mono flex items-center gap-1 hover:text-primary transition-colors"
-                        >
-                            <MapPin className="h-2.5 w-2.5" /> {cityName} ✎
-                        </button>
-                    )}
-                </div>
+                {renderHeader()}
                 <AnimatePresence>
-                    {showCityEditor && renderCityEditor()}
+                    {activeTab === 'local' && showCityEditor && renderCityEditor()}
                 </AnimatePresence>
                 <div className="p-8 flex flex-col items-center text-center gap-3">
                     <Newspaper className="h-10 w-10 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground font-medium">
-                        No local safety news for <span className="text-foreground font-bold">{cityName}</span> right now
+                        {activeTab === 'local' 
+                            ? <>No local safety news for <span className="text-foreground font-bold">{cityName}</span> right now</>
+                            : "No global safety news available right now"}
                     </p>
-                    <p className="text-[10px] text-muted-foreground/50">Check back later or try a different area</p>
+                    <p className="text-[10px] text-muted-foreground/50">Check back later{activeTab === 'local' && " or try a different area"}</p>
                 </div>
             </div>
         );
     }
 
-    const currentArticle = articles[currentIndex];
+    const currentArticle = currentArticles[currentIndex] || currentArticles[0];
 
     // ──────────────────────────────────────────
     // MAIN NEWS CAROUSEL
     // ──────────────────────────────────────────
     return (
         <>
-            <div className="group relative theme-card-surface transition-all duration-500 hover:shadow-primary/10">
-                <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between theme-card-surface">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-primary/20 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)]">
-                            <Newspaper className="h-4 w-4 text-primary" />
-                        </div>
-                        <h4 className="font-bold text-xs tracking-[0.3em] uppercase text-foreground/90">{t.recentNews}</h4>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {/* City badge — tappable to edit */}
-                        {cityName && (
-                            <button
-                                onClick={() => {
-                                    setShowCityEditor(!showCityEditor);
-                                    setTimeout(() => cityInputRef.current?.focus(), 100);
-                                }}
-                                className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded-lg text-[9px] font-bold text-primary hover:bg-primary/20 transition-all border border-primary/10"
-                            >
-                                <MapPin className="h-2.5 w-2.5" />
-                                <span className="max-w-[80px] truncate">{cityName}</span>
-                                <span className="text-primary/50">✎</span>
-                            </button>
-                        )}
-                        {/* Manual refresh button */}
-                        <button
-                            onClick={() => loadNews(cityName, true)}
-                            disabled={refreshing}
-                            className="p-1.5 text-muted-foreground/50 hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
-                            title="Refresh news"
-                        >
-                            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
-                        </button>
-                        <div className="flex flex-col items-end gap-1.5">
-                            <div className="flex gap-1">
-                                {articles.map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className={`h-1 transition-all duration-500 rounded-full ${i === currentIndex ? "w-6 bg-primary shadow-[0_0_8px_#3b82f6]" : "w-1.5 bg-foreground/10"}`}
-                                    />
-                                ))}
-                            </div>
-                            {lastUpdated && (
-                                <span className="text-[9px] text-muted-foreground/60 font-mono tracking-tighter uppercase whitespace-nowrap">
-                                    {t.updated}: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* City editor dropdown */}
+            <div className="group relative theme-card-surface transition-all duration-500 hover:shadow-primary/10 pb-2">
+                {renderHeader()}
+                
                 <AnimatePresence>
-                    {showCityEditor && renderCityEditor()}
+                    {activeTab === 'local' && showCityEditor && renderCityEditor()}
                 </AnimatePresence>
+
+                {/* Progress Indicators & Last Updated under toggle */}
+                <div className="px-4 flex items-center justify-between mb-3">
+                    <div className="flex gap-1 overflow-x-auto custom-scrollbar pb-1">
+                        {currentArticles.map((_, i) => (
+                            <div
+                                key={i}
+                                className={`h-1 transition-all duration-500 rounded-full flex-shrink-0 ${i === currentIndex ? "w-6 bg-primary shadow-[0_0_8px_#3b82f6]" : "w-2 bg-foreground/10"}`}
+                            />
+                        ))}
+                    </div>
+                    {currentLastUpdated && (
+                        <span className="text-[9px] text-muted-foreground/60 font-mono tracking-tighter uppercase whitespace-nowrap pl-2">
+                            {t.updated}: {currentLastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    )}
+                </div>
 
                 <div className="relative h-[240px] sm:h-[190px] w-full perspective-[1000px] overflow-hidden touch-pan-y">
                     <AnimatePresence initial={false} custom={direction} mode="popLayout">
                         <motion.div
-                            key={currentIndex}
+                            key={`${activeTab}-${currentIndex}`}
                             custom={direction}
                             variants={variants}
                             initial="enter"
@@ -513,7 +534,7 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
                                 scale: { duration: 0.5 }
                             }}
                             onClick={() => setSelectedArticle(currentArticle)}
-                            className="absolute inset-0 p-5 flex flex-col sm:flex-row gap-5 cursor-pointer hover:bg-muted/50 transition-colors group/item"
+                            className="absolute inset-0 px-4 pb-2 flex flex-col sm:flex-row gap-5 cursor-pointer hover:bg-muted/30 transition-colors group/item"
                         >
                             {currentArticle.imageUrl && (
                                 <div className="relative flex-shrink-0 w-full sm:w-36 h-32 sm:h-full rounded-2xl overflow-hidden border border-border/50 shadow-lg bg-muted">
@@ -555,7 +576,7 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
                         </motion.div>
                     </AnimatePresence>
 
-                    <div className="absolute inset-y-0 left-3 flex items-center z-20 pointer-events-none">
+                    <div className="absolute inset-y-0 left-2 flex items-center z-20 pointer-events-none">
                         <button
                             onClick={(e) => { e.stopPropagation(); prevSlide(); }}
                             className="pointer-events-auto p-2 bg-background/60 backdrop-blur-xl border border-border/50 rounded-full hover:bg-primary hover:text-white text-foreground transition-all shadow-xl opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 group/nav"
@@ -564,7 +585,7 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
                             <ChevronLeft className="h-5 w-5 transition-transform group-hover/nav:-translate-x-0.5" />
                         </button>
                     </div>
-                    <div className="absolute inset-y-0 right-3 flex items-center z-20 pointer-events-none">
+                    <div className="absolute inset-y-0 right-2 flex items-center z-20 pointer-events-none">
                         <button
                             onClick={(e) => { e.stopPropagation(); nextSlide(); }}
                             className="pointer-events-auto p-2 bg-background/60 backdrop-blur-xl border border-border/50 rounded-full hover:bg-primary hover:text-white text-foreground transition-all shadow-xl opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 group/nav"
@@ -668,7 +689,7 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
                                             <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t.originNetwork}</p>
                                             <div className="flex items-center gap-2 text-foreground/80 font-bold">
                                                 <Globe className="h-4 w-4 text-foreground/30" />
-                                                {cityName ? `${cityName} Safety` : t.localSafety}
+                                                {activeTab === 'local' && cityName ? `${cityName} Safety` : t.globalSafety}
                                             </div>
                                         </div>
                                     </motion.div>
