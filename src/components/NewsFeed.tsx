@@ -62,7 +62,7 @@ export default function NewsFeed({ userLocation }: NewsFeedProps) {
         try {
             setGeocoding(true);
             const res = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1&accept-language=en`,
                 {
                     headers: {
                         "User-Agent": "SafetyWatch-App/1.4 (safetywatch4neighbour@gmail.com)"
