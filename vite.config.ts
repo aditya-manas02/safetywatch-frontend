@@ -47,9 +47,13 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        // Cache heavy assets and chunks
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        skipWaiting: true,
+        clientsClaim: true,
+        // Only cache JS, CSS, HTML — NOT images (prevents stale logo caching)
+        globPatterns: ['**/*.{js,css,html,woff2}'],
         maximumFileSizeToCacheInBytes: 4000000,
+        // Clean old caches on activation
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -59,6 +63,21 @@ export default defineConfig(({ mode }) => ({
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Cache images with NetworkFirst so updates propagate immediately
+            urlPattern: /\.(?:png|jpg|jpeg|svg|ico|gif|webp)$/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'image-cache-v2',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7
               },
               cacheableResponse: {
                 statuses: [0, 200]
