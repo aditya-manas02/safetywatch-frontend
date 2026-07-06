@@ -506,6 +506,7 @@
 /* Dark Mode Logo Visibility Fix */
 html[data-theme-type='dark'] img[src*='splash.png'],
 html[data-theme-type='dark'] img[src*='logo.png'] {
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+  filter: invert(1) hue-rotate(180deg) brightness(1.2);
+  mix-blend-mode: screen !important;
 }
 
