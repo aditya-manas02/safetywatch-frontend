@@ -587,7 +587,7 @@ const Auth = () => {
                                     (e.target.nextElementSibling as HTMLInputElement)?.focus();
                                   }
                                 }}
-                                className="w-12 h-14 text-center text-2xl font-black rounded-xl bg-muted/40 border-2 border-border focus:border-primary focus:bg-background transition-all outline-none shadow-sm"
+                                className="w-12 h-14 text-center text-2xl font-black rounded-xl bg-background border-2 border-primary/40 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all outline-none text-foreground"
                               />
                             ))}
                           </div>
