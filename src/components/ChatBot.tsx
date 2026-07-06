@@ -15,7 +15,7 @@ export default function ChatBot() {
     const [isMinimized, setIsMinimized] = useState(false);
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Message[]>([
-        { role: "bot", content: "👋 Nexus AI initialized. I'm your intelligent safety companion, ready to assist with neighborhood insights, incident analysis, and security guidance. How can I help protect your community today?" }
+        { role: "bot", content: "👋 SafetyWatch Buddy initialized. I'm your intelligent safety companion, ready to assist with neighborhood insights, incident analysis, and security guidance. How can I help protect your community today?" }
     ]);
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -55,14 +55,14 @@ export default function ChatBot() {
 
             if (!res.ok) {
                 const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.message || "Nexus server unreachable.");
+                throw new Error(errorData.message || "SafetyWatch Buddy server unreachable.");
             }
             const data = await res.json();
             setMessages((prev) => [...prev, { role: "bot", content: data.reply }]);
         } catch (err: any) {
             const errorMessage = err.message.includes("Failed to fetch")
                 ? "Network anomaly detected. Retrying connection..."
-                : `Nexus Error: ${err.message || "Algorithms interrupted."}`;
+                : `SafetyWatch Buddy Error: ${err.message || "Algorithms interrupted."}`;
             setMessages((prev) => [...prev, { role: "bot", content: errorMessage }]);
         } finally {
             setIsLoading(false);
@@ -70,7 +70,7 @@ export default function ChatBot() {
     };
 
     return (
-        <div className="fixed bottom-4 right-4 z-[9999] flex flex-col items-end font-sans pointer-events-none">
+        <div className="fixed bottom-24 md:bottom-4 right-4 z-[9999] flex flex-col items-end font-sans pointer-events-none">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -85,7 +85,7 @@ export default function ChatBot() {
                         // DESKTOP UI FIX: Fixed width (380px) and nicer shadow/border
                         className="w-[90vw] sm:w-[380px] bg-background/95 backdrop-blur-xl border border-primary/30 rounded-3xl shadow-2xl shadow-primary/40 overflow-hidden flex flex-col mb-4 ring-1 ring-border/50 pointer-events-auto"
                     >
-                        {/* Nexus Header */}
+                        {/* SafetyWatch Buddy Header */}
                         <div
                             className="relative px-5 py-4 bg-gradient-to-r from-[#2e1065] via-[#1e1b4b] to-[#0f172a] border-b border-purple-500/20 flex items-center justify-between cursor-pointer group"
                             onClick={() => setIsMinimized(!isMinimized)}
@@ -97,7 +97,7 @@ export default function ChatBot() {
                                 <div className="relative">
                                     <img
                                         src="/assets/splash.png"
-                                        alt="Nexus Logo"
+                                        alt="SafetyWatch Buddy Logo"
                                         className="h-9 w-9 relative z-10 object-contain drop-shadow-[0_0_10px_rgba(168,85,247,0.4)]"
                                     />
                                     {/* Online indicator dot */}
@@ -105,7 +105,7 @@ export default function ChatBot() {
                                 </div>
                                 <div>
                                     <h3 className="font-orbitron font-bold text-base tracking-wider text-white flex items-center gap-2">
-                                        NEXUS <span className="text-purple-400 text-[10px] font-normal tracking-widest">AI</span>
+                                        SAFETYWATCH <span className="text-purple-400 text-[10px] font-normal tracking-widest">BUDDY</span>
                                     </h3>
                                     <p className="text-[9px] text-purple-200/60 font-mono tracking-widest uppercase flex items-center gap-1">
                                         <Zap className="h-2 w-2 text-yellow-400" /> ONLINE

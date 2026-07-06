@@ -659,9 +659,7 @@ const AppContent = () => {
       </main>
       <Suspense fallback={null}>
         {!location.pathname.startsWith("/inbox") && (
-          <div className="hidden md:block">
-            <ChatBot />
-          </div>
+          <ChatBot />
         )}
       </Suspense>
       <ScrollToTop />
