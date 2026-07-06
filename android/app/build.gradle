@@ -8,7 +8,7 @@ android {
         archivesBaseName = "SafetyWatch"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2026062401
+        versionCode 2026070601
         versionName "1.4.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
