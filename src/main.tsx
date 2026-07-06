@@ -1,6 +1,9 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { initializeSecurity } from "./lib/security.ts";
+
+initializeSecurity();
 
 // Global 401 Interceptor for Auto-Logout
 const originalFetch = window.fetch;

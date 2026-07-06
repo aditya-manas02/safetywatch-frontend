@@ -90,5 +90,8 @@ export default defineConfig(({ mode }) => ({
         }
       }
     }
-  }
+  esbuild: {
+    drop: ['console'],
+  },
+
 }));
