@@ -381,6 +381,20 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             const msg = error?.message || "Unknown Error";
             toast.error(`Installer Error: ${msg.slice(0, 40)}`);
         }
+        // Always show the fallback button just in case the OS dropped the intent
+        setInstallHandedOff(true);
+    };
+
+    const handleBrowserFallback = () => {
+        const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
+        toast.info("Opening system browser to handle installation...");
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.target = '_blank';
+        link.download = 'SafetyWatch.apk';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const handleHardReload = () => {
@@ -417,7 +431,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                             <div className="relative p-4 bg-purple-950/30 rounded-2xl border border-purple-500/40 shadow-2xl">
                                 <img
                                     src="/assets/splash.png"
-                                    alt="Nexus AI"
+                                    alt="SafetyWatch"
                                     className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]"
                                 />
                             </div>
@@ -454,7 +468,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                                     <div className="flex justify-between items-center px-1">
                                         <div className="flex items-center gap-2">
                                             <RefreshCw className="w-3 h-3 text-purple-400 animate-spin" />
-                                            <span className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">Encrypting Sync...</span>
+                                            <span className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">Downloading Update...</span>
                                         </div>
                                         <span className="text-[11px] font-mono text-white">{downloadProgress}%</span>
                                     </div>
@@ -474,56 +488,17 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
                         <AnimatePresence>
                             {downloadError && !isDownloading && (
                                 <motion.div
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="w-full mb-8 p-4 bg-critical/10 border border-critical/20 rounded-2xl text-left"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    className="w-full mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl"
                                 >
-                                    <div className="flex items-start gap-3 mb-3">
-                                        <AlertTriangle className="w-5 h-5 text-critical flex-shrink-0 mt-0.5" />
+                                    <div className="flex items-start gap-3 text-left">
+                                        <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                                         <div>
-                                            <p className="text-critical font-bold text-[13px] uppercase tracking-wider mb-1">
-                                                {downloadError === "LEGACY_SHELL_INCOMPATIBILITY" ? "Legacy Version Detected" : "Update Interrupted"}
-                                            </p>
-                                            <p className="text-critical/70 text-[12px] leading-tight italic">
-                                                {downloadError === "LEGACY_SHELL_INCOMPATIBILITY"
-                                                    ? "Your current app shell is too old for in-app syncing."
-                                                    : `Reason: ${downloadError}`}
-                                            </p>
+                                            <p className="text-sm font-bold text-red-400 mb-1">Download Interrupted</p>
+                                            <p className="text-xs text-red-400/80">{downloadError}</p>
                                         </div>
                                     </div>
-
-                                    {downloadError === "LEGACY_SHELL_INCOMPATIBILITY" ? (
-                                        <div className="space-y-4">
-                                            <p className="text-slate-400 text-[11px] leading-relaxed">
-                                                This is a one-time requirement. Please perform a **manual upgrade** to v1.4.8 using the
-                                                secondary button below. This will enable the automatic update engine for all future versions.
-                                            </p>
-                                            <Button
-                                                onClick={() => forceExternalDownload(downloadUrl)}
-                                                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-black tracking-tighter uppercase rounded-xl py-6 h-auto shadow-[0_0_20px_rgba(168,85,247,0.3)]"
-                                            >
-                                                <ExternalLink className="w-4 h-4 mr-2" />
-                                                Manual Upgrade to v1.4.8
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <p className="text-slate-400 text-[11px] leading-relaxed mb-4">
-                                                Persistence error detected in native bridge. If retrying fails repeatedly, please use the
-                                                <span className="text-white font-semibold mx-1 text-[12px]">secondary browser option</span> below.
-                                            </p>
-                                            <Button
-                                                onClick={() => {
-                                                    setDownloadError(null);
-                                                    startDownload();
-                                                }}
-                                                className="w-full bg-critical/20 hover:bg-critical/30 text-critical border border-critical/30 font-black tracking-tighter uppercase rounded-xl py-6 h-auto"
-                                            >
-                                                <RefreshCw className="w-4 h-4 mr-2" />
-                                                Retry Update
-                                            </Button>
-                                        </>
-                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>
