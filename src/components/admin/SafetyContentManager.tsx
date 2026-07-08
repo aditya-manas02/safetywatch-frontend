@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Shield, Send, Loader2, Trash2, Plus, Lightbulb, BookOpen, AlertCircle } from "lucide-react";
+import { Shield, Send, Loader2, Trash2, Plus, Lightbulb, BookOpen, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +25,7 @@ export default function SafetyContentManager() {
   const [contents, setContents] = useState<SafetyContent[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Form states
@@ -53,6 +54,30 @@ export default function SafetyContentManager() {
   useEffect(() => {
     fetchContents();
   }, [fetchContents]);
+
+  const handleGenerateIdea = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setGeneratingAI(true);
+    try {
+      const res = await fetch(`${API_BASE}/safety-content/generate`, {
+        method: "POST",
+        headers: getAuthHeaders(token || ""),
+        body: JSON.stringify({ category })
+      });
+
+      if (!res.ok) throw new Error("Failed to generate AI idea");
+      const data = await res.json();
+      
+      setTitle(data.title || "");
+      setBody(data.body || "");
+      toast({ title: "Idea generated!", description: "Review and publish." });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Failed to generate idea", variant: "destructive" });
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,7 +183,20 @@ export default function SafetyContentManager() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase">Title</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-muted-foreground uppercase">Title</label>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 text-xs text-primary hover:text-primary hover:bg-primary/10 px-2 font-bold uppercase tracking-wider"
+                    onClick={handleGenerateIdea}
+                    disabled={generatingAI}
+                  >
+                    {generatingAI ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                    Auto-Generate
+                  </Button>
+                </div>
                 <Input 
                   placeholder="e.g. Neighborhood Patrol Guidelines" 
                   value={title}
