@@ -287,48 +287,33 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             return;
         }
 
-        console.log('[VERSION_DL] Starting download via system browser for reliable APK installation');
+        console.log('[VERSION_DL] Forcing external browser download for APK payload');
         setIsDownloading(true);
         setDownloadProgress(50);
 
         try {
-            // STRATEGY: Open in system browser directly — this is the most reliable
-            // method for APK download + install on Android. The browser handles
-            // the download natively, shows progress, and triggers the system installer.
+            // STRATEGY: Chrome Custom Tabs (Capacitor Browser plugin) silently block APK downloads.
+            // We MUST use a direct anchor element injection to force the Android OS to intercept the URL
+            // and hand it off to the native Android Download Manager.
             
-            // Method 1: Capacitor Browser Plugin
-            if (Capacitor.isPluginAvailable('Browser')) {
-                try {
-                    await Browser.open({ url: downloadUrl });
-                    setDownloadProgress(100);
-                    setIsDownloaded(true);
-                    toast.success("Download started in browser. Install when complete.");
-                    setIsDownloading(false);
-                    return;
-                } catch (e) {
-                    console.warn('[VERSION_DL] Browser plugin failed, trying fallbacks...');
-                }
-            }
-
-            // Method 2: System browser via window.open
-            if (Capacitor.isNativePlatform()) {
-                try {
-                    window.open(downloadUrl, '_system');
-                    setDownloadProgress(100);
-                    setIsDownloaded(true);
-                    toast.success("Download started. Check your notification bar.");
-                    setIsDownloading(false);
-                    return;
-                } catch (e) {
-                    console.warn('[VERSION_DL] window.open _system failed');
-                }
-            }
-
-            // Method 3: Direct redirect
-            window.location.href = downloadUrl;
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.target = '_blank';
+            link.download = 'SafetyWatch.apk';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             
+            // Wait a moment for the system to catch the intent before updating UI
+            setTimeout(() => {
+                setDownloadProgress(100);
+                setIsDownloaded(true);
+                toast.success("Download started! Check your notification panel to install.");
+                setIsDownloading(false);
+            }, 1500);
+
         } catch (error: any) {
-            console.error('[VERSION_DL] All download methods failed:', error);
+            console.error('[VERSION_DL] Anchor injection failed:', error);
             setIsDownloading(false);
             setDownloadError(error?.message || "Download failed");
             toast.error("Download failed. Please try the manual link below.");
