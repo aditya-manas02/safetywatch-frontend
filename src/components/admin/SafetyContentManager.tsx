@@ -176,7 +176,7 @@ export default function SafetyContentManager() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Tip">💡 Safety Tip</SelectItem>
-                    <SelectItem value="Guide">📖 Official Guide</SelectItem>
+                    <SelectItem value="Guideline">📖 Official Guide</SelectItem>
                     <SelectItem value="Announcement">🚨 Announcement</SelectItem>
                   </SelectContent>
                 </Select>
