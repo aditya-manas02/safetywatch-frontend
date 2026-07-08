@@ -3,11 +3,14 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import { motion } from "framer-motion";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, Navigation } from "lucide-react";
+import { Geolocation } from "@capacitor/geolocation";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
 
 export default function RealHeatmap() {
   const mapRef = useRef<L.Map | null>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
+  const watchIdRef = useRef<string | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [heatLayer, setHeatLayer] = useState<L.Layer | null>(null);
   const [markerLayer, setMarkerLayer] = useState<L.LayerGroup | null>(null);
@@ -42,8 +45,77 @@ export default function RealHeatmap() {
         mapRef.current.remove();
         mapRef.current = null;
       }
+      if (watchIdRef.current !== null) {
+        Geolocation.clearWatch({ id: watchIdRef.current });
+      }
     };
   }, []);
+
+  // Track User Location
+  useEffect(() => {
+    if (!map) return;
+
+    let isTracking = true;
+
+    const startTracking = async () => {
+      try {
+        // Request permissions first (required on mobile)
+        const permission = await Geolocation.checkPermissions();
+        if (permission.location !== 'granted') {
+          await Geolocation.requestPermissions();
+        }
+
+        const id = await Geolocation.watchPosition(
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+          (position, err) => {
+            if (err || !position || !isTracking || !map) return;
+
+            const { latitude, longitude } = position.coords;
+
+            if (userMarkerRef.current) {
+              userMarkerRef.current.setLatLng([latitude, longitude]);
+            } else {
+              // Create user location dot
+              const userIcon = L.divIcon({
+                className: "bg-transparent border-none",
+                html: `
+                  <div class="relative flex items-center justify-center w-8 h-8">
+                    <span class="absolute inset-0 rounded-full bg-blue-500 opacity-40 animate-ping"></span>
+                    <div class="relative w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div>
+                  </div>
+                `,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+              });
+              
+              userMarkerRef.current = L.marker([latitude, longitude], { 
+                icon: userIcon, 
+                zIndexOffset: 1000 
+              }).addTo(map);
+
+              // Center map on user's first known location (zoom in to nearby area)
+              map.setView([latitude, longitude], 14);
+            }
+          }
+        );
+        if (isTracking) {
+          watchIdRef.current = id;
+        }
+      } catch (err) {
+        console.error("Geolocation tracking error:", err);
+      }
+    };
+
+    startTracking();
+
+    return () => {
+      isTracking = false;
+      if (watchIdRef.current !== null) {
+        Geolocation.clearWatch({ id: watchIdRef.current });
+        watchIdRef.current = null;
+      }
+    };
+  }, [map]);
 
   useEffect(() => {
     if (!map) return;
@@ -150,7 +222,13 @@ export default function RealHeatmap() {
       <div className="bg-primary/5 border-b border-border px-4 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary" />
-          <h4 className="font-display font-bold text-sm">Live Heatmap</h4>
+          <h4 className="font-display font-bold text-sm flex items-center gap-2">
+            Live Heatmap 
+            <span className="flex items-center gap-1 text-[10px] uppercase font-mono tracking-wider text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded-full border border-blue-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+              Tracking
+            </span>
+          </h4>
         </div>
         {!loading && (
           <span className="text-xs text-muted-foreground font-mono font-medium">
