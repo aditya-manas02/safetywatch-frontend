@@ -25,6 +25,7 @@ import ReportManager from "@/components/admin/ReportManager";
 import AdManager from "@/components/admin/AdManager";
 import { Megaphone, Flag, MapPin, Target, Vote, Image as ImageIcon, Settings } from "lucide-react";
 import SystemSettings from "@/components/admin/SystemSettings";
+import SafetyContentManager from "@/components/admin/SafetyContentManager";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -408,6 +409,8 @@ export default function Admin() {
           {activeTab === "challenges" && <CreateChallenge />}
 
           {activeTab === "ads" && <AdManager />}
+
+          {activeTab === "safetycontent" && <SafetyContentManager />}
 
           {activeTab === "activity" && <AuditLogViewer />}
 

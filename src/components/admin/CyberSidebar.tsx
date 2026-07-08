@@ -42,6 +42,7 @@ export default function CyberSidebar({ active, onSelect, onFilter, onLogout, isS
     { id: "challenges", label: "Campaigns", icon: Target },
     { id: "ads", label: "Ads", icon: ImageIcon },
     { id: "announcements", label: "Broadcast", icon: Megaphone },
+    { id: "safetycontent", label: "Directives", icon: Shield },
     { id: "activity", label: "Activity", icon: Activity },
     { id: "system", label: "System", icon: Settings },
   ];
