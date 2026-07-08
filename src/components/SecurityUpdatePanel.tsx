@@ -287,134 +287,51 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             return;
         }
 
-        console.log('[VERSION_CHECK] Update sequence initiated. Verifying native bridge...');
+        console.log('[VERSION_DL] Starting download via system browser for reliable APK installation');
         setIsDownloading(true);
-        setDownloadProgress(5);
-
-        let progressListener: any = null;
+        setDownloadProgress(50);
 
         try {
-            const fileName = getFileName();
-            console.log('[VERSION_DL] Target:', fileName);
-
-            // PRE-SYNC CLEANUP
-            try {
-                await Filesystem.deleteFile({
-                    path: fileName,
-                    directory: Directory.Data
-                });
-            } catch (e) { }
-
-            let downloadSuccessful = false;
-            let finalPath = '';
-
-            // STRATEGY A: Modern Capacitor Download (Best performance, uses native stream)
-            try {
-                console.log('[VERSION_DL] Protocol A: Native Direct Stream');
-
-                // Add listener for native progress events
-                progressListener = await Filesystem.addListener('progress', (progress) => {
-                    if (progress.contentLength > 0) {
-                        const percent = Math.round((progress.bytes / progress.contentLength) * 100);
-                        setDownloadProgress(Math.max(5, percent));
-                    }
-                });
-
-                const downloadResult = await Filesystem.downloadFile({
-                    url: downloadUrl,
-                    path: fileName,
-                    directory: Directory.Data,
-                    progress: true
-                });
-
-                if (downloadResult.path) {
-                    finalPath = downloadResult.path;
-                    downloadSuccessful = true;
-                    console.log('[VERSION_DL] Protocol A Success');
-                }
-            } catch (err: any) {
-                console.warn('[VERSION_DL] Protocol A Failed (likely older shell):', err.message);
-                if (progressListener) {
-                    await progressListener.remove();
-                    progressListener = null;
-                }
-
-                // STRATEGY B: Single-Shot Sync (Avoids base64 corruption)
+            // STRATEGY: Open in system browser directly — this is the most reliable
+            // method for APK download + install on Android. The browser handles
+            // the download natively, shows progress, and triggers the system installer.
+            
+            // Method 1: Capacitor Browser Plugin
+            if (Capacitor.isPluginAvailable('Browser')) {
                 try {
-                    console.log('[VERSION_DL] Protocol B: Single-Shot Sync');
-                    setDownloadProgress(11);
-
-                    // Simulated progress for fallback
-                    const simInterval = setInterval(() => {
-                        setDownloadProgress(prev => {
-                            if (prev < 90) return prev + 1;
-                            return prev;
-                        });
-                    }, 800);
-
-                    const response = await fetch(downloadUrl);
-                    if (!response.ok) {
-                        clearInterval(simInterval);
-                        throw new Error(`Server returned ${response.status}`);
-                    }
-
-                    const blob = await response.blob();
-                    const base64Data = await new Promise<string>((resolve, reject) => {
-                        const fr = new FileReader();
-                        fr.onload = () => resolve((fr.result as string).split(',')[1]);
-                        fr.onerror = reject;
-                        fr.readAsDataURL(blob);
-                    });
-
-                    await Filesystem.writeFile({
-                        path: fileName,
-                        data: base64Data,
-                        directory: Directory.Data
-                    });
-
-                    clearInterval(simInterval);
-                    console.log('[VERSION_DL] Single-Shot Sync Complete.');
-                    downloadSuccessful = true;
-
-                } catch (errB: any) {
-                    console.error('[VERSION_DL] Protocol B Failure:', errB.message);
-                    throw errB;
+                    await Browser.open({ url: downloadUrl });
+                    setDownloadProgress(100);
+                    setIsDownloaded(true);
+                    toast.success("Download started in browser. Install when complete.");
+                    setIsDownloading(false);
+                    return;
+                } catch (e) {
+                    console.warn('[VERSION_DL] Browser plugin failed, trying fallbacks...');
                 }
             }
 
-            if (downloadSuccessful) {
-                setDownloadProgress(100);
-
-                const uriResult = await Filesystem.getUri({
-                    path: fileName,
-                    directory: Directory.Data
-                });
-
-                console.log('[VERSION_DL] Binary verified at:', uriResult.uri);
-                setDownloadedFileUri(uriResult.uri);
-                setIsDownloaded(true);
-                setIsDownloading(false);
-                toast.success("Security Binary Received.");
-
-                setTimeout(() => handleInstall(), 800);
+            // Method 2: System browser via window.open
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    window.open(downloadUrl, '_system');
+                    setDownloadProgress(100);
+                    setIsDownloaded(true);
+                    toast.success("Download started. Check your notification bar.");
+                    setIsDownloading(false);
+                    return;
+                } catch (e) {
+                    console.warn('[VERSION_DL] window.open _system failed');
+                }
             }
+
+            // Method 3: Direct redirect
+            window.location.href = downloadUrl;
+            
         } catch (error: any) {
-            console.error('[VERSION_DL] ALL_PROTOCOLS_FAILED:', error);
+            console.error('[VERSION_DL] All download methods failed:', error);
             setIsDownloading(false);
-
-            let errorMsg = error?.message || "Sync Bridge Interrupted";
-
-            // Detect missing native plugin (Legacy v1.4.0 indicator)
-            if (errorMsg.toLowerCase().includes("not implemented") || errorMsg.toLowerCase().includes("plugin not found")) {
-                errorMsg = "LEGACY_SHELL_INCOMPATIBILITY";
-            }
-
-            setDownloadError(errorMsg);
-            toast.error("Bridge Connection Failed.");
-        } finally {
-            if (progressListener) {
-                await progressListener.remove();
-            }
+            setDownloadError(error?.message || "Download failed");
+            toast.error("Download failed. Please try the manual link below.");
         }
     };
 
