@@ -100,15 +100,18 @@ export default function SafetyContentManager() {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create content");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || errData.error || "Failed to create content");
+      }
       
       toast({ title: "Safety Directive created successfully!" });
       setTitle("");
       setBody("");
       fetchContents();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast({ title: "Error creating directive", variant: "destructive" });
+      toast({ title: "Error creating directive", description: err.message, variant: "destructive" });
     } finally {
       setCreating(false);
     }
