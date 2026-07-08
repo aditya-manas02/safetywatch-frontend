@@ -287,103 +287,99 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             return;
         }
 
-        console.log('[VERSION_DL] Forcing external browser download for APK payload');
+        console.log('[VERSION_CHECK] Starting native in-app download sequence...');
         setIsDownloading(true);
-        setDownloadProgress(50);
+        setDownloadProgress(5);
+
+        let progressListener: any = null;
 
         try {
-            // STRATEGY: Chrome Custom Tabs (Capacitor Browser plugin) silently block APK downloads.
-            // We MUST use a direct anchor element injection to force the Android OS to intercept the URL
-            // and hand it off to the native Android Download Manager.
-            
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.target = '_blank';
-            link.download = 'SafetyWatch.apk';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Wait a moment for the system to catch the intent before updating UI
-            setTimeout(() => {
+            const fileName = getFileName();
+            console.log('[VERSION_DL] Target:', fileName);
+
+            // Cleanup any previous failed attempts
+            try {
+                await Filesystem.deleteFile({
+                    path: fileName,
+                    directory: Directory.Cache
+                });
+            } catch (e) { }
+
+            // Attach progress listener
+            progressListener = await Filesystem.addListener('progress', (progress) => {
+                if (progress.contentLength > 0) {
+                    const percent = Math.round((progress.bytes / progress.contentLength) * 100);
+                    setDownloadProgress(Math.max(5, percent));
+                }
+            });
+
+            // Perform in-app native download
+            const downloadResult = await Filesystem.downloadFile({
+                url: downloadUrl,
+                path: fileName,
+                directory: Directory.Cache, // Cache is much more reliable for passing to external intents
+                progress: true
+            });
+
+            if (downloadResult.path) {
                 setDownloadProgress(100);
+                
+                const uriResult = await Filesystem.getUri({
+                    path: fileName,
+                    directory: Directory.Cache
+                });
+
+                console.log('[VERSION_DL] Download complete. URI:', uriResult.uri);
+                setDownloadedFileUri(uriResult.uri);
                 setIsDownloaded(true);
-                toast.success("Download started! Check your notification panel to install.");
                 setIsDownloading(false);
-            }, 1500);
+                toast.success("Download complete. Launching installer...");
+
+                // Slight delay to ensure filesystem syncs
+                setTimeout(() => handleInstall(uriResult.uri), 1000);
+            } else {
+                throw new Error("No path returned from download command.");
+            }
 
         } catch (error: any) {
-            console.error('[VERSION_DL] Anchor injection failed:', error);
+            console.error('[VERSION_DL] In-app download failed:', error);
             setIsDownloading(false);
-            setDownloadError(error?.message || "Download failed");
-            toast.error("Download failed. Please try the manual link below.");
+            setDownloadError(error?.message || "Download interrupted");
+            
+            // Fallback to browser if the native filesystem plugin fails completely
+            toast.error("Native download failed. Opening browser fallback...");
+            setTimeout(() => {
+                window.location.href = downloadUrl;
+            }, 1500);
+        } finally {
+            if (progressListener) {
+                await progressListener.remove();
+            }
         }
     };
 
-
-
-    const handleInstall = async () => {
-        let installUri = downloadedFileUri;
-
-        // SELF-HEALING: If URI is lost, re-resolve from multiple directories (Cache first for v1.4.8)
-        if (!installUri) {
-            console.log('[VERSION_CHECK] URI missing from state. Searching directories...');
-            const fileName = getFileName();
-            const directories = [Directory.Data, Directory.Cache, Directory.Documents];
-
-            for (const dir of directories) {
-                try {
-                    const stat = await Filesystem.stat({ path: fileName, directory: dir });
-                    if (stat) {
-                        const result = await Filesystem.getUri({ path: fileName, directory: dir });
-                        installUri = result.uri;
-                        console.log(`[VERSION_CHECK] Found at ${dir}:`, installUri);
-                        setDownloadedFileUri(installUri);
-                        toast.info(`Recovered binary from ${dir}`);
-                        break;
-                    }
-                } catch (e) { }
-            }
-        }
-
-        const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
+    const handleInstall = async (uriOverride?: string) => {
+        let installUri = uriOverride || downloadedFileUri;
 
         if (!installUri) {
-            console.warn('[VERSION_CHECK] LOCAL_FILE_NOT_FOUND. Failing forward to browser.');
-            toast.error("Local package lost. Bridging to browser sync...");
-            if (downloadUrl) window.open(downloadUrl, '_system');
+            toast.error("Installation package lost.");
             return;
         }
 
         try {
             console.log('[VERSION_CHECK] Triggering native installation:', installUri);
-            toast.info("Launching system installer...");
-
-            // Robust installer trigger
+            
             await FileOpener.open({
                 filePath: installUri,
                 contentType: 'application/vnd.android.package-archive',
-                openWithDefault: true // Force system installer
+                openWithDefault: true
             });
 
-            toast.success("Installer package handed to system.");
+            toast.success("Installer launched successfully.");
         } catch (error: any) {
             console.error('[VERSION_CHECK] Installation failed:', error);
             const msg = error?.message || "Unknown Error";
-
-            // Check if it's a permission issue or file access issue
-            if (msg.includes("permission") || msg.includes("File provider") || msg.includes("not find") || msg.includes("ActivityNotFound")) {
-                toast.error("System block or missing provider. Falling back to browser.");
-            } else {
-                toast.error(`Installer Error: ${msg.slice(0, 40)}`);
-            }
-
-            // FINAL SAFETY FALLBACK: Trigger browser download if native fails
-            const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
-            if (downloadUrl) {
-                console.log('[VERSION_CHECK] Falling back to system browser...');
-                window.open(downloadUrl, '_system');
-            }
+            toast.error(`Installer Error: ${msg.slice(0, 40)}`);
         }
     };
 
