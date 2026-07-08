@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { MessageSquare, X, Send, Minus, Maximize2, Sparkles, Zap, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
 
@@ -19,11 +19,6 @@ export default function ChatBot() {
     ]);
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
-
-    // Magnetic interaction values
-    const springConfig = { damping: 20, stiffness: 300 };
-    const buttonX = useSpring(useMotionValue(0), springConfig);
-    const buttonY = useSpring(useMotionValue(0), springConfig);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -217,110 +212,41 @@ export default function ChatBot() {
                 )}
             </AnimatePresence>
 
-            {/* Liquid Energy AI Orb */}
-            <div className="relative group isolate">
-                {/* SVG Filter for Gooey Effect */}
-                <svg className="absolute w-0 h-0 pointer-events-none">
-                    <defs>
-                        <filter id="goo">
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-                            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
-                            <feBlend in="SourceGraphic" in2="goo" />
-                        </filter>
-                    </defs>
-                </svg>
-
-                {/* Draggable Button Container */}
-
-                <motion.button
-                    drag
-                    dragConstraints={{ left: -window.innerWidth + 100, right: 0, top: -window.innerHeight + 200, bottom: 0 }}
-                    dragElastic={0.1}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="relative h-14 w-14 sm:h-16 sm:w-16 transition-all duration-500 ease-out flex items-center justify-center pointer-events-auto"
-                >
-                    <AnimatePresence mode="wait">
-                        {isOpen ? (
-                            <motion.div
-                                key="close-state"
-                                initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
-                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                exit={{ opacity: 0, scale: 0.5, rotate: 180 }}
-                                className="w-full h-full rounded-[24px] sm:rounded-[30px] bg-background/80 backdrop-blur-3xl border border-white/20 flex items-center justify-center shadow-2xl relative z-10"
-                            >
-                                <X className="h-8 w-8 text-white" />
-                                {/* Internal light leak */}
-                                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-[24px] sm:rounded-[30px]" />
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key="orb-state"
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                className="relative w-full h-full flex items-center justify-center"
-                            >
-                                {/* Gooey Energy Layer */}
-                                <div style={{ filter: 'url(#goo)' }} className="absolute inset-0 w-full h-full scale-125">
-                                    {/* Main Body */}
-                                    <div className="absolute inset-4 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 shadow-[0_0_15px_rgba(168,85,247,0.3)]"></div>
-
-                                    {/* Morphing Droplets */}
-                                    {[...Array(3)].map((_, i) => (
-                                        <motion.div
-                                            key={i}
-                                            animate={{
-                                                x: [Math.random() * 20 - 10, Math.random() * 20 - 10, Math.random() * 20 - 10],
-                                                y: [Math.random() * 20 - 10, Math.random() * 20 - 10, Math.random() * 20 - 10],
-                                                scale: [1, 1.2, 1],
-                                            }}
-                                            transition={{
-                                                duration: 3 + i,
-                                                repeat: Infinity,
-                                                ease: "easeInOut"
-                                            }}
-                                            className="absolute inset-8 rounded-full bg-cyan-400/80 blur-sm"
-                                        />
-                                    ))}
-                                </div>
-
-                                {/* Premium Glass Core Overlay */}
-                                <div className="absolute inset-0 rounded-[24px] sm:rounded-[30px] border border-white/20 bg-white/5 backdrop-blur-sm z-20 flex items-center justify-center overflow-hidden group-hover:border-white/40 transition-colors">
-                                    {/* Scanner Line */}
-                                    <motion.div
-                                        animate={{ y: ['-100%', '200%'] }}
-                                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                        className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent z-30"
-                                    />
-
-                                    {/* BRAIN ICON CONSTRUCTION (REPLACES PNG) */}
-                                    <div className="relative z-30 transform group-hover:scale-110 transition-transform duration-500">
-                                        <img
-                                            src="/assets/splash.png"
-                                            alt="AI"
-                                            className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]"
-                                        />
-                                        <motion.div
-                                            animate={{ opacity: [0, 1, 0] }}
-                                            transition={{ duration: 2, repeat: Infinity }}
-                                            className="absolute inset-0 flex items-center justify-center"
-                                        >
-                                            <Sparkles className="h-14 w-14 text-cyan-400/30" />
-                                        </motion.div>
-                                    </div>
-                                </div>
-
-                                {/* Outer Energy Halo */}
-                                <div className="absolute -inset-4 border border-purple-500/10 rounded-full animate-[spin_10s_linear_infinite]" />
-                                <div className="absolute -inset-2 border border-cyan-400/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </motion.button>
-
-            </div>
+            {/* Soft Floating Chat Button */}
+            <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsOpen(!isOpen)}
+                className="pointer-events-auto relative"
+            >
+                <AnimatePresence mode="wait">
+                    {isOpen ? (
+                        <motion.div
+                            key="close"
+                            initial={{ opacity: 0, rotate: -90 }}
+                            animate={{ opacity: 1, rotate: 0 }}
+                            exit={{ opacity: 0, rotate: 90 }}
+                            transition={{ duration: 0.2 }}
+                            className="h-12 w-12 rounded-full bg-muted/80 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-lg"
+                        >
+                            <X className="h-5 w-5 text-muted-foreground" />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="open"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            transition={{ duration: 0.2 }}
+                            className="h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-shadow duration-300"
+                        >
+                            <MessageSquare className="h-5 w-5 text-white" />
+                            {/* Soft pulse ring */}
+                            <span className="absolute inset-0 rounded-full bg-violet-500/20 animate-ping" style={{ animationDuration: '3s' }} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.button>
         </div>
     );
 }
