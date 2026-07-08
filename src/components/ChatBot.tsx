@@ -214,6 +214,9 @@ export default function ChatBot() {
 
             {/* Soft Floating Chat Button */}
             <motion.button
+                drag
+                dragConstraints={{ left: typeof window !== 'undefined' ? -window.innerWidth + 100 : -500, right: 0, top: typeof window !== 'undefined' ? -window.innerHeight + 200 : -500, bottom: 0 }}
+                dragElastic={0.1}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
