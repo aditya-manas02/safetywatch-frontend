@@ -1,4 +1,5 @@
-import { X, Shield, Mail, Calendar, Phone, Trash2, Award, UserCheck, AlertTriangle, Ban, RefreshCw, Clock, ShieldAlert, MapPin, MessageSquare } from "lucide-react";
+import React, { useState } from "react";
+import { X, Shield, Mail, Calendar, Phone, Trash2, Award, UserCheck, AlertTriangle, Ban, RefreshCw, Clock, ShieldAlert, MapPin, MessageSquare, Check, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,6 +32,13 @@ export default function UserModal({
   onUpdateAreaCode,
   onMessageUser
 }: UserModalProps) {
+  const [isMessaging, setIsMessaging] = useState(false);
+  const [msgTitle, setMsgTitle] = useState("");
+  const [msgBody, setMsgBody] = useState("");
+
+  const [isEditingAreaCode, setIsEditingAreaCode] = useState(false);
+  const [newAreaCode, setNewAreaCode] = useState(user?.areaCode || "DEFAULT");
+
   if (!user) return null;
 
   let isSuperAdmin = false;
@@ -105,17 +113,43 @@ export default function UserModal({
                 <span className="text-muted-foreground text-sm flex items-center gap-1.5"><Mail className="h-4 w-4" /> {user.email}</span>
                 {user.phone && <span className="text-muted-foreground text-sm flex items-center gap-1.5"><Phone className="h-4 w-4" /> {user.phone}</span>}
                 <span className="text-muted-foreground text-sm flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4" /> {user.areaCode || "DEFAULT"}
-                  {isSuperAdmin && onUpdateAreaCode && (
-                    <button 
-                      onClick={() => {
-                        const newCode = prompt("Enter new Area Code (or DEFAULT):", user.areaCode || "DEFAULT");
-                        if (newCode !== null) onUpdateAreaCode(user._id, newCode);
-                      }}
-                      className="ml-2 text-xs text-blue-500 hover:underline font-medium"
-                    >
-                      [Edit]
-                    </button>
+                  <MapPin className="h-4 w-4" />
+                  {isEditingAreaCode ? (
+                    <div className="flex items-center gap-2">
+                      <input 
+                        value={newAreaCode}
+                        onChange={(e) => setNewAreaCode(e.target.value.toUpperCase())}
+                        className="h-7 px-2 text-xs rounded bg-background border border-border outline-none w-24 text-foreground font-bold"
+                        autoFocus
+                      />
+                      <button 
+                        onClick={() => {
+                          if (onUpdateAreaCode) onUpdateAreaCode(user._id, newAreaCode);
+                          setIsEditingAreaCode(false);
+                        }}
+                        className="h-7 w-7 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                      </button>
+                      <button 
+                        onClick={() => { setIsEditingAreaCode(false); setNewAreaCode(user.areaCode || "DEFAULT"); }}
+                        className="h-7 w-7 flex items-center justify-center bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-colors"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {user.areaCode || "DEFAULT"}
+                      {isSuperAdmin && onUpdateAreaCode && (
+                        <button 
+                          onClick={() => setIsEditingAreaCode(true)}
+                          className="ml-2 text-xs text-blue-500 hover:underline font-medium"
+                        >
+                          [Edit]
+                        </button>
+                      )}
+                    </>
                   )}
                 </span>
               </div>
@@ -165,27 +199,52 @@ export default function UserModal({
             {/* Privilege Management */}
             <div className="space-y-4">
               <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Privilege Management</h4>
-              <div className="flex gap-3 flex-wrap">
-                {onMessageUser && !isSelf && (
-                  <Button 
-                    variant="outline" 
-                    className="border-primary/20 text-primary hover:bg-primary/10 rounded-xl"
-                    onClick={() => {
-                      const title = prompt("Message Title:");
-                      if (!title) return;
-                      const message = prompt("Message Body:");
-                      if (message) onMessageUser(user._id, title, message);
-                    }}
-                  >
-                    <MessageSquare className="mr-2 h-4 w-4" /> Direct Message
-                  </Button>
-                )}
+              
+              {isMessaging ? (
+                <div className="bg-muted/30 border border-border p-4 rounded-2xl space-y-3">
+                  <h5 className="text-sm font-bold flex items-center gap-2"><MessageSquare className="h-4 w-4 text-primary" /> Send Direct Message to {user.name}</h5>
+                  <input
+                    value={msgTitle}
+                    onChange={(e) => setMsgTitle(e.target.value)}
+                    placeholder="Message Title"
+                    className="w-full h-10 px-3 bg-background border border-border rounded-xl text-sm outline-none focus:border-primary transition-colors"
+                  />
+                  <textarea
+                    value={msgBody}
+                    onChange={(e) => setMsgBody(e.target.value)}
+                    placeholder="Type your message here..."
+                    className="w-full h-24 p-3 bg-background border border-border rounded-xl text-sm outline-none focus:border-primary transition-colors resize-none custom-scrollbar"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="ghost" className="rounded-xl" onClick={() => { setIsMessaging(false); setMsgTitle(""); setMsgBody(""); }}>Cancel</Button>
+                    <Button className="rounded-xl" onClick={() => {
+                      if (!msgTitle.trim() || !msgBody.trim()) return;
+                      if (onMessageUser) onMessageUser(user._id, msgTitle, msgBody);
+                      setIsMessaging(false);
+                      setMsgTitle("");
+                      setMsgBody("");
+                    }}>
+                      <Send className="h-4 w-4 mr-2" /> Send Message
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-3 flex-wrap">
+                  {onMessageUser && !isSelf && (
+                    <Button 
+                      variant="outline" 
+                      className="border-primary/20 text-primary hover:bg-primary/10 rounded-xl"
+                      onClick={() => setIsMessaging(true)}
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" /> Direct Message
+                    </Button>
+                  )}
 
-                {!user.roles.includes("admin") && (
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20" onClick={() => onPromote(user._id)}>
-                    <Award className="mr-2 h-4 w-4" /> Promote to Admin
-                  </Button>
-                )}
+                  {!user.roles.includes("admin") && (
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20" onClick={() => onPromote(user._id)}>
+                      <Award className="mr-2 h-4 w-4" /> Promote to Admin
+                    </Button>
+                  )}
 
                 {user.roles.includes("admin") && isSuperAdmin && !isSelf && (
                   <Button variant="outline" className="border-amber-500/20 text-amber-600 dark:text-amber-500 hover:bg-amber-500/10 rounded-xl" onClick={() => onDemote(user._id)}>
