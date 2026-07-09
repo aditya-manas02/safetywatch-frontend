@@ -1,6 +1,9 @@
 export interface User {
     _id: string;
     email: string;
+    lastLoginAt?: string | Date;
+    lastLoginPlatform?: "App" | "Browser";
+
     name?: string;
     phone?: string;
     profilePicture?: string;

@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://safetywatch-backend.onrender.com";
 
@@ -7,9 +8,10 @@ export const BASE_URL = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 // Correctly handle /api suffix
 export const API_BASE = `${BASE_URL}/api`;
 
-export let VERSION_HEADERS = {
+export let VERSION_HEADERS: Record<string, string> = {
     "x-app-version": "1.4.8",
-    "x-app-build-id": "0"
+    "x-app-build-id": "0",
+    "x-platform": Capacitor.isNativePlatform() ? "App" : "Browser"
 };
 
 export const setVersionMetadata = (version: string, build: string) => {

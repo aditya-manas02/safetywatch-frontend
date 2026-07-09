@@ -13,6 +13,8 @@ interface UserData {
   isSuspended?: boolean;
   suspensionExpiresAt?: string | Date;
   appVersion?: string;
+  lastLoginAt?: string | Date;
+  lastLoginPlatform?: "App" | "Browser";
 }
 
 export interface RateLimitInfo {

@@ -109,6 +109,8 @@ export default function UserTable({ users, onView }: UserTableProps) {
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Access Roles</th>
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Member Since</th>
                 {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">App Version</th>}
+                {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Last Login</th>}
+                {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Platform</th>}
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 text-right">Actions</th>
               </tr>
             </thead>
@@ -188,6 +190,18 @@ export default function UserTable({ users, onView }: UserTableProps) {
                     </td>
                   )}
 
+                  {isSuperAdmin && (
+                    <td className="px-4 md:px-6 py-4 text-xs">
+                      {u.lastLoginAt ? format(new Date(u.lastLoginAt), "MMM dd, yyyy HH:mm") : "—"}
+                    </td>
+                  )}
+
+                  {isSuperAdmin && (
+                    <td className="px-4 md:px-6 py-4 text-xs">
+                      {u.lastLoginPlatform ? u.lastLoginPlatform : "—"}
+                    </td>
+                  )}
+
                   <td className="px-4 md:px-6 py-4 text-right">
                     <Button
                       variant="ghost"
@@ -258,13 +272,27 @@ export default function UserTable({ users, onView }: UserTableProps) {
                 </div>
               </div>
               {isSuperAdmin && (
-                <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
-                  <span className="text-muted-foreground font-bold opacity-70">App Version</span>
-                  <span className="text-foreground font-black flex items-center gap-1">
-                    <Smartphone className="h-3.5 w-3.5 text-muted-foreground/70" />
-                    {u.appVersion && u.appVersion !== "Unknown" ? `v${u.appVersion}` : <span className="italic opacity-50">Unknown</span>}
-                  </span>
-                </div>
+                <>
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
+                    <span className="text-muted-foreground font-bold opacity-70">App Version</span>
+                    <span className="text-foreground font-black flex items-center gap-1">
+                      <Smartphone className="h-3.5 w-3.5 text-muted-foreground/70" />
+                      {u.appVersion && u.appVersion !== "Unknown" ? `v${u.appVersion}` : <span className="italic opacity-50">Unknown</span>}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
+                    <span className="text-muted-foreground font-bold opacity-70">Last Login</span>
+                    <span className="text-foreground font-black">
+                      {u.lastLoginAt ? format(new Date(u.lastLoginAt), "MMM dd, yyyy HH:mm") : "—"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
+                    <span className="text-muted-foreground font-bold opacity-70">Platform</span>
+                    <span className="text-foreground font-black">
+                      {u.lastLoginPlatform || "—"}
+                    </span>
+                  </div>
+                </>
               )}
             </div>
 
