@@ -291,6 +291,7 @@ export default function UserModal({
                   </div>
                 )}
               </div>
+              )}
             </div>
 
             {/* Submission History */}
