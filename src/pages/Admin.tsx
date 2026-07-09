@@ -206,6 +206,40 @@ export default function Admin() {
     } catch { /* silent */ }
   }
 
+  async function updateUserAreaCode(id: string, newAreaCode: string) {
+    try {
+      const res = await fetch(`${API_BASE}/users/${id}/area-code`, {
+        method: "PATCH",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ areaCode: newAreaCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update area code");
+      toast({ title: "Area code updated successfully!" });
+      fetchUsers();
+      if (selectedUser && selectedUser._id === id) {
+        setSelectedUser({ ...selectedUser, areaCode: newAreaCode });
+      }
+    } catch (err: any) {
+      toast({ title: err.message, variant: "destructive" });
+    }
+  }
+
+  async function messageUser(id: string, title: string, message: string) {
+    try {
+      const res = await fetch(`${API_BASE}/notifications/direct`, {
+        method: "POST",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ userId: id, title, message }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send message");
+      toast({ title: "Message sent directly to user!" });
+    } catch (err: any) {
+      toast({ title: err.message, variant: "destructive" });
+    }
+  }
+
   /* ---------------- UI HELPERS ---------------- */
   const getTabInfo = () => {
     switch (activeTab) {
@@ -451,6 +485,8 @@ export default function Admin() {
             user={selectedUser}
             incidents={userIncidents}
             onClose={() => setSelectedUser(null)}
+            onUpdateAreaCode={updateUserAreaCode}
+            onMessageUser={messageUser}
             onPromote={async (id: string) => {
               const res = await fetch(`${API_BASE}/users/${id}/promote`, { method: "PATCH", headers: getAuthHeaders(token) });
               if (res.ok) { toast({ title: "User Promoted" }); fetchUsers(); setSelectedUser(null); }

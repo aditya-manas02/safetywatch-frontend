@@ -1,4 +1,4 @@
-import { X, Shield, Mail, Calendar, Phone, Trash2, Award, UserCheck, AlertTriangle, Ban, RefreshCw, Clock, ShieldAlert } from "lucide-react";
+import { X, Shield, Mail, Calendar, Phone, Trash2, Award, UserCheck, AlertTriangle, Ban, RefreshCw, Clock, ShieldAlert, MapPin, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +15,8 @@ export interface UserModalProps {
   onDelete: (id: string) => void;
   onSuspend?: (id: string, reason: string, days: number) => void;
   onUnsuspend?: (id: string) => void;
+  onUpdateAreaCode?: (id: string, code: string) => void;
+  onMessageUser?: (id: string, title: string, message: string) => void;
 }
 
 export default function UserModal({
@@ -25,7 +27,9 @@ export default function UserModal({
   onDemote,
   onDelete,
   onSuspend,
-  onUnsuspend
+  onUnsuspend,
+  onUpdateAreaCode,
+  onMessageUser
 }: UserModalProps) {
   if (!user) return null;
 
@@ -100,6 +104,20 @@ export default function UserModal({
               <div className="flex flex-wrap items-center gap-4 mt-2">
                 <span className="text-muted-foreground text-sm flex items-center gap-1.5"><Mail className="h-4 w-4" /> {user.email}</span>
                 {user.phone && <span className="text-muted-foreground text-sm flex items-center gap-1.5"><Phone className="h-4 w-4" /> {user.phone}</span>}
+                <span className="text-muted-foreground text-sm flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" /> {user.areaCode || "DEFAULT"}
+                  {isSuperAdmin && onUpdateAreaCode && (
+                    <button 
+                      onClick={() => {
+                        const newCode = prompt("Enter new Area Code (or DEFAULT):", user.areaCode || "DEFAULT");
+                        if (newCode !== null) onUpdateAreaCode(user._id, newCode);
+                      }}
+                      className="ml-2 text-xs text-blue-500 hover:underline font-medium"
+                    >
+                      [Edit]
+                    </button>
+                  )}
+                </span>
               </div>
             </div>
 
@@ -148,6 +166,21 @@ export default function UserModal({
             <div className="space-y-4">
               <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Privilege Management</h4>
               <div className="flex gap-3 flex-wrap">
+                {onMessageUser && !isSelf && (
+                  <Button 
+                    variant="outline" 
+                    className="border-primary/20 text-primary hover:bg-primary/10 rounded-xl"
+                    onClick={() => {
+                      const title = prompt("Message Title:");
+                      if (!title) return;
+                      const message = prompt("Message Body:");
+                      if (message) onMessageUser(user._id, title, message);
+                    }}
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" /> Direct Message
+                  </Button>
+                )}
+
                 {!user.roles.includes("admin") && (
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20" onClick={() => onPromote(user._id)}>
                     <Award className="mr-2 h-4 w-4" /> Promote to Admin
