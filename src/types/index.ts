@@ -14,6 +14,7 @@ export interface User {
         date: string;
         adminId?: string;
     }[];
+    appVersion?: string;
 }
 
 export interface Incident {

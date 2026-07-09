@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { User, Mail, Calendar, Shield, ExternalLink, Users, UserCog, Ban } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
-
+import { Smartphone } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { User as UserType } from "@/types";
 
 export interface UserTableProps {
@@ -12,6 +13,7 @@ export interface UserTableProps {
 }
 
 export default function UserTable({ users, onView }: UserTableProps) {
+  const { isSuperAdmin } = useAuth();
   const [roleFilter, setRoleFilter] = useState<"all" | "citizens" | "admins" | "suspended">("all");
   const [areaCodeFilter, setAreaCodeFilter] = useState("");
 
@@ -106,6 +108,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Area Code</th>
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Access Roles</th>
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Member Since</th>
+                {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">App Version</th>}
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 text-right">Actions</th>
               </tr>
             </thead>
@@ -171,6 +174,19 @@ export default function UserTable({ users, onView }: UserTableProps) {
                       {(() => { try { return format(new Date(u.createdAt), "MMM dd, yyyy"); } catch { return "N/A"; } })()}
                     </div>
                   </td>
+
+                  {isSuperAdmin && (
+                    <td className="px-4 md:px-6 py-4">
+                      {u.appVersion && u.appVersion !== "Unknown" ? (
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-foreground bg-muted/30 w-fit px-2 py-1 rounded-md border border-border/50 shadow-sm">
+                          <Smartphone className="h-3.5 w-3.5 text-muted-foreground/70" />
+                          v{u.appVersion}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground opacity-40 text-xs italic">Unknown</span>
+                      )}
+                    </td>
+                  )}
 
                   <td className="px-4 md:px-6 py-4 text-right">
                     <Button
@@ -241,6 +257,15 @@ export default function UserTable({ users, onView }: UserTableProps) {
                   ))}
                 </div>
               </div>
+              {isSuperAdmin && (
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
+                  <span className="text-muted-foreground font-bold opacity-70">App Version</span>
+                  <span className="text-foreground font-black flex items-center gap-1">
+                    <Smartphone className="h-3.5 w-3.5 text-muted-foreground/70" />
+                    {u.appVersion && u.appVersion !== "Unknown" ? `v${u.appVersion}` : <span className="italic opacity-50">Unknown</span>}
+                  </span>
+                </div>
+              )}
             </div>
 
             <Button

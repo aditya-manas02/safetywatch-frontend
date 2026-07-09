@@ -12,6 +12,7 @@ interface UserData {
   profilePicture?: string;
   isSuspended?: boolean;
   suspensionExpiresAt?: string | Date;
+  appVersion?: string;
 }
 
 export interface RateLimitInfo {
