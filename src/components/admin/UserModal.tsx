@@ -79,10 +79,10 @@ export default function UserModal({
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-card border border-border rounded-3xl p-0 max-w-2xl w-full max-h-[90vh] overflow-hidden relative shadow-2xl"
+        className="bg-card border border-border rounded-3xl p-0 max-w-2xl w-full max-h-[90vh] overflow-hidden relative shadow-2xl flex flex-col"
       >
         {/* Banner */}
-        <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600 relative">
+        <div className="h-32 shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 relative">
           <button
             className="absolute right-6 top-6 h-10 w-10 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center transition-colors text-white"
             onClick={onClose}
@@ -91,9 +91,9 @@ export default function UserModal({
           </button>
         </div>
 
-        <div className="px-5 sm:px-10 pb-8 sm:pb-10 -mt-14 relative z-10">
+        <div className="px-5 sm:px-10 pb-8 sm:pb-10 -mt-14 relative z-10 flex flex-col flex-1 min-h-0 overflow-hidden">
           {/* Header with Icon and Roles */}
-          <div className="flex justify-between items-end mb-8 gap-4">
+          <div className="flex justify-between items-end mb-8 gap-4 shrink-0">
             <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-[2rem] bg-card border-[6px] border-card shadow-2xl flex items-center justify-center overflow-hidden transition-transform hover:scale-105 duration-300">
               {user.profilePicture ? (
                 <img 
@@ -121,7 +121,7 @@ export default function UserModal({
           </div>
 
           {/* Scrollable Content Area */}
-          <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-180px)] pr-2 custom-scrollbar">
+          <div className="space-y-6 overflow-y-auto flex-1 pr-2 custom-scrollbar pb-2">
             {/* User Info */}
             <div>
               <h2 className="text-3xl font-black tracking-tight text-foreground">{user.name || "Verified Citizen"}</h2>
