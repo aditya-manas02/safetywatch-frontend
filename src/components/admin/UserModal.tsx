@@ -41,7 +41,7 @@ export default function UserModal({
   const [areaCodes, setAreaCodes] = useState<any[]>([]);
 
   useEffect(() => {
-    if (isEditingAreaCode && areaCodes.length === 0) {
+    if (areaCodes.length === 0) {
       const fetchAreaCodes = async () => {
         try {
           const token = localStorage.getItem("token");
@@ -53,7 +53,9 @@ export default function UserModal({
       };
       fetchAreaCodes();
     }
-  }, [isEditingAreaCode]);
+  }, []);
+
+  const displayAreaName = areaCodes.find(ac => ac.code === (user?.areaCode || "DEFAULT"))?.name || "";
 
   if (!user) return null;
 
@@ -160,7 +162,7 @@ export default function UserModal({
                     </div>
                   ) : (
                     <>
-                      {user.areaCode || "DEFAULT"}
+                      {user.areaCode || "DEFAULT"} {displayAreaName ? `(${displayAreaName})` : ""}
                       {isSuperAdmin && onUpdateAreaCode && (
                         <button 
                           onClick={() => setIsEditingAreaCode(true)}

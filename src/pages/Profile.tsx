@@ -52,6 +52,8 @@ export default function Profile() {
     const [badges, setBadges] = useState<any[]>([]);
     const [activeBadge, setActiveBadge] = useState<string | null>(null);
     const [profilePic, setProfilePic] = useState("");
+    const [areaCode, setAreaCode] = useState("DEFAULT");
+    const [areaName, setAreaName] = useState("");
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -117,6 +119,19 @@ export default function Profile() {
                     setBadges(data.badges || []);
                     setActiveBadge(data.activeBadge || null);
                     setProfilePic(data.profilePicture || "");
+                    setAreaCode(data.areaCode || "DEFAULT");
+                    
+                    // Fetch area name
+                    if (data.areaCode && data.areaCode !== "DEFAULT") {
+                        try {
+                            const acRes = await fetch(`${API_BASE}/area-codes`, { headers: getAuthHeaders(token) });
+                            if (acRes.ok) {
+                                const areaCodes = await acRes.json();
+                                const ac = areaCodes.find((a: any) => a.code === data.areaCode);
+                                if (ac) setAreaName(ac.name);
+                            }
+                        } catch (err) {}
+                    }
                 }
             } catch (err) {
                 console.error("Failed to fetch fresh profile data", err);
@@ -646,6 +661,10 @@ export default function Profile() {
                                         <Mail className="h-4 w-4 text-primary/60" />
                                         {email}
                                     </p>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground bg-muted/30 backdrop-blur-md px-4 py-2 rounded-xl border border-border/50 mb-1">
+                                    <MapPin className="h-3.5 w-3.5 text-primary" />
+                                    {areaCode} {areaName ? `(${areaName})` : ""}
                                 </div>
                                 <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground bg-muted/30 backdrop-blur-md px-4 py-2 rounded-xl border border-border/50 mb-1">
                                     <Calendar className="h-3.5 w-3.5 text-primary" />
