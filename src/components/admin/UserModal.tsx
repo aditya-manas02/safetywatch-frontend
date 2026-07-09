@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Shield, Mail, Calendar, Phone, Trash2, Award, UserCheck, AlertTriangle, Ban, RefreshCw, Clock, ShieldAlert, MapPin, MessageSquare, Check, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { User, Incident } from "@/types";
-import { BASE_URL } from "@/lib/api";
+import { BASE_URL, API_BASE, getAuthHeaders } from "@/lib/api";
 
 export interface UserModalProps {
   user: User | null;
@@ -38,6 +38,22 @@ export default function UserModal({
 
   const [isEditingAreaCode, setIsEditingAreaCode] = useState(false);
   const [newAreaCode, setNewAreaCode] = useState(user?.areaCode || "DEFAULT");
+  const [areaCodes, setAreaCodes] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (isEditingAreaCode && areaCodes.length === 0) {
+      const fetchAreaCodes = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch(`${API_BASE}/areacodes`, { headers: getAuthHeaders(token) });
+          if (res.ok) {
+            setAreaCodes(await res.json());
+          }
+        } catch { /* silent */ }
+      };
+      fetchAreaCodes();
+    }
+  }, [isEditingAreaCode]);
 
   if (!user) return null;
 
@@ -116,12 +132,16 @@ export default function UserModal({
                   <MapPin className="h-4 w-4" />
                   {isEditingAreaCode ? (
                     <div className="flex items-center gap-2">
-                      <input 
+                      <select 
                         value={newAreaCode}
                         onChange={(e) => setNewAreaCode(e.target.value.toUpperCase())}
-                        className="h-7 px-2 text-xs rounded bg-background border border-border outline-none w-24 text-foreground font-bold"
-                        autoFocus
-                      />
+                        className="h-7 px-2 text-xs rounded bg-background border border-border outline-none min-w-24 text-foreground font-bold cursor-pointer appearance-none"
+                      >
+                        <option value="DEFAULT">DEFAULT</option>
+                        {areaCodes.map(ac => (
+                          <option key={ac._id} value={ac.code}>{ac.code}</option>
+                        ))}
+                      </select>
                       <button 
                         onClick={() => {
                           if (onUpdateAreaCode) onUpdateAreaCode(user._id, newAreaCode);
