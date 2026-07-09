@@ -34,22 +34,42 @@ import GuardianMode from "./components/GuardianMode";
 import ReportForm from "./components/ReportForm";
 import { AnimatePresence, motion } from "framer-motion";
 
+// Wrapper to handle Vite dynamic import failures after deployments
+const lazyWithRetry = (componentImport: () => Promise<any>) =>
+  lazy(async () => {
+    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
+    );
+
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error: any) {
+      if (!pageHasAlreadyBeenForceRefreshed) {
+        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        return window.location.reload() as any;
+      }
+      throw error;
+    }
+  });
+
 // Lazy load pages for performance
-const Index = lazy(() => import("./pages/Index"));
-const Auth = lazy(() => import("./pages/Auth"));
-const Admin = lazy(() => import("./pages/Admin"));
-const Profile = lazy(() => import("./pages/Profile"));
-const Inbox = lazy(() => import("./pages/Inbox"));
-const Support = lazy(() => import("./pages/Support"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const TermsOfService = lazy(() => import("./pages/TermsOfService"));
-const Leaderboard = lazy(() => import("./pages/Leaderboard"));
-const Achievements = lazy(() => import("./pages/Achievements"));
-const Circles = lazy(() => import("./pages/Circles"));
-const CircleDetails = lazy(() => import("./pages/CircleDetails"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Maintenance = lazy(() => import("./pages/Maintenance"));
-const FeedPage = lazy(() => import("./pages/FeedPage"));
+const Index = lazyWithRetry(() => import("./pages/Index"));
+const Auth = lazyWithRetry(() => import("./pages/Auth"));
+const Admin = lazyWithRetry(() => import("./pages/Admin"));
+const Profile = lazyWithRetry(() => import("./pages/Profile"));
+const Inbox = lazyWithRetry(() => import("./pages/Inbox"));
+const Support = lazyWithRetry(() => import("./pages/Support"));
+const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazyWithRetry(() => import("./pages/TermsOfService"));
+const Leaderboard = lazyWithRetry(() => import("./pages/Leaderboard"));
+const Achievements = lazyWithRetry(() => import("./pages/Achievements"));
+const Circles = lazyWithRetry(() => import("./pages/Circles"));
+const CircleDetails = lazyWithRetry(() => import("./pages/CircleDetails"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const Maintenance = lazyWithRetry(() => import("./pages/Maintenance"));
+const FeedPage = lazyWithRetry(() => import("./pages/FeedPage"));
 
 
 
