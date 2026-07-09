@@ -45,7 +45,7 @@ export default function UserModal({
       const fetchAreaCodes = async () => {
         try {
           const token = localStorage.getItem("token");
-          const res = await fetch(`${API_BASE}/areacodes`, { headers: getAuthHeaders(token) });
+          const res = await fetch(`${API_BASE}/area-codes`, { headers: getAuthHeaders(token) });
           if (res.ok) {
             setAreaCodes(await res.json());
           }
