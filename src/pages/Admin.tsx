@@ -1,7 +1,7 @@
 import DashboardStats from "@/components/admin/DashboardStats";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Zap, Search, RefreshCw, LayoutDashboard, ListFilter, Users, LifeBuoy, Activity, Menu, Shield } from "lucide-react";
+import { Loader2, Zap, Search, RefreshCw, LayoutDashboard, ListFilter, Users, LifeBuoy, Activity, Menu, Shield, LogOut } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { API_BASE, VERSION_HEADERS, getAuthHeaders } from "@/lib/api";
@@ -293,7 +293,7 @@ export default function Admin() {
       />
 
       <div className="flex-1 flex flex-col min-h-screen md:ml-64 transition-all duration-300">
-        <header className="sticky top-0 z-30 bg-background/60 backdrop-blur-xl border-b border-border/50 px-4 md:px-10 py-4 md:py-6 flex justify-between items-center shadow-sm">
+        <header className="sticky top-0 z-30 bg-background/60 backdrop-blur-xl border-b border-border/50 px-4 md:px-10 py-4 flex justify-between items-center shadow-sm">
           <div className="flex items-center gap-3 md:gap-5">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -301,7 +301,7 @@ export default function Admin() {
             >
               <Menu className="h-6 w-6 text-foreground" />
             </button>
-            <div className="hidden md:block h-12 w-12 rounded-xl bg-gradient-to-tr from-primary to-accent p-0.5 shadow-lg shadow-primary/10">
+            <div className="hidden md:block h-10 w-10 md:h-12 md:w-12 rounded-xl bg-gradient-to-tr from-primary to-accent p-0.5 shadow-lg shadow-primary/10">
               <div className="h-full w-full rounded-[10px] bg-background flex items-center justify-center p-2 overflow-hidden">
                 <img
                   src="/assets/splash.png"
@@ -311,11 +311,11 @@ export default function Admin() {
               </div>
             </div>
             <div>
-              <h1 className="text-2xl font-display font-black tracking-tight text-foreground">{info.title}</h1>
-              <p className="text-xs text-muted-foreground font-semibold">{info.desc}</p>
+              <h1 className="text-xl md:text-2xl font-display font-black tracking-tight text-foreground truncate max-w-[150px] sm:max-w-xs md:max-w-full">{info.title}</h1>
+              <p className="text-[10px] md:text-xs text-muted-foreground font-semibold truncate max-w-[150px] sm:max-w-xs md:max-w-full">{info.desc}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <ThemeToggle />
             <button
               onClick={() => { if (activeTab === 'incidents') fetchIncidents(); if (activeTab === 'users') fetchUsers(); }}
@@ -323,8 +323,9 @@ export default function Admin() {
             >
               <RefreshCw className="h-4 w-4 text-muted-foreground" />
             </button>
-            <button onClick={() => navigate("/")} className="px-6 h-10 bg-primary text-primary-foreground font-black text-xs rounded-xl hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20 uppercase tracking-widest">
-              EXIT TERMINAL
+            <button onClick={() => navigate("/")} className="px-3 md:px-6 h-10 bg-primary text-primary-foreground font-black text-[10px] md:text-xs rounded-xl hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20 uppercase tracking-widest flex items-center gap-2">
+              <span className="hidden sm:inline">EXIT TERMINAL</span>
+              <LogOut className="h-4 w-4 sm:hidden" />
             </button>
           </div>
         </header>
