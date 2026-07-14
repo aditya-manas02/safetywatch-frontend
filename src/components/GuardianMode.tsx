@@ -394,13 +394,13 @@ const GuardianMode = () => {
                             </div>
 
                             {/* Send Message Update */}
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 h-14">
                                 <input
                                     type="text"
                                     placeholder="Type an update..."
                                     value={updateMessage}
                                     onChange={(e) => setUpdateMessage(e.target.value)}
-                                    className="flex-1 bg-destructive/10 border border-destructive/30 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-destructive"
+                                    className="flex-1 h-full bg-destructive/10 border border-destructive/30 rounded-xl px-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-destructive"
                                 />
                                 <Button
                                     onClick={async () => {
@@ -431,7 +431,7 @@ const GuardianMode = () => {
                                         }
                                     }}
                                     disabled={!updateMessage.trim() || isSendingUpdate}
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl px-6 h-auto"
+                                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold rounded-xl px-6 h-full"
                                 >
                                     {isSendingUpdate ? "..." : "Send"}
                                 </Button>
