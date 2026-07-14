@@ -107,10 +107,10 @@ const GuardianMode = () => {
             } catch (err) {
                 toast({
                     title: "Broadcast Error",
-                    description: "Failed to notify neighbors. Retrying in background...",
+                    description: "Failed to connect to servers. Please try again.",
                     variant: "destructive"
                 });
-                setActive(true);
+                setActive(false);
             } finally {
                 setLoading(false);
             }
