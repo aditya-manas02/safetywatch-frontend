@@ -121,6 +121,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
           </div>
         </div>
       </div>
+      </div>
 
       {/* DESKTOP TABLE VIEW */}
       <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden shadow-xl">
