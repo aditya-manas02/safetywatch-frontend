@@ -16,6 +16,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
   const { isSuperAdmin } = useAuth();
   const [roleFilter, setRoleFilter] = useState<"all" | "citizens" | "admins" | "suspended">("all");
   const [areaCodeFilter, setAreaCodeFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Get unique area codes for filter dropdown
   const uniqueAreaCodes = Array.from(new Set(users.map(u => u.areaCode).filter(Boolean)));
@@ -30,6 +31,14 @@ export default function UserTable({ users, onView }: UserTableProps) {
     // Area Code Filter
     if (areaCodeFilter && u.areaCode !== areaCodeFilter) return false;
 
+    // Search Query Filter
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      const matchName = u.name?.toLowerCase().includes(lowerQuery);
+      const matchEmail = u.email?.toLowerCase().includes(lowerQuery);
+      if (!matchName && !matchEmail) return false;
+    }
+
     return true;
   });
 
@@ -38,9 +47,10 @@ export default function UserTable({ users, onView }: UserTableProps) {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-start md:items-center">
-        {/* Role Filter Tabs */}
-        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          {/* Role Filter Tabs */}
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
           <button
             onClick={() => setRoleFilter("all")}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm transition-all whitespace-nowrap min-w-[80px] ${roleFilter === "all"
@@ -84,7 +94,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
         </div>
 
         {/* Area Code Filter */}
-        <div className="w-full md:w-auto">
+        <div className="w-full md:w-auto flex flex-col md:flex-row gap-4 flex-1 justify-end">
           <select
             className="h-10 w-full md:w-48 bg-background border border-border rounded-lg px-3 text-sm font-bold text-foreground outline-none focus:ring-2 focus:ring-primary/20 shadow-sm appearance-none cursor-pointer hover:border-primary/50 transition-colors"
             value={areaCodeFilter}
@@ -95,6 +105,20 @@ export default function UserTable({ users, onView }: UserTableProps) {
               <option key={code} value={code as string} className="bg-background text-foreground font-bold">{code}</option>
             ))}
           </select>
+
+          {/* Search Bar */}
+          <div className="w-full md:w-64 relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name or email..."
+              className="w-full pl-10 h-10 bg-background border border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm font-medium"
+            />
+            <div className="absolute left-3 top-3 text-muted-foreground/60">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+          </div>
         </div>
       </div>
 
