@@ -17,6 +17,8 @@ const GuardianMode = () => {
     const [loading, setLoading] = useState(false);
     const [activeSOS, setActiveSOS] = useState<any>(null);
     const [sosIncidentId, setSosIncidentId] = useState<string | null>(null);
+    const [updateMessage, setUpdateMessage] = useState("");
+    const [isSendingUpdate, setIsSendingUpdate] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -389,6 +391,50 @@ const GuardianMode = () => {
                                     <div className="text-3xl font-display font-black text-destructive animate-radar-pulse">LIVE</div>
                                     <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider mt-2">Status</div>
                                 </div>
+                            </div>
+
+                            {/* Send Message Update */}
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Type an update..."
+                                    value={updateMessage}
+                                    onChange={(e) => setUpdateMessage(e.target.value)}
+                                    className="flex-1 bg-destructive/10 border border-destructive/30 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-destructive"
+                                />
+                                <Button
+                                    onClick={async () => {
+                                        if (!sosIncidentId || !updateMessage.trim()) return;
+                                        setIsSendingUpdate(true);
+                                        try {
+                                            const res = await fetch(`${API_BASE}/incidents/sos/${sosIncidentId}/message`, {
+                                                method: "POST",
+                                                headers: getAuthHeaders(token),
+                                                body: JSON.stringify({ message: updateMessage.trim() })
+                                            });
+                                            const data = await res.json();
+                                            if (!res.ok) throw new Error(data.message || "Failed to send update");
+                                            
+                                            toast({
+                                                title: "Update Sent",
+                                                description: "Your message has been broadcasted.",
+                                            });
+                                            setUpdateMessage("");
+                                        } catch (err: any) {
+                                            toast({
+                                                title: "Error",
+                                                description: err.message,
+                                                variant: "destructive"
+                                            });
+                                        } finally {
+                                            setIsSendingUpdate(false);
+                                        }
+                                    }}
+                                    disabled={!updateMessage.trim() || isSendingUpdate}
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl px-6 h-auto"
+                                >
+                                    {isSendingUpdate ? "..." : "Send"}
+                                </Button>
                             </div>
 
                             <Button
