@@ -291,21 +291,21 @@ const GuardianMode = () => {
     return (
         <>
             {/* Floating Action Button - Moved to avoid ChatBot and Bottom Nav */}
-            <div className="fixed bottom-[calc(90px+env(safe-area-inset-bottom))] md:bottom-6 left-6 z-50 flex flex-col items-center gap-2">
-                <AnimatePresence>
-                    {(holding || loading) && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            className="bg-card/90 text-foreground text-xs px-4 py-2 rounded-xl mb-2 font-bold backdrop-blur-md border border-border shadow-lg"
-                        >
-                            {loading ? "Activating Beacon..." : "Hold to Activate SOS"}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+            <div className="fixed bottom-[calc(90px+env(safe-area-inset-bottom))] md:bottom-6 left-6 z-50 flex flex-col items-center">
+                <div className="relative flex items-center justify-center">
+                    <AnimatePresence>
+                        {(holding || loading) && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute bottom-full mb-4 left-1/2 -translate-x-1/2 whitespace-nowrap bg-card/90 text-foreground text-xs px-4 py-2 rounded-xl font-bold backdrop-blur-md border border-border shadow-lg"
+                            >
+                                {loading ? "Activating Beacon..." : "Hold to Activate SOS"}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                <div className="relative">
                     {/* Progress Ring */}
                     <svg className="absolute -inset-2 w-[calc(100%+16px)] h-[calc(100%+16px)] pointer-events-none transform -rotate-90">
                         <circle
@@ -319,7 +319,7 @@ const GuardianMode = () => {
                             cx="50%"
                             cy="50%"
                             r="30"
-                            className="stroke-destructive fill-none transition-all duration-75"
+                            className="stroke-destructive fill-none transition-colors duration-75"
                             strokeWidth="4"
                             strokeDasharray="188.4" 
                             strokeDashoffset={188.4 - (188.4 * (progress || 0)) / 100}
@@ -329,14 +329,14 @@ const GuardianMode = () => {
 
                     <motion.button
                         id="tour-guardian-mode"
-                        whileTap={{ scale: 1.1 }}
+                        whileTap={{ scale: 1.15 }}
                         onMouseDown={startHold}
                         onMouseUp={endHold}
                         onMouseLeave={endHold}
                         onTouchStart={startHold}
                         onTouchEnd={endHold}
                         disabled={loading}
-                        className={`h-14 w-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 relative ${active ? "bg-destructive animate-radar-pulse ring-4 ring-destructive/30" : "bg-card border border-border hover:bg-muted/80"} ${loading ? "opacity-50 cursor-wait" : ""}`}
+                        className={`h-14 w-14 rounded-full flex items-center justify-center shadow-lg transition-colors duration-300 relative ${active ? "bg-destructive animate-radar-pulse ring-4 ring-destructive/30" : "bg-card border border-border hover:bg-muted/80"} ${loading ? "opacity-50 cursor-wait" : ""}`}
                     >
                         <ShieldAlert className={`h-6 w-6 ${active ? "text-destructive-foreground" : "text-destructive"}`} />
                     </motion.button>
