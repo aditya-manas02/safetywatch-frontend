@@ -137,6 +137,24 @@ export default function Admin() {
     }
   };
 
+  /* ---------------- BULK DELETE ---------------- */
+  const handleBulkDelete = async (ids: string[]) => {
+    try {
+      const res = await fetch(`${API_BASE}/incidents/bulk-delete`, {
+        method: "POST",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ ids }),
+      });
+
+      if (!res.ok) throw new Error("Bulk delete failed");
+
+      toast({ title: "Bulk Delete Success", description: `Deleted ${ids.length} reports.` });
+      fetchIncidents();
+    } catch (err) {
+      toast({ title: "Bulk Delete Failed", variant: "destructive" });
+    }
+  };
+
   /* ---------------- DELETE INCIDENT ---------------- */
   async function deleteIncident(id: string) {
     try {
@@ -402,6 +420,7 @@ export default function Admin() {
                   onView={setSelectedIncident}
                   onDelete={deleteIncident}
                   onBulkUpdate={handleBulkUpdate}
+                  onBulkDelete={handleBulkDelete}
                 />
               )}
             </div>

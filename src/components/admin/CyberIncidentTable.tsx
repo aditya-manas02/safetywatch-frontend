@@ -12,13 +12,15 @@ export interface CyberIncidentTableProps {
   onView: (incident: Incident) => void;
   onDelete: (id: string) => void;
   onBulkUpdate: (ids: string[], status: string, isImportant?: boolean) => void;
+  onBulkDelete?: (ids: string[]) => void;
 }
 
 export default function CyberIncidentTable({
   incidents = [],
   onView,
   onDelete,
-  onBulkUpdate
+  onBulkUpdate,
+  onBulkDelete
 }: CyberIncidentTableProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -66,6 +68,14 @@ export default function CyberIncidentTable({
     setSelectedIds([]);
   };
 
+  const handleBulkDeleteAction = async () => {
+    if (!onBulkDelete) return;
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected incidents?`)) {
+      await onBulkDelete(selectedIds);
+      setSelectedIds([]);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* TOOLBAR */}
@@ -75,7 +85,7 @@ export default function CyberIncidentTable({
             variant="outline"
             size="sm"
             onClick={toggleSelectAll}
-            className="border-border/50 hover:bg-muted/50"
+            className="border-border/50 hover:bg-muted/50 text-foreground"
           >
             {selectedIds.length === incidents.length && incidents.length > 0 ? (
               <CheckSquare className="mr-2 h-4 w-4 text-primary" />
@@ -115,6 +125,16 @@ export default function CyberIncidentTable({
                 >
                   <XSquare className="mr-2 h-4 w-4" /> Reject
                 </Button>
+                {onBulkDelete && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={handleBulkDeleteAction}
+                    className="bg-red-900/50 hover:bg-red-900/80 text-red-400 border border-red-900/50"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                  </Button>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
