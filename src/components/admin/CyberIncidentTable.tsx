@@ -79,8 +79,8 @@ export default function CyberIncidentTable({
   return (
     <div className="space-y-4">
       {/* TOOLBAR */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-muted/30 p-4 rounded-xl border border-border/50 shadow-xl backdrop-blur-sm">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex justify-between items-center gap-4 bg-muted/30 p-4 rounded-xl border border-border/50 shadow-xl backdrop-blur-sm overflow-x-auto w-full">
+        <div className="flex items-center gap-2 w-max">
           <Button
             variant="outline"
             size="sm"
@@ -101,7 +101,7 @@ export default function CyberIncidentTable({
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="flex flex-wrap items-center gap-2 pl-2 md:pl-4 border-l border-border"
+                className="flex items-center gap-2 pl-2 md:pl-4 border-l border-border"
               >
                 <Button
                   size="sm"
