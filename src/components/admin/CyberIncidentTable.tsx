@@ -128,9 +128,9 @@ export default function CyberIncidentTable({
                 {onBulkDelete && (
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="outline"
                     onClick={handleBulkDeleteAction}
-                    className="bg-red-900/50 hover:bg-red-900/80 text-red-400 border border-red-900/50"
+                    className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
                   >
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
