@@ -85,7 +85,7 @@ export default function CyberIncidentTable({
             variant="outline"
             size="sm"
             onClick={toggleSelectAll}
-            className="border-border/50 hover:bg-muted/50 text-foreground"
+            className="border-border/50 hover:bg-muted/50 text-foreground hover:text-foreground"
           >
             {selectedIds.length === incidents.length && incidents.length > 0 ? (
               <CheckSquare className="mr-2 h-4 w-4 text-primary" />
