@@ -329,7 +329,7 @@ const GuardianMode = () => {
 
                     <motion.button
                         id="tour-guardian-mode"
-                        whileTap={{ scale: 0.9 }}
+                        whileTap={{ scale: 1.1 }}
                         onMouseDown={startHold}
                         onMouseUp={endHold}
                         onMouseLeave={endHold}
