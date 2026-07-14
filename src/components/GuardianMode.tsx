@@ -169,11 +169,11 @@ const GuardianMode = () => {
 
     const deactivate = async () => {
         try {
-            if (sosIncidentId && token) {
+            if (token) {
                 await fetch(`${API_BASE}/incidents/sos/safe`, {
                     method: "POST",
                     headers: getAuthHeaders(token),
-                    body: JSON.stringify({ incidentId: sosIncidentId })
+                    body: JSON.stringify(sosIncidentId ? { incidentId: sosIncidentId } : {})
                 });
             }
         } catch (err) {
