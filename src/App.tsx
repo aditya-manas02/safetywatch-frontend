@@ -33,6 +33,7 @@ import MobileBottomNav from "./components/MobileBottomNav";
 import GuardianMode from "./components/GuardianMode";
 import ReportForm from "./components/ReportForm";
 import { AnimatePresence, motion } from "framer-motion";
+import IosInstallPrompt from "./components/IosInstallPrompt";
 
 // Wrapper to handle Vite dynamic import failures after deployments
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
@@ -864,6 +865,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <AppTour />
+        <IosInstallPrompt />
       </TooltipProvider>
     </ThemeProvider>
   );
