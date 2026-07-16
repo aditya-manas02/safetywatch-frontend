@@ -58,7 +58,12 @@ export default function Profile() {
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-
+    // Emergency Contacts State
+    const [emergencyContacts, setEmergencyContacts] = useState<any[]>([]);
+    const [newContactName, setNewContactName] = useState("");
+    const [newContactPhone, setNewContactPhone] = useState("");
+    const [newContactEmail, setNewContactEmail] = useState("");
+    const [managingContacts, setManagingContacts] = useState(false);
 
     // Password change states
     const [passwordTab, setPasswordTab] = useState<"change" | "otp">("change");
@@ -120,6 +125,7 @@ export default function Profile() {
                     setActiveBadge(data.activeBadge || null);
                     setProfilePic(data.profilePicture || "");
                     setAreaCode(data.areaCode || "DEFAULT");
+                    setEmergencyContacts(data.emergencyContacts || []);
                     
                     // Fetch area name
                     if (data.areaCode && data.areaCode !== "DEFAULT") {
@@ -509,6 +515,64 @@ export default function Profile() {
             }
         } catch (error) {
             toast.error("Error updating active badge");
+        }
+    };
+
+    const handleAddEmergencyContact = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        setManagingContacts(true);
+        try {
+            const res = await fetch(`${API_BASE}/profile/emergency-contacts`, {
+                method: "POST",
+                headers: {
+                    ...getAuthHeaders(token),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: newContactName,
+                    phone: newContactPhone,
+                    email: newContactEmail
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setEmergencyContacts(data.emergencyContacts);
+                setNewContactName("");
+                setNewContactPhone("");
+                setNewContactEmail("");
+                toast.success("Emergency contact added successfully");
+            } else {
+                toast.error(data.message || "Failed to add emergency contact");
+            }
+        } catch (error) {
+            toast.error("Error adding emergency contact");
+        } finally {
+            setManagingContacts(false);
+        }
+    };
+
+    const handleRemoveEmergencyContact = async (contactId: string) => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        setManagingContacts(true);
+        try {
+            const res = await fetch(`${API_BASE}/profile/emergency-contacts/${contactId}`, {
+                method: "DELETE",
+                headers: getAuthHeaders(token)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setEmergencyContacts(data.emergencyContacts);
+                toast.success("Emergency contact removed");
+            } else {
+                toast.error(data.message || "Failed to remove emergency contact");
+            }
+        } catch (error) {
+            toast.error("Error removing emergency contact");
+        } finally {
+            setManagingContacts(false);
         }
     };
 
@@ -971,6 +1035,100 @@ export default function Profile() {
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
+                            </CardContent>
+                        </Card>
+                        {/* EMERGENCY CONTACTS CARD */}
+                        <Card className="border-none shadow-2xl glass-card-luxury overflow-hidden">
+                            <div className="h-1.5 bg-gradient-to-r from-critical via-red-500 to-orange-500 w-full"></div>
+                            <CardHeader>
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-critical/10 rounded-2xl border border-critical/20 shadow-inner">
+                                        <Phone className="h-5 w-5 text-critical" />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <CardTitle className="text-xl font-black tracking-tighter uppercase text-foreground">Emergency Contacts</CardTitle>
+                                        <CardDescription className="font-bold text-[10px] text-muted-foreground/60 uppercase tracking-[0.2em]">SOS Notification Network (Max 5)</CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-6 pt-4">
+                                <div className="space-y-4">
+                                    {emergencyContacts.map((contact, idx) => (
+                                        <div key={contact._id || idx} className="flex flex-col sm:flex-row items-center justify-between p-4 bg-muted/30 rounded-2xl border border-border/50 shadow-sm gap-4">
+                                            <div className="flex items-center gap-4 w-full">
+                                                <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 border border-primary/20">
+                                                    <User className="h-5 w-5 text-primary" />
+                                                </div>
+                                                <div className="overflow-hidden">
+                                                    <p className="font-bold truncate text-sm">{contact.name}</p>
+                                                    <p className="text-xs text-muted-foreground truncate">{contact.phone} {contact.email ? `• ${contact.email}` : ''}</p>
+                                                </div>
+                                            </div>
+                                            <Button 
+                                                variant="destructive" 
+                                                size="sm" 
+                                                disabled={managingContacts}
+                                                onClick={() => contact._id && handleRemoveEmergencyContact(contact._id)}
+                                                className="w-full sm:w-auto shadow-md"
+                                            >
+                                                <X className="h-4 w-4 mr-2" /> Remove
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    {emergencyContacts.length === 0 && (
+                                        <div className="text-center p-6 border-2 border-dashed border-border/50 rounded-2xl">
+                                            <Shield className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
+                                            <p className="text-sm font-medium text-muted-foreground">No emergency contacts added yet.</p>
+                                            <p className="text-xs text-muted-foreground/70 mt-1">Add contacts to be notified when you trigger an SOS.</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {emergencyContacts.length < 5 && (
+                                    <form onSubmit={handleAddEmergencyContact} className="pt-4 border-t border-border/50">
+                                        <h4 className="font-bold text-sm mb-4">Add New Contact</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Name *</Label>
+                                                <Input 
+                                                    value={newContactName} 
+                                                    onChange={(e) => setNewContactName(e.target.value)} 
+                                                    placeholder="John Doe" 
+                                                    required 
+                                                    className="bg-background/50 h-12 rounded-xl focus-visible:ring-primary/30"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Phone Number *</Label>
+                                                <Input 
+                                                    value={newContactPhone} 
+                                                    onChange={(e) => setNewContactPhone(e.target.value)} 
+                                                    placeholder="+15551234567" 
+                                                    required 
+                                                    className="bg-background/50 h-12 rounded-xl focus-visible:ring-primary/30"
+                                                />
+                                            </div>
+                                            <div className="space-y-2 md:col-span-2">
+                                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email (Optional)</Label>
+                                                <Input 
+                                                    type="email"
+                                                    value={newContactEmail} 
+                                                    onChange={(e) => setNewContactEmail(e.target.value)} 
+                                                    placeholder="john@example.com" 
+                                                    className="bg-background/50 h-12 rounded-xl focus-visible:ring-primary/30"
+                                                />
+                                            </div>
+                                        </div>
+                                        <Button 
+                                            type="submit" 
+                                            disabled={managingContacts || !newContactName || !newContactPhone}
+                                            className="w-full h-12 rounded-xl font-bold bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-600/90 shadow-lg text-white"
+                                        >
+                                            {managingContacts ? <RefreshCw className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
+                                            Add Emergency Contact
+                                        </Button>
+                                    </form>
+                                )}
                             </CardContent>
                         </Card>
                         

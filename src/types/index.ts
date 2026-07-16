@@ -18,6 +18,13 @@ export interface User {
         adminId?: string;
     }[];
     appVersion?: string;
+    emergencyContacts?: {
+        _id?: string;
+        name: string;
+        phone: string;
+        email?: string;
+        addedAt?: string;
+    }[];
 }
 
 export interface Incident {
