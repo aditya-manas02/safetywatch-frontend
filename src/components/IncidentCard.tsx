@@ -424,21 +424,21 @@ export function IncidentCard({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full h-full flex flex-col md:flex-row bg-surface-overlay/95 backdrop-blur-3xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+          className="relative w-full h-full flex flex-col md:flex-row bg-background/95 backdrop-blur-3xl border border-border rounded-3xl overflow-hidden shadow-2xl"
         >
           {/* LEFT COLUMN: HERO IMAGE (Sticky on Desktop) */}
-          <div className="relative w-full md:w-[45%] h-[250px] md:h-auto overflow-hidden bg-surface-overlay flex items-center justify-center border-b md:border-b-0 md:border-r border-white/10">
+          <div className="relative w-full md:w-[45%] h-[250px] md:h-auto overflow-hidden bg-muted/10 flex items-center justify-center border-b md:border-b-0 md:border-r border-border">
             <img
               src={incident.imageUrl || "https://images.unsplash.com/photo-1501854140801-50d01698950b"}
               alt={incident.title}
               className="w-full h-full object-contain"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#020817] via-transparent to-transparent opacity-40 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-60 pointer-events-none"></div>
 
             {/* FLOATING DOSSIER BADGE */}
             <div className="absolute top-6 left-6 z-20">
-              <Badge className="bg-white/10 backdrop-blur-xl border-white/20 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xl">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse"></div>
+              <Badge className="bg-background/80 backdrop-blur-xl border-border text-foreground px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xl">
+                <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></div>
                 INCIDENT DOSSIER
               </Badge>
             </div>
@@ -457,25 +457,25 @@ export function IncidentCard({
           </div>
 
           {/* RIGHT COLUMN: SCROLLABLE CONTENT */}
-          <div className="flex-1 flex flex-col h-full overflow-hidden relative min-h-0 bg-surface-overlay/40">
+          <div className="flex-1 flex flex-col h-full overflow-hidden relative min-h-0 bg-muted/5">
 
             {/* STICKY HEADER PART */}
-            <div className="p-8 pb-4 shrink-0 border-b border-white/5 bg-gradient-to-b from-[#020817] to-transparent flex items-center justify-between gap-4">
+            <div className="p-8 pb-4 shrink-0 border-b border-border bg-gradient-to-b from-background/80 to-transparent flex items-center justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className={cn("p-2.5 rounded-xl border border-white/10", typeConfig.color)}>
+                  <div className={cn("p-2.5 rounded-xl border border-border/50", typeConfig.color)}>
                     <TypeIcon className="h-5 w-5" />
                   </div>
                   <span className="text-[11px] font-black tracking-widest text-muted-foreground uppercase">{incident.type}</span>
                 </div>
-                <DialogTitle className="text-2xl md:text-4xl font-black text-white leading-[1.1] tracking-tight">
+                <DialogTitle className="text-2xl md:text-4xl font-black text-foreground leading-[1.1] tracking-tight">
                   {incident.translatedTitle || incident.title}
                 </DialogTitle>
               </div>
 
               <div className="flex items-center gap-2 self-start pt-2">
                 <DialogClose asChild>
-                  <button className="h-11 w-11 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center text-white transition-all shadow-xl group/close">
+                  <button className="h-11 w-11 bg-muted/50 hover:bg-muted border border-border rounded-xl flex items-center justify-center text-foreground transition-all shadow-sm group/close">
                     <X className="h-6 w-6 transition-transform group-hover/close:rotate-90" />
                   </button>
                 </DialogClose>
@@ -489,7 +489,7 @@ export function IncidentCard({
                   variant="outline"
                   size="sm"
                   onClick={() => handleShare("whatsapp")}
-                  className="bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20 h-9 w-9 p-0 rounded-lg group"
+                  className="bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-500 border-green-500/20 h-9 w-9 p-0 rounded-lg group"
                   title="Share on WhatsApp"
                 >
                   <img src="/assets/whatsapp.svg" alt="WhatsApp" className="h-5 w-5 transition-transform group-hover:scale-110" />
@@ -498,16 +498,16 @@ export function IncidentCard({
                   variant="outline"
                   size="sm"
                   onClick={() => handleShare("twitter")}
-                  className="bg-white/5 hover:bg-white/10 text-white border-white/10 h-9 w-9 p-0 rounded-lg group"
+                  className="bg-muted hover:bg-muted/80 text-foreground border-border h-9 w-9 p-0 rounded-lg group"
                   title="Share on X"
                 >
-                  <img src="/assets/x.svg" alt="X" className="h-4 w-4 transition-transform group-hover:scale-110 invert dark:invert-0" />
+                  <img src="/assets/x.svg" alt="X" className="h-4 w-4 transition-transform group-hover:scale-110 dark:invert" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleShare("instagram")}
-                  className="bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border-pink-500/20 h-9 w-9 p-0 rounded-lg"
+                  className="bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-500 border-pink-500/20 h-9 w-9 p-0 rounded-lg"
                   title="Share on Instagram"
                 >
                   <Instagram className="h-4 w-4" />
@@ -516,7 +516,7 @@ export function IncidentCard({
                   variant="outline"
                   size="sm"
                   onClick={() => handleShare("copy")}
-                  className="bg-slate-400/10 hover:bg-slate-400/20 text-slate-400 border-slate-400/20 h-9 w-9 p-0 rounded-lg"
+                  className="bg-slate-400/10 hover:bg-slate-400/20 text-slate-600 dark:text-slate-400 border-slate-400/20 h-9 w-9 p-0 rounded-lg"
                   title="Copy Link"
                 >
                   <Copy className="h-4 w-4" />
@@ -541,24 +541,24 @@ export function IncidentCard({
 
               {/* PRIMARY INFO CARDS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-white/5 border border-white/5 p-6 rounded-2xl group hover:bg-white/10 transition-all flex flex-col gap-3">
+                <div className="bg-card border border-border p-6 rounded-2xl group hover:bg-accent transition-all flex flex-col gap-3 shadow-sm">
                   <div className="flex items-center gap-2">
                     <div className="h-9 w-9 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
-                      <MapPin className="h-5 w-5 text-blue-400" />
+                      <MapPin className="h-5 w-5 text-blue-500" />
                     </div>
-                    <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Location Data</span>
+                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em]">Location Data</span>
                   </div>
-                  <p className="text-sm font-bold text-slate-200 tracking-wide">{incident.location}</p>
+                  <p className="text-sm font-bold text-foreground tracking-wide">{incident.location}</p>
                 </div>
 
-                <div className="bg-white/5 border border-white/5 p-6 rounded-2xl group hover:bg-white/10 transition-all flex flex-col gap-3">
+                <div className="bg-card border border-border p-6 rounded-2xl group hover:bg-accent transition-all flex flex-col gap-3 shadow-sm">
                   <div className="flex items-center gap-2">
                     <div className="h-9 w-9 bg-teal-500/10 rounded-xl flex items-center justify-center border border-teal-500/20">
-                      <Calendar className="h-5 w-5 text-teal-400" />
+                      <Calendar className="h-5 w-5 text-teal-500" />
                     </div>
-                    <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Temporal Stamp</span>
+                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em]">Temporal Stamp</span>
                   </div>
-                  <p className="text-sm font-bold text-slate-200 tracking-wide">
+                  <p className="text-sm font-bold text-foreground tracking-wide">
                     {incident.timestamp ? new Date(incident.timestamp).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' }) : 'Date Unavailable'}
                   </p>
                 </div>
@@ -566,22 +566,22 @@ export function IncidentCard({
 
               {/* DESCRIPTION SECTION */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-primary/80 font-black text-[10px] uppercase tracking-[0.3em] pl-1">
+                <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.3em] pl-1">
                   <LayoutDashboard className="h-4 w-4" /> Comprehensive Summary
                 </div>
-                <div className="bg-white/5 border border-white/5 p-8 rounded-3xl italic leading-relaxed text-slate-300 text-lg shadow-inner selection:bg-primary/30">
+                <div className="bg-muted/50 border border-border p-8 rounded-3xl italic leading-relaxed text-foreground text-lg shadow-inner selection:bg-primary/30">
                   "{typeof (incident.translatedDesc || incident.description) === 'string' ? (incident.translatedDesc || incident.description) : ((incident.translatedDesc || incident.description) ? JSON.stringify(incident.translatedDesc || incident.description) : "Official report analysis pending for this entry.")}"
                 </div>
               </div>
 
               {/* RESOLUTION VOTING SECTION */}
               {incident.status !== "problem solved" && incident.status !== "rejected" && (
-                <div className="space-y-6 bg-white/5 border border-white/10 p-8 rounded-3xl">
-                  <div className="flex items-center gap-2 text-primary/80 font-black text-[10px] uppercase tracking-[0.3em] pl-1">
+                <div className="space-y-6 bg-card border border-border p-8 rounded-3xl shadow-sm">
+                  <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.3em] pl-1">
                     <Activity className="h-4 w-4" /> Community Resolution Verification
                   </div>
-                  <h4 className="text-xl font-bold text-white">Was this incident resolved?</h4>
-                  <p className="text-sm text-slate-400">Help the community by confirming if the issue has been addressed.</p>
+                  <h4 className="text-xl font-bold text-foreground">Was this incident resolved?</h4>
+                  <p className="text-sm text-muted-foreground">Help the community by confirming if the issue has been addressed.</p>
 
                   <div className="flex gap-4">
                     <Button
@@ -589,8 +589,8 @@ export function IncidentCard({
                       className={cn(
                         "flex-1 h-14 rounded-2xl gap-3 text-sm font-black transition-all",
                         userResVote === "yes"
-                          ? "bg-emerald-500/20 border-emerald-500 text-emerald-400"
-                          : "bg-white/5 border-white/10 text-white hover:bg-emerald-500/10"
+                          ? "bg-emerald-500/20 border-emerald-500 text-emerald-600 dark:text-emerald-400"
+                          : "bg-background border-border text-foreground hover:bg-emerald-500/10"
                       )}
                       onClick={() => handleResolutionVote("yes")}
                     >
@@ -602,8 +602,8 @@ export function IncidentCard({
                       className={cn(
                         "flex-1 h-14 rounded-2xl gap-3 text-sm font-black transition-all",
                         userResVote === "no"
-                          ? "bg-rose-500/20 border-rose-500 text-rose-400"
-                          : "bg-white/5 border-white/10 text-white hover:bg-rose-500/10"
+                          ? "bg-rose-500/20 border-rose-500 text-rose-600 dark:text-rose-400"
+                          : "bg-background border-border text-foreground hover:bg-rose-500/10"
                       )}
                       onClick={() => handleResolutionVote("no")}
                     >
@@ -616,14 +616,14 @@ export function IncidentCard({
 
               {/* MESSAGING SECTION */}
               {(incident.allowMessages !== false) && user?.id !== incident.userId && (
-                <div className="flex-1 mt-6 min-h-[350px] overflow-hidden rounded-3xl border border-white/5 shadow-2xl">
+                <div className="flex-1 mt-6 min-h-[350px] overflow-hidden rounded-3xl border border-border shadow-md">
                   <IncidentChat
                     incidentId={incident.id}
                     incidentOwnerId={incident.userId}
                     otherUserId={user?.id}
                     incidentTitle={incident.title}
                     isResolved={incident.status === "problem solved"}
-                    className="h-full border-none rounded-none bg-surface-elevated/50"
+                    className="h-full border-none rounded-none bg-background"
                   />
                 </div>
               )}
@@ -636,11 +636,11 @@ export function IncidentCard({
                   className={cn(
                     "w-full h-18 rounded-2xl font-black text-sm tracking-widest relative overflow-hidden group transition-all duration-500",
                     isAcknowledged
-                      ? "bg-emerald-500/20 border-2 border-emerald-500/50 text-emerald-400 cursor-default"
-                      : "bg-primary hover:bg-primary/90 text-white shadow-[0_0_40px_rgba(59,130,246,0.2)]"
+                      ? "bg-emerald-500/20 border-2 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 cursor-default"
+                      : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(59,130,246,0.2)]"
                   )}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                   {isAcknowledgeLoading ? (
                     <div className="flex items-center gap-3">
                       <Loader2 className="h-5 w-5 animate-spin" />
@@ -655,9 +655,9 @@ export function IncidentCard({
                     "CONFIRM RECEIPT & SECURE LOG"
                   )}
                 </Button>
-                <div className="flex flex-col items-center gap-2 mt-6 opacity-30">
-                  <div className="h-[1px] w-24 bg-white/40" />
-                  <p className="text-[9px] font-black tracking-[0.4em] text-white uppercase">
+                <div className="flex flex-col items-center gap-2 mt-6 opacity-40">
+                  <div className="h-[1px] w-24 bg-foreground/20" />
+                  <p className="text-[9px] font-black tracking-[0.4em] text-foreground uppercase">
                     Authenticated Security Protocol
                   </p>
                 </div>
