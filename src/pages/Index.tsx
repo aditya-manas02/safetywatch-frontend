@@ -364,8 +364,9 @@ export default function Index() {
         </div>
 
         {/* HERO */}
-        <div className={user ? "hidden md:block" : "block"}>
+        <div>
           <Hero
+            userLoggedIn={!!user}
             onReportClick={() => user ? window.dispatchEvent(new CustomEvent("open-report-form")) : navigate("/auth")}
             onViewReports={() => document.getElementById("popular-section")?.scrollIntoView({ behavior: "smooth" })}
             initialStats={dashboardBundle?.stats}
@@ -588,7 +589,7 @@ export default function Index() {
               {user && <ChallengesSection />}
 
               {/* 1. POPULAR INCIDENTS */}
-              <div>
+              <div className="hidden md:block">
                 <section id="popular-section" className="space-y-6 sm:space-y-8">
                   <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
@@ -616,7 +617,7 @@ export default function Index() {
               </div>
 
               {/* 2. INCIDENTS NEAR YOU */}
-              <div>
+              <div className="hidden md:block">
                 <section id="nearby-section" className="space-y-6 sm:space-y-8">
                   <div className="flex items-end justify-between">
                     <div>
@@ -650,7 +651,7 @@ export default function Index() {
 
               {/* 3. REPORT TRACKING (FOR LOGGED IN USERS) */}
               {user && (
-                <div>
+                <div className="hidden md:block">
                   <section id="tracking-section" className="relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                     <div className="relative bg-card border rounded-2xl p-6 sm:p-8 shadow-sm">

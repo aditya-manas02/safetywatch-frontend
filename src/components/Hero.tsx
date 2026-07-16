@@ -43,13 +43,15 @@ interface HeroProps {
   onViewReports: () => void;
   initialStats?: Stats | null;
   initialLatest?: Incident[];
+  userLoggedIn?: boolean;
 }
 
 export default function Hero({
   onReportClick,
   onViewReports,
   initialStats = null,
-  initialLatest = []
+  initialLatest = [],
+  userLoggedIn = false
 }: HeroProps) {
   // Platform check - static since app doesn't change platform mid-life
   const isNative = Capacitor.isNativePlatform();
@@ -176,7 +178,7 @@ export default function Hero({
 
       <div className="container mx-auto flex flex-col lg:flex-row items-center py-16 sm:py-24 px-4 sm:px-6 gap-12 sm:gap-16 relative z-10">
         <motion.div
-          className="flex-1 text-center lg:text-left"
+          className={`flex-1 text-center lg:text-left ${userLoggedIn ? 'hidden lg:block' : 'block'}`}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
