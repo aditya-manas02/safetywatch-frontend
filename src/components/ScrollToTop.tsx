@@ -35,17 +35,17 @@ export default function ScrollToTop() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.5, y: 20 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[9998]"
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-[9998]"
         >
           <button
             onClick={scrollToTop}
-            className="flex items-center gap-2 h-11 px-5 rounded-full bg-[#2a2a2a] hover:bg-black text-white shadow-xl backdrop-blur-sm border border-white/10 group transition-all duration-300 hover:scale-105 active:scale-95"
+            className="flex items-center gap-1.5 h-9 px-4 rounded-full bg-[#2a2a2a]/95 hover:bg-black text-white shadow-xl backdrop-blur-sm border border-white/10 group transition-all duration-300 hover:scale-105 active:scale-95"
             title="Scroll to Top"
           >
-            <div className="flex items-center justify-center w-5 h-5 rounded-full border border-white/30 group-hover:border-white/60 transition-colors">
-              <ArrowUp className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5" />
+            <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white/30 group-hover:border-white/60 transition-colors">
+              <ArrowUp className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5" />
             </div>
-            <span className="text-sm font-bold tracking-wide">Back to top</span>
+            <span className="text-xs font-bold tracking-wide">Back to top</span>
           </button>
         </motion.div>
       )}
