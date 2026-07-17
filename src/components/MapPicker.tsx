@@ -51,10 +51,28 @@ function LocationButton({ onSelect, setPosition }: {
         map.setView(newPos, 16);
         toast.success("Location updated", { id: toastId });
       },
-      (err) => {
-        console.error(err);
-        let msg = "Could not get location";
-        if (err.code === 1) msg = "Location permission denied";
+      async (err) => {
+        console.warn("Native geolocation failed, attempting IP fallback...", err);
+        try {
+          // Fallback to IP geolocation if GPS fails
+          const ipRes = await fetch("https://ipapi.co/json/");
+          const ipData = await ipRes.json();
+          if (ipData && ipData.latitude && ipData.longitude) {
+            const newPos = { lat: ipData.latitude, lng: ipData.longitude };
+            setPosition(newPos);
+            onSelect(ipData.latitude, ipData.longitude);
+            map.setView(newPos, 14);
+            toast.success("Location updated (Approximate from IP)", { id: toastId });
+            return;
+          }
+        } catch (ipErr) {
+          console.error("IP fallback also failed:", ipErr);
+        }
+
+        let msg = "Could not get location. Ensure Location Services are enabled.";
+        if (err.code === 1) msg = "Location permission denied in browser.";
+        if (err.code === 2) msg = "Location unavailable. Please check Windows Privacy settings.";
+        if (err.code === 3) msg = "Location request timed out.";
         toast.error(msg, { id: toastId });
       },
       { 

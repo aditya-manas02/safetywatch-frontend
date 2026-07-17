@@ -173,9 +173,29 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
       toast({ title: "Location Acquired", description: "GPS coordinates updated successfully." });
     } catch (error: any) {
       console.warn("Location error:", error);
-      let errorMsg = error.message || "Failed to get location. Please check browser permissions.";
+      
+      // Fallback to IP Geolocation
+      try {
+        const ipRes = await fetch("https://ipapi.co/json/");
+        const ipData = await ipRes.json();
+        if (ipData && ipData.latitude && ipData.longitude) {
+          setFormData(prev => ({
+            ...prev,
+            latitude: ipData.latitude,
+            longitude: ipData.longitude,
+            location: "Approximate Location"
+          }));
+          toast({ title: "Location Acquired", description: "Approximate location fetched via IP." });
+          setIsLocating(false);
+          return;
+        }
+      } catch (ipErr) {
+        console.error("IP fallback also failed:", ipErr);
+      }
+
+      let errorMsg = error.message || "Failed to get location. Ensure Location Services are enabled.";
       if (error.code === 1) errorMsg = "Permission denied. Please allow location access in your browser/system settings.";
-      if (error.code === 2) errorMsg = "Position unavailable. Device cannot determine location.";
+      if (error.code === 2) errorMsg = "Position unavailable. Device cannot determine location. Please check Windows Privacy settings.";
       if (error.code === 3) errorMsg = "Location request timed out. Try again.";
       toast({ title: "Location Error", description: errorMsg, variant: "destructive", duration: 7000 });
     } finally {
