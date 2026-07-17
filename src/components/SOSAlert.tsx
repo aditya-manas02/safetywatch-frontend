@@ -20,7 +20,16 @@ const SOSAlert: React.FC<SOSAlertProps> = ({ incidentId, userName, latitude, lon
   const { toast } = useToast();
 
   const handleNavigate = () => {
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`, "_blank");
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const isIOS = /ipad|iphone|ipod/i.test(navigator.userAgent);
+
+    if (isAndroid) {
+      window.open(`geo:0,0?q=${latitude},${longitude}(Emergency+Location)`, "_system");
+    } else if (isIOS) {
+      window.open(`maps://?daddr=${latitude},${longitude}`, "_system");
+    } else {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`, "_blank");
+    }
   };
 
   const handleReportFake = async () => {
