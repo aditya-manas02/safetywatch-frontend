@@ -134,7 +134,7 @@ export default function UserTable({ users, onView }: UserTableProps) {
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Access Roles</th>
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Member Since</th>
                 {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">App Version</th>}
-                {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Last Login</th>}
+                {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Last Used At</th>}
                 {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Platform</th>}
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 text-right">Actions</th>
               </tr>
@@ -217,13 +217,13 @@ export default function UserTable({ users, onView }: UserTableProps) {
 
                   {isSuperAdmin && (
                     <td className="px-4 md:px-6 py-4 text-xs">
-                      {u.lastLoginAt ? format(new Date(u.lastLoginAt), "MMM dd, yyyy HH:mm") : "—"}
+                      {u.lastUsedAt ? format(new Date(u.lastUsedAt), "MMM dd, yyyy HH:mm") : (u.lastLoginAt ? format(new Date(u.lastLoginAt), "MMM dd, yyyy HH:mm") : "—")}
                     </td>
                   )}
 
                   {isSuperAdmin && (
                     <td className="px-4 md:px-6 py-4 text-xs">
-                      {u.lastLoginPlatform ? u.lastLoginPlatform : "—"}
+                      {u.lastUsedPlatform ? u.lastUsedPlatform : (u.lastLoginPlatform ? u.lastLoginPlatform : "—")}
                     </td>
                   )}
 
@@ -306,15 +306,15 @@ export default function UserTable({ users, onView }: UserTableProps) {
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
-                    <span className="text-muted-foreground font-bold opacity-70">Last Login</span>
+                    <span className="text-muted-foreground font-bold opacity-70">Last Used At</span>
                     <span className="text-foreground font-black">
-                      {u.lastLoginAt ? format(new Date(u.lastLoginAt), "MMM dd, yyyy HH:mm") : "—"}
+                      {u.lastUsedAt ? format(new Date(u.lastUsedAt), "MMM dd, yyyy HH:mm") : (u.lastLoginAt ? format(new Date(u.lastLoginAt), "MMM dd, yyyy HH:mm") : "—")}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
                     <span className="text-muted-foreground font-bold opacity-70">Platform</span>
                     <span className="text-foreground font-black">
-                      {u.lastLoginPlatform || "—"}
+                      {u.lastUsedPlatform || u.lastLoginPlatform || "—"}
                     </span>
                   </div>
                 </>

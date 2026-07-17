@@ -15,6 +15,8 @@ interface UserData {
   appVersion?: string;
   lastLoginAt?: string | Date;
   lastLoginPlatform?: "App" | "Browser";
+  lastUsedAt?: string | Date;
+  lastUsedPlatform?: "App" | "Browser";
 }
 
 export interface RateLimitInfo {
@@ -64,6 +66,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(savedToken);
         setIsAdmin(parsed.roles?.includes("admin") || parsed.roles?.includes("superadmin"));
         setIsSuperAdmin(parsed.roles?.includes("superadmin"));
+
+        // Report activity
+        import('@capacitor/core').then(({ Capacitor }) => {
+          fetch(`${API_BASE}/users/activity`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${savedToken}`,
+              ...VERSION_HEADERS
+            },
+            body: JSON.stringify({ 
+              platform: Capacitor.isNativePlatform() ? "App" : "Browser" 
+            })
+          }).catch(() => { /* silent fail for analytics */ });
+        });
       } catch (e) {
         console.error("Failed to parse saved user", e);
       }
