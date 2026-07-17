@@ -773,7 +773,7 @@ const Auth = () => {
                           </div>
                           <div className="pt-2">
                     <div className="flex justify-center w-full min-h-[44px]">
-                      {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+                      {import.meta.env.VITE_GOOGLE_CLIENT_ID && !Capacitor.isNativePlatform() ? (
                         <div className="w-full flex flex-col gap-6">
                           <div className="relative">
                             <div className="absolute inset-0 flex items-center">
@@ -785,9 +785,7 @@ const Auth = () => {
                           </div>
                           <div id="google-signin-btn" className="w-full max-w-sm flex justify-center mx-auto"></div>
                         </div>
-                      )}
-                      
-                      {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+                      ) : (
                         <div className="w-full flex flex-col gap-6">
                           <div className="relative">
                             <div className="absolute inset-0 flex items-center">
@@ -799,7 +797,42 @@ const Auth = () => {
                           </div>
                           <Button
                             type="button"
-                            onClick={() => setIsMockGoogleOpen(true)}
+                            onClick={async () => {
+                              if (Capacitor.isNativePlatform() && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+                                try {
+                                  GoogleAuth.initialize({
+                                    clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                                    scopes: ['profile', 'email'],
+                                    grantOfflineAccess: true,
+                                  });
+                                  const googleUser = await GoogleAuth.signIn();
+                                  if (googleUser && googleUser.authentication && googleUser.authentication.idToken) {
+                                    handleGoogleLogin(googleUser.authentication.idToken);
+                                  } else {
+                                    throw new Error("No ID Token received from Google");
+                                  }
+                                } catch (error: any) {
+                                  console.error("Native Google Sign In Error:", error);
+                                  const errorMsg = error?.message || (typeof error === 'string' ? error : "Authentication canceled or failed");
+                                  
+                                  if (errorMsg.includes("not implemented")) {
+                                    toast({
+                                      title: "App Update Required",
+                                      description: "Google Sign-In requires the latest version of the app. Please update from the Play Store or use Email/Password.",
+                                      variant: "destructive"
+                                    });
+                                  } else {
+                                    toast({
+                                      title: "Sign In Failed",
+                                      description: errorMsg,
+                                      variant: "destructive"
+                                    });
+                                  }
+                                }
+                              } else {
+                                setIsMockGoogleOpen(true);
+                              }
+                            }}
                             className="w-full max-w-sm mx-auto h-14 rounded-2xl border border-border/50 bg-card hover:bg-muted/50 hover:border-primary/50 text-foreground font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm"
                           >
                             <svg className="h-5 w-5" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
