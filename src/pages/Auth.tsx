@@ -906,7 +906,7 @@ const Auth = () => {
               <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Lock className="h-3 w-3" />SECURE ACCESS</a>
               <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Flag className="h-3 w-3" />REPORT INCIDENTS</a>
 
-              {true && (
+              {!Capacitor.isNativePlatform() && (
                 <a
                   href="https://safetywatch-backend.onrender.com/SafetyWatch.apk"
                   target="_blank"
