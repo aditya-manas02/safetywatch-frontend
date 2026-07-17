@@ -524,7 +524,7 @@ export default function Profile() {
         if (!token) return;
         setManagingContacts(true);
         try {
-            const res = await fetch(`${API_BASE}/profile/emergency-contacts`, {
+            const res = await fetch(`${API_BASE}/users/profile/emergency-contacts`, {
                 method: "POST",
                 headers: {
                     ...getAuthHeaders(token),
@@ -558,7 +558,7 @@ export default function Profile() {
         if (!token) return;
         setManagingContacts(true);
         try {
-            const res = await fetch(`${API_BASE}/profile/emergency-contacts/${contactId}`, {
+            const res = await fetch(`${API_BASE}/users/profile/emergency-contacts/${contactId}`, {
                 method: "DELETE",
                 headers: getAuthHeaders(token)
             });
