@@ -30,24 +30,26 @@ export default function ScrollToTop() {
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.5, y: 20 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed top-20 left-1/2 -translate-x-1/2 z-[9998]"
-        >
-          <button
-            onClick={scrollToTop}
-            className="flex items-center gap-1.5 h-9 px-4 rounded-full bg-[#2a2a2a]/95 hover:bg-black text-white shadow-xl backdrop-blur-sm border border-white/10 group transition-all duration-300 hover:scale-105 active:scale-95"
-            title="Scroll to Top"
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="pointer-events-auto"
           >
-            <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white/30 group-hover:border-white/60 transition-colors">
-              <ArrowUp className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5" />
-            </div>
-            <span className="text-xs font-bold tracking-wide">Back to top</span>
-          </button>
-        </motion.div>
+            <button
+              onClick={scrollToTop}
+              className="flex items-center gap-1.5 h-9 px-4 rounded-full bg-[#2a2a2a]/95 hover:bg-black text-white shadow-xl backdrop-blur-sm border border-white/10 group transition-all duration-300 hover:scale-105 active:scale-95"
+              title="Scroll to Top"
+            >
+              <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white/30 group-hover:border-white/60 transition-colors">
+                <ArrowUp className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5" />
+              </div>
+              <span className="text-xs font-bold tracking-wide">Back to top</span>
+            </button>
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );
