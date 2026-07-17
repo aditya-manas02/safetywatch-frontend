@@ -30,23 +30,23 @@ export default function ScrollToTop() {
   return (
     <AnimatePresence>
       {isVisible && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none">
+        <div className="fixed top-[90px] left-0 right-0 flex justify-center z-[9998] pointer-events-none w-full">
           <motion.div
             initial={{ opacity: 0, scale: 0.5, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: -20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="pointer-events-auto"
+            className="pointer-events-auto flex justify-center"
           >
             <button
               onClick={scrollToTop}
-              className="flex items-center gap-1.5 h-9 px-4 rounded-full bg-[#2a2a2a]/95 hover:bg-black text-white shadow-xl backdrop-blur-sm border border-white/10 group transition-all duration-300 hover:scale-105 active:scale-95"
+              className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-[#2a2a2a]/95 hover:bg-black text-white shadow-xl backdrop-blur-sm border border-white/10 group transition-all duration-300 hover:scale-105 active:scale-95"
               title="Scroll to Top"
             >
-              <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white/30 group-hover:border-white/60 transition-colors">
-                <ArrowUp className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5" />
+              <div className="flex items-center justify-center w-3.5 h-3.5 rounded-full border border-white/30 group-hover:border-white/60 transition-colors">
+                <ArrowUp className="h-2.5 w-2.5 transition-transform duration-300 group-hover:-translate-y-0.5" />
               </div>
-              <span className="text-xs font-bold tracking-wide">Back to top</span>
+              <span className="text-[10px] font-bold tracking-wide uppercase">Back to top</span>
             </button>
           </motion.div>
         </div>
