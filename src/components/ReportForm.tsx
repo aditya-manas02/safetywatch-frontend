@@ -150,10 +150,14 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
       } else {
         // Fallback for Web/Windows
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          if (!navigator.geolocation) {
+             reject(new Error("Browser does not support geolocation"));
+             return;
+          }
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             enableHighAccuracy: false, // Prevents hanging on Windows
-            timeout: 10000,
-            maximumAge: 0
+            timeout: 30000, // Increased to 30 seconds
+            maximumAge: 60000
           });
         });
         lat = position.coords.latitude;
@@ -167,9 +171,13 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
         location: "Current Location"
       }));
       toast({ title: "Location Acquired", description: "GPS coordinates updated successfully." });
-    } catch (error) {
+    } catch (error: any) {
       console.warn("Location error:", error);
-      toast({ title: "Error", description: "Failed to get location. Please check browser permissions.", variant: "destructive" });
+      let errorMsg = error.message || "Failed to get location. Please check browser permissions.";
+      if (error.code === 1) errorMsg = "Permission denied. Please allow location access in your browser/system settings.";
+      if (error.code === 2) errorMsg = "Position unavailable. Device cannot determine location.";
+      if (error.code === 3) errorMsg = "Location request timed out. Try again.";
+      toast({ title: "Location Error", description: errorMsg, variant: "destructive", duration: 7000 });
     } finally {
       setIsLocating(false);
     }

@@ -5,6 +5,7 @@ import "leaflet.heat";
 import { motion } from "framer-motion";
 import { MapPin, Loader2, Navigation } from "lucide-react";
 import { Geolocation } from "@capacitor/geolocation";
+import { Capacitor } from "@capacitor/core";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
 
 export default function RealHeatmap() {
@@ -66,7 +67,7 @@ export default function RealHeatmap() {
         }
 
         const id = await Geolocation.watchPosition(
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+          { enableHighAccuracy: Capacitor.isNativePlatform(), timeout: 10000, maximumAge: 0 },
           (position, err) => {
             if (err || !position || !isTracking || !map) return;
 

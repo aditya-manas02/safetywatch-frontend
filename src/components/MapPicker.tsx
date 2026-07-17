@@ -5,6 +5,7 @@ import L from "leaflet";
 import { Button } from "./ui/button";
 import { Navigation } from "lucide-react";
 import { toast } from "sonner";
+import { Capacitor } from '@capacitor/core';
 
 // Custom premium marker for the picker
 const customPickerIcon = L.divIcon({
@@ -56,7 +57,11 @@ function LocationButton({ onSelect, setPosition }: {
         if (err.code === 1) msg = "Location permission denied";
         toast.error(msg, { id: toastId });
       },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      { 
+        enableHighAccuracy: Capacitor.isNativePlatform(), 
+        timeout: 10000, 
+        maximumAge: 0 
+      }
     );
   };
 

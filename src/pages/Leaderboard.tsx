@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { Capacitor } from "@capacitor/core";
 import {
     Shield,
     Trophy,
@@ -106,7 +107,7 @@ export default function Leaderboard() {
                     setViewMode("global");
                     fetchLeaderboard();
                 },
-                { enableHighAccuracy: true }
+                { enableHighAccuracy: Capacitor.isNativePlatform() }
             );
         } else {
             setSectorName("Global Sector");

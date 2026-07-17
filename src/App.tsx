@@ -403,7 +403,7 @@ const AppContent = () => {
     const syncLocation = async (retryCount = 0) => {
       try {
         const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
+          enableHighAccuracy: Capacitor.isNativePlatform(),
           timeout: 15000
         });
 

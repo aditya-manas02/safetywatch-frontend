@@ -130,7 +130,7 @@ const GuardianMode = () => {
 
             // STAGE 1: Quick Fix (might be inaccurate)
             let position = await Geolocation.getCurrentPosition({
-                enableHighAccuracy: true,
+                enableHighAccuracy: Capacitor.isNativePlatform(),
                 timeout: 10000
             });
 
@@ -139,7 +139,7 @@ const GuardianMode = () => {
                 console.log(`[SOS] Initial accuracy poor (${position.coords.accuracy}m). Waiting for satellite lock...`);
                 try {
                     const refined = await Geolocation.getCurrentPosition({
-                        enableHighAccuracy: true,
+                        enableHighAccuracy: Capacitor.isNativePlatform(),
                         timeout: 10000 // Give it more time to see satellites
                     });
                     if (refined.coords.accuracy < position.coords.accuracy) {
@@ -210,7 +210,7 @@ const GuardianMode = () => {
 
             // Use watchPosition for real-time tracking while moving
             Geolocation.watchPosition({
-                enableHighAccuracy: true,
+                enableHighAccuracy: Capacitor.isNativePlatform(),
                 timeout: 10000
             }, (position) => {
                 if (position) {
@@ -237,7 +237,7 @@ const GuardianMode = () => {
             try {
                 // Use High Accuracy GPS for maximum precision
                 const position = await Geolocation.getCurrentPosition({
-                    enableHighAccuracy: true,
+                    enableHighAccuracy: Capacitor.isNativePlatform(),
                     timeout: 15000 // Give GPS more time for high precision
                 });
 
