@@ -1062,6 +1062,17 @@ export default function Profile() {
                                                 <div className="overflow-hidden">
                                                     <p className="font-bold truncate text-sm">{contact.name}</p>
                                                     <p className="text-xs text-muted-foreground truncate">{contact.phone} {contact.email ? `• ${contact.email}` : ''}</p>
+                                                    
+                                                    {contact.telegramChatId ? (
+                                                        <div className="flex items-center gap-1 mt-1 text-xs font-medium text-emerald-500">
+                                                            <CheckCircle2 className="h-3 w-3" /> Telegram Connected
+                                                        </div>
+                                                    ) : (
+                                                        <div className="mt-1 text-xs p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                                                            <p className="font-medium text-blue-500 mb-1 flex items-center gap-1"><Info className="h-3 w-3"/> Link Telegram for instant alerts!</p>
+                                                            <p className="text-muted-foreground break-all">Share link: <a href={`https://t.me/SafetyWatchAlertsBot?start=${contact.telegramLinkCode}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">t.me/SafetyWatchAlertsBot?start={contact.telegramLinkCode}</a></p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <Button 
@@ -1109,19 +1120,20 @@ export default function Profile() {
                                                 />
                                             </div>
                                             <div className="space-y-2 md:col-span-2">
-                                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email (Optional)</Label>
+                                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email *</Label>
                                                 <Input 
                                                     type="email"
                                                     value={newContactEmail} 
                                                     onChange={(e) => setNewContactEmail(e.target.value)} 
                                                     placeholder="john@example.com" 
+                                                    required
                                                     className="bg-background/50 h-12 rounded-xl focus-visible:ring-primary/30"
                                                 />
                                             </div>
                                         </div>
                                         <Button 
                                             type="submit" 
-                                            disabled={managingContacts || !newContactName || !newContactPhone}
+                                            disabled={managingContacts || !newContactName || !newContactPhone || !newContactEmail}
                                             className="w-full h-12 rounded-xl font-bold bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-600/90 shadow-lg text-white"
                                         >
                                             {managingContacts ? <RefreshCw className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
