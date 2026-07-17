@@ -129,8 +129,11 @@ export function AreaCodeSelector({ userEmail, onAreaCodeAssigned }: AreaCodeSele
                         </div>
                         <DialogTitle>Enter Access Code</DialogTitle>
                     </div>
-                    <DialogDescription>
-                        SafetyWatch is access-restricted. Please enter your provided area code to verify your location eligibility.
+                    <DialogDescription className="space-y-2">
+                        <p>SafetyWatch is access-restricted. Please enter your provided area code to verify your location eligibility.</p>
+                        <div className="text-xs bg-muted/40 p-2.5 rounded-lg border border-border/60 text-foreground/80 mt-2">
+                            Don't have a specific area code? Use the universal code: <strong className="text-primary font-mono ml-1 px-1.5 py-0.5 bg-primary/10 rounded border border-primary/20 select-all cursor-text">DEFAULT</strong>
+                        </div>
                     </DialogDescription>
                 </DialogHeader>
 
