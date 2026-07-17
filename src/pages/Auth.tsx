@@ -815,7 +815,11 @@ const Auth = () => {
                         </div>
                       )}
                     </div>
-                    </>
+                  </div>
+                </motion.form>
+              </TabsContent>
+            </Tabs>
+            </>
                   )}
                 </AnimatePresence>
 
