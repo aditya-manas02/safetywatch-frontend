@@ -272,7 +272,7 @@ const Auth = () => {
     if (!googleClientId) return;
 
     const initGoogleSignIn = () => {
-      if (Capacitor.isNativePlatform()) return; // Google Web SDK fails on Android/iOS WebView
+      // if (Capacitor.isNativePlatform()) return; // Google Web SDK fails on Android/iOS WebView
 
       const gWindow = window as any;
       if (gWindow.google) {
@@ -773,7 +773,7 @@ const Auth = () => {
                           </div>
                           <div className="pt-2">
                     <div className="flex justify-center w-full min-h-[44px]">
-                      {import.meta.env.VITE_GOOGLE_CLIENT_ID && !Capacitor.isNativePlatform() && (
+                      {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
                         <div className="w-full flex flex-col gap-6">
                           <div className="relative">
                             <div className="absolute inset-0 flex items-center">
@@ -787,7 +787,7 @@ const Auth = () => {
                         </div>
                       )}
                       
-                      {!import.meta.env.VITE_GOOGLE_CLIENT_ID && !Capacitor.isNativePlatform() && (
+                      {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
                         <div className="w-full flex flex-col gap-6">
                           <div className="relative">
                             <div className="absolute inset-0 flex items-center">
@@ -880,7 +880,7 @@ const Auth = () => {
               <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Lock className="h-3 w-3" />SECURE ACCESS</a>
               <a href="#" className="flex items-center gap-2 hover:text-primary transition-colors"><Flag className="h-3 w-3" />REPORT INCIDENTS</a>
 
-              {!Capacitor.isNativePlatform() && (
+              {true && (
                 <a
                   href="https://safetywatch-backend.onrender.com/SafetyWatch.apk"
                   target="_blank"
