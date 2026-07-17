@@ -287,107 +287,19 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             return;
         }
 
-        console.log('[VERSION_CHECK] Starting native in-app download sequence...');
-        setIsDownloading(true);
-        setDownloadProgress(5);
-
-        let progressListener: any = null;
-
+        console.log('[VERSION_CHECK] Redirecting to external browser for update...', downloadUrl);
+        
         try {
-            const fileName = getFileName();
-            console.log('[VERSION_DL] Target:', fileName);
-
-            // Cleanup any previous failed attempts
-            try {
-                await Filesystem.deleteFile({
-                    path: fileName,
-                    directory: Directory.Cache
-                });
-            } catch (e) { }
-
-            // Attach progress listener
-            progressListener = await Filesystem.addListener('progress', (progress) => {
-                if (progress.contentLength > 0) {
-                    const percent = Math.round((progress.bytes / progress.contentLength) * 100);
-                    setDownloadProgress(Math.max(5, percent));
-                }
-            });
-
-            // Perform in-app native download
-            const downloadResult = await Filesystem.downloadFile({
-                url: downloadUrl,
-                path: fileName,
-                directory: Directory.Cache, // Cache is much more reliable for passing to external intents
-                progress: true
-            });
-
-            if (downloadResult.path) {
-                setDownloadProgress(100);
-                
-                const uriResult = await Filesystem.getUri({
-                    path: fileName,
-                    directory: Directory.Cache
-                });
-
-                console.log('[VERSION_DL] Download complete. URI:', uriResult.uri);
-                setDownloadedFileUri(uriResult.uri);
-                setIsDownloaded(true);
-                setIsDownloading(false);
-                toast.success("Download complete. Launching installer...");
-
-                // Slight delay to ensure filesystem syncs
-                setTimeout(() => handleInstall(uriResult.uri), 1000);
-            } else {
-                throw new Error("No path returned from download command.");
+            // Prefer Capacitor Browser if available, as it securely handles intents
+            if (Capacitor.isPluginAvailable('Browser')) {
+                await Browser.open({ url: downloadUrl });
+                return;
             }
-
-        } catch (error: any) {
-            console.error('[VERSION_DL] In-app download failed:', error);
-            setIsDownloading(false);
-            setDownloadError(error?.message || "Download interrupted");
-            
-            // Fallback to browser if the native filesystem plugin fails completely
-            toast.error("Native download failed. Opening browser fallback...");
-            setTimeout(() => {
-                window.location.href = downloadUrl;
-            }, 1500);
-        } finally {
-            if (progressListener) {
-                await progressListener.remove();
-            }
-        }
-    };
-
-    const handleInstall = async (uriOverride?: string) => {
-        let installUri = uriOverride || downloadedFileUri;
-
-        if (!installUri) {
-            toast.error("Installation package lost.");
-            return;
+        } catch (e) {
+            console.warn('[VERSION_DL] Capacitor Browser failed, falling back to window.location');
         }
 
-        try {
-            console.log('[VERSION_CHECK] Triggering native installation:', installUri);
-            
-            await FileOpener.open({
-                filePath: installUri,
-                contentType: 'application/vnd.android.package-archive',
-                openWithDefault: true
-            });
-
-            toast.success("Installer launched successfully.");
-        } catch (error: any) {
-            console.error('[VERSION_CHECK] Installation failed:', error);
-            const msg = error?.message || "Unknown Error";
-            toast.error(`Installer Error: ${msg.slice(0, 40)}`);
-        }
-        // Always show the fallback button just in case the OS dropped the intent
-        setInstallHandedOff(true);
-    };
-
-    const handleBrowserFallback = () => {
-        const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
-        toast.info("Opening system browser to handle installation...");
+        // Fallback for standard web environment
         const link = document.createElement('a');
         link.href = downloadUrl;
         link.target = '_blank';
@@ -395,6 +307,17 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        toast.info("Downloading update in background...");
+    };
+
+    const handleInstall = async (uriOverride?: string) => {
+        // Obsolete in zero-permission approach
+        startDownload();
+    };
+
+    const handleBrowserFallback = () => {
+        startDownload();
     };
 
     const handleHardReload = () => {

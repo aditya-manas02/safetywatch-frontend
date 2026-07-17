@@ -272,6 +272,8 @@ const Auth = () => {
     if (!googleClientId) return;
 
     const initGoogleSignIn = () => {
+      if (Capacitor.isNativePlatform()) return; // Google Web SDK fails on Android/iOS WebView
+
       const gWindow = window as any;
       if (gWindow.google) {
         try {
@@ -339,8 +341,7 @@ const Auth = () => {
     if (error) {
       toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
     } else {
-      const remainingMsg = rateLimit ? ` (${rateLimit.remaining} attempts remaining this hour)` : "";
-      toast({ title: "OTP Sent!", description: `Please check your email for the verification code.${remainingMsg}` });
+      toast({ title: "OTP Sent!", description: "Please check your email for the verification code." });
       setVerifyingEmail(email);
     }
   };
@@ -401,9 +402,8 @@ const Auth = () => {
       if (error) {
         toast({ title: "Resend failed", description: error.message, variant: "destructive" });
       } else {
-        const remainingMsg = rateLimit ? ` (${rateLimit.remaining} attempts remaining this hour)` : "";
+        toast({ title: "OTP Sent!", description: "Please check your email for the new verification code." });
         setResendTimer(30);
-        toast({ title: "OTP Resent", description: `A new code has been issued.${remainingMsg}` });
       }
     } else {
       setLoading(false);
@@ -421,10 +421,9 @@ const Auth = () => {
     if (error) {
       toast({ title: "Request failed", description: error.message, variant: "destructive" });
     } else {
-      const remainingMsg = rateLimit ? ` (${rateLimit.remaining} attempts remaining today)` : "";
       toast({
         title: "Password Reset Sent",
-        description: `If an account exists for this email, you will receive a new system-generated password shortly.${remainingMsg}`,
+        description: "If an account exists for this email, you will receive a new system-generated password shortly.",
       });
     }
   };
@@ -550,45 +549,45 @@ const Auth = () => {
                       <form onSubmit={handleVerifyOtp} className="space-y-6">
                         <div className="space-y-2">
                           <Label className="font-bold text-sm ml-1">One-Time Password</Label>
-                          <div className="flex gap-2 justify-between">
+                          <div className="flex gap-1 sm:gap-2 justify-between">
                             {[...Array(6)].map((_, i) => (
-                              <input
-                                key={i}
-                                type="text"
-                                maxLength={1}
-                                value={otp[i] || ""}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Backspace") {
-                                    e.preventDefault();
-                                    const newOtp = otp.split("");
-                                    if (otp[i]) {
-                                      newOtp[i] = "";
-                                      setOtp(newOtp.join(""));
-                                    } else if (i > 0) {
-                                      newOtp[i - 1] = "";
-                                      setOtp(newOtp.join(""));
-                                      const prevInput = e.currentTarget.previousElementSibling as HTMLInputElement;
-                                      prevInput?.focus();
+                                <input
+                                  key={i}
+                                  type="text"
+                                  maxLength={1}
+                                  value={otp[i] || ""}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Backspace") {
+                                      e.preventDefault();
+                                      const newOtp = otp.split("");
+                                      if (otp[i]) {
+                                        newOtp[i] = "";
+                                        setOtp(newOtp.join(""));
+                                      } else if (i > 0) {
+                                        newOtp[i - 1] = "";
+                                        setOtp(newOtp.join(""));
+                                        const prevInput = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                        prevInput?.focus();
+                                      }
+                                    } else if (e.key === "ArrowLeft" && i > 0) {
+                                      e.preventDefault();
+                                      (e.currentTarget.previousElementSibling as HTMLInputElement)?.focus();
+                                    } else if (e.key === "ArrowRight" && i < 5) {
+                                      e.preventDefault();
+                                      (e.currentTarget.nextElementSibling as HTMLInputElement)?.focus();
                                     }
-                                  } else if (e.key === "ArrowLeft" && i > 0) {
-                                    e.preventDefault();
-                                    (e.currentTarget.previousElementSibling as HTMLInputElement)?.focus();
-                                  } else if (e.key === "ArrowRight" && i < 5) {
-                                    e.preventDefault();
-                                    (e.currentTarget.nextElementSibling as HTMLInputElement)?.focus();
-                                  }
-                                }}
-                                onChange={(e) => {
-                                  const val = e.target.value.replace(/\D/g, "");
-                                  const newOtp = otp.split("");
-                                  newOtp[i] = val;
-                                  setOtp(newOtp.join(""));
-                                  if (val && i < 5) {
-                                    (e.target.nextElementSibling as HTMLInputElement)?.focus();
-                                  }
-                                }}
-                                className="w-12 h-14 text-center text-2xl font-black rounded-xl bg-background border-2 border-primary/40 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all outline-none text-foreground"
-                              />
+                                  }}
+                                  onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, "");
+                                    const newOtp = otp.split("");
+                                    newOtp[i] = val;
+                                    setOtp(newOtp.join(""));
+                                    if (val && i < 5) {
+                                      (e.target.nextElementSibling as HTMLInputElement)?.focus();
+                                    }
+                                  }}
+                                  className="w-10 sm:w-12 h-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl bg-background border-2 border-primary/40 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all outline-none text-foreground"
+                                />
                             ))}
                           </div>
 
@@ -773,75 +772,47 @@ const Auth = () => {
                             </div>
                           </div>
                           <div className="pt-2">
-                            <Button type="submit" className="w-full h-14 rounded-2xl font-black text-lg bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading}><div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />{loading ? "Creating Account..." : "Create Free Account"}</Button>
-                          </div>
-                        </motion.form>
-                      </TabsContent>
-                    </Tabs>
-
-                    <div className="relative my-6">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-border/60" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-3 text-muted-foreground font-semibold">Or continue with</span>
-                      </div>
-                    </div>
-
                     <div className="flex justify-center w-full min-h-[44px]">
-                      {import.meta.env.VITE_GOOGLE_CLIENT_ID && !Capacitor.isNativePlatform() ? (
-                        <div id="google-signin-btn" className="w-full max-w-sm flex justify-center"></div>
-                      ) : (
-                        <Button
-                          type="button"
-                          onClick={async () => {
-                            if (Capacitor.isNativePlatform() && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-                              try {
-                                GoogleAuth.initialize({
-                                  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-                                  scopes: ['profile', 'email'],
-                                  grantOfflineAccess: true,
-                                });
-                                const googleUser = await GoogleAuth.signIn();
-                                if (googleUser && googleUser.authentication && googleUser.authentication.idToken) {
-                                  handleGoogleLogin(googleUser.authentication.idToken);
-                                } else {
-                                  throw new Error("No ID Token received from Google");
-                                }
-                              } catch (error: any) {
-                                console.error("Native Google Sign In Error:", error);
-                                const errorMsg = error?.message || (typeof error === 'string' ? error : "Authentication canceled or failed");
-                                
-                                if (errorMsg.includes("not implemented")) {
-                                  toast({
-                                    title: "App Update Required",
-                                    description: "Google Sign-In requires the latest version of the app. Please update from the Play Store or use Email/Password.",
-                                    variant: "destructive"
-                                  });
-                                } else {
-                                  toast({
-                                    title: "Sign In Failed",
-                                    description: errorMsg,
-                                    variant: "destructive"
-                                  });
-                                }
-                              }
-                            } else {
-                              setIsMockGoogleOpen(true);
-                            }
-                          }}
-                          className="w-full h-14 rounded-2xl border border-border/50 bg-card hover:bg-muted/50 hover:border-primary/50 text-foreground font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm"
-                        >
-                          <svg className="h-5 w-5" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-                            <g transform="matrix(1, 0, 0, 1, 0, 0)">
-                              <path d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.58h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48C21.68,11.75 21.56,11.4 21.35,11.1z" fill="#4285F4" />
-                              <path d="M12,20.73c2.43,0 4.47,-0.8 5.96,-2.19l-3.3,-2.58c-0.9,-0.6 -2.07,-0.97 -3.3,-0.97c-2.37,0 -4.38,-1.6 -5.1,-3.75H2.83v2.66C4.33,16.89 7.91,20.73 12,20.73z" fill="#34A853" />
-                              <path d="M6.9,13.34c-0.18,-0.54 -0.29,-1.11 -0.29,-1.7c0,-0.59 0.11,-1.16 0.29,-1.7V7.28H2.83C2.22,8.5 1.88,9.88 1.88,11.34c0,1.46 0.34,2.84 0.95,4.06l4.07,-3.06z" fill="#FBBC05" />
-                              <path d="M12,5.27c1.32,0 2.5,0.45 3.44,1.35L17.5,4.56C16.01,3.17 13.97,2.37 12,2.37C7.91,2.37 4.33,6.21 2.83,9.22l4.07,3.06c0.72,-2.15 2.73,-3.75 5.1,-3.75z" fill="#EA4335" />
-                            </g>
-                          </svg>
-                          Continue with Google
-                        </Button>
+                      {import.meta.env.VITE_GOOGLE_CLIENT_ID && !Capacitor.isNativePlatform() && (
+                        <div className="w-full flex flex-col gap-6">
+                          <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                              <span className="w-full border-t border-border/60" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                              <span className="bg-card px-3 text-muted-foreground font-semibold">Or continue with</span>
+                            </div>
+                          </div>
+                          <div id="google-signin-btn" className="w-full max-w-sm flex justify-center mx-auto"></div>
+                        </div>
+                      )}
+                      
+                      {!import.meta.env.VITE_GOOGLE_CLIENT_ID && !Capacitor.isNativePlatform() && (
+                        <div className="w-full flex flex-col gap-6">
+                          <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                              <span className="w-full border-t border-border/60" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                              <span className="bg-card px-3 text-muted-foreground font-semibold">Or continue with</span>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={() => setIsMockGoogleOpen(true)}
+                            className="w-full max-w-sm mx-auto h-14 rounded-2xl border border-border/50 bg-card hover:bg-muted/50 hover:border-primary/50 text-foreground font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+                          >
+                            <svg className="h-5 w-5" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                              <g transform="matrix(1, 0, 0, 1, 0, 0)">
+                                <path d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.58h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48C21.68,11.75 21.56,11.4 21.35,11.1z" fill="#4285F4" />
+                                <path d="M12,20.73c2.43,0 4.47,-0.8 5.96,-2.19l-3.3,-2.58c-0.9,-0.6 -2.07,-0.97 -3.3,-0.97c-2.37,0 -4.38,-1.6 -5.1,-3.75H2.83v2.66C4.33,16.89 7.91,20.73 12,20.73z" fill="#34A853" />
+                                <path d="M6.9,13.34c-0.18,-0.54 -0.29,-1.11 -0.29,-1.7c0,-0.59 0.11,-1.16 0.29,-1.7V7.28H2.83C2.22,8.5 1.88,9.88 1.88,11.34c0,1.46 0.34,2.84 0.95,4.06l4.07,-3.06z" fill="#FBBC05" />
+                                <path d="M12,5.27c1.32,0 2.5,0.45 3.44,1.35L17.5,4.56C16.01,3.17 13.97,2.37 12,2.37C7.91,2.37 4.33,6.21 2.83,9.22l4.07,3.06c0.72,-2.15 2.73,-3.75 5.1,-3.75z" fill="#EA4335" />
+                              </g>
+                            </svg>
+                            Continue with Google
+                          </Button>
+                        </div>
                       )}
                     </div>
                     </>
