@@ -67,20 +67,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAdmin(parsed.roles?.includes("admin") || parsed.roles?.includes("superadmin"));
         setIsSuperAdmin(parsed.roles?.includes("superadmin"));
 
-        // Report activity
-        import('@capacitor/core').then(({ Capacitor }) => {
-          fetch(`${API_BASE}/users/activity`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${savedToken}`,
-              ...VERSION_HEADERS
-            },
-            body: JSON.stringify({ 
-              platform: Capacitor.isNativePlatform() ? "App" : "Browser" 
-            })
-          }).catch(() => { /* silent fail for analytics */ });
-        });
+        // Report activity function
+        const reportActivity = () => {
+          import('@capacitor/core').then(({ Capacitor }) => {
+            fetch(`${API_BASE}/users/activity`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${savedToken}`,
+                ...VERSION_HEADERS
+              },
+              body: JSON.stringify({ 
+                platform: Capacitor.isNativePlatform() ? "App" : "Browser" 
+              })
+            }).catch(() => { /* silent fail */ });
+          });
+        };
+
+        // Report immediately
+        reportActivity();
+
+        // Report on foreground
+        let timeoutId: number;
+        const handleVisibilityChange = () => {
+          if (document.visibilityState === 'visible') {
+            window.clearTimeout(timeoutId);
+            timeoutId = window.setTimeout(reportActivity, 1000);
+          }
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        setIsLoading(false);
+        return () => {
+          document.removeEventListener("visibilitychange", handleVisibilityChange);
+          window.clearTimeout(timeoutId);
+        };
       } catch (e) {
         console.error("Failed to parse saved user", e);
       }
