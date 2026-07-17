@@ -140,16 +140,36 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
   const handleUseCurrentLocation = async () => {
     setIsLocating(true);
     try {
-      const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+      let lat, lng;
+      
+      // On web/desktop, high accuracy often fails or hangs indefinitely without a GPS chip.
+      if (Capacitor.isNativePlatform()) {
+        const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      } else {
+        // Fallback for Web/Windows
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: false, // Prevents hanging on Windows
+            timeout: 10000,
+            maximumAge: 0
+          });
+        });
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      }
+
       setFormData(prev => ({
         ...prev,
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        location: "Current GPS Location"
+        latitude: lat,
+        longitude: lng,
+        location: "Current Location"
       }));
       toast({ title: "Location Acquired", description: "GPS coordinates updated successfully." });
     } catch (error) {
-      toast({ title: "Error", description: "Failed to get location. Please check permissions.", variant: "destructive" });
+      console.warn("Location error:", error);
+      toast({ title: "Error", description: "Failed to get location. Please check browser permissions.", variant: "destructive" });
     } finally {
       setIsLocating(false);
     }
