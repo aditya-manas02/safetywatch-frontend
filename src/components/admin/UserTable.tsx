@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Calendar, Shield, ExternalLink, Users, UserCog, Ban } from "lucide-react";
+import { User, Mail, Calendar, Shield, ExternalLink, Users, UserCog, Ban, ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Smartphone } from "lucide-react";
@@ -17,6 +17,24 @@ export default function UserTable({ users, onView }: UserTableProps) {
   const [roleFilter, setRoleFilter] = useState<"all" | "citizens" | "admins" | "suspended">("all");
   const [areaCodeFilter, setAreaCodeFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortField, setSortField] = useState<string>("lastUsedAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder(field === "lastUsedAt" || field === "createdAt" ? "desc" : "asc");
+    }
+  };
+
+  const SortIcon = ({ field }: { field: string }) => {
+    if (sortField !== field) return <ArrowUpDown className="inline-block ml-1 h-3 w-3 opacity-30 group-hover:opacity-100 transition-opacity" />;
+    return sortOrder === "asc" 
+      ? <ArrowUp className="inline-block ml-1 h-3 w-3 text-primary" /> 
+      : <ArrowDown className="inline-block ml-1 h-3 w-3 text-primary" />;
+  };
 
   // Get unique area codes for filter dropdown
   const uniqueAreaCodes = Array.from(new Set(users.map(u => u.areaCode).filter(Boolean)));
@@ -40,6 +58,26 @@ export default function UserTable({ users, onView }: UserTableProps) {
     }
 
     return true;
+  }).sort((a, b) => {
+    const getVal = (u: UserType) => {
+      switch (sortField) {
+        case "identifier": return (u.name || "").toLowerCase() + (u.email || "").toLowerCase();
+        case "areaCode": return (u.areaCode || "").toLowerCase();
+        case "roles": return (u.roles || []).join(", ");
+        case "createdAt": return new Date(u.createdAt || 0).getTime();
+        case "appVersion": return (u.appVersion || "").toLowerCase();
+        case "lastUsedAt": return new Date(u.lastUsedAt || u.lastLoginAt || 0).getTime();
+        case "platform": return (u.lastUsedPlatform || u.lastLoginPlatform || "").toLowerCase();
+        default: return "";
+      }
+    };
+
+    const valA = getVal(a);
+    const valB = getVal(b);
+
+    if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+    if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+    return 0;
   });
 
   const citizenCount = users.filter(u => !u.roles?.includes("admin") && !u.roles?.includes("superadmin")).length;
@@ -127,15 +165,15 @@ export default function UserTable({ users, onView }: UserTableProps) {
       <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[600px]">
-            <thead className="bg-muted/30 border-b border-border">
+            <thead className="bg-muted/30 border-b border-border select-none">
               <tr>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Identifier</th>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Area Code</th>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Access Roles</th>
-                <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Member Since</th>
-                {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">App Version</th>}
-                {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Last Used At</th>}
-                {isSuperAdmin && <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70">Platform</th>}
+                <th onClick={() => handleSort("identifier")} className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 cursor-pointer hover:bg-muted hover:text-foreground transition-colors group whitespace-nowrap">Identifier <SortIcon field="identifier" /></th>
+                <th onClick={() => handleSort("areaCode")} className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 cursor-pointer hover:bg-muted hover:text-foreground transition-colors group whitespace-nowrap">Area Code <SortIcon field="areaCode" /></th>
+                <th onClick={() => handleSort("roles")} className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 cursor-pointer hover:bg-muted hover:text-foreground transition-colors group whitespace-nowrap">Access Roles <SortIcon field="roles" /></th>
+                <th onClick={() => handleSort("createdAt")} className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 cursor-pointer hover:bg-muted hover:text-foreground transition-colors group whitespace-nowrap">Member Since <SortIcon field="createdAt" /></th>
+                {isSuperAdmin && <th onClick={() => handleSort("appVersion")} className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 cursor-pointer hover:bg-muted hover:text-foreground transition-colors group whitespace-nowrap">App Version <SortIcon field="appVersion" /></th>}
+                {isSuperAdmin && <th onClick={() => handleSort("lastUsedAt")} className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 cursor-pointer hover:bg-muted hover:text-foreground transition-colors group whitespace-nowrap">Last Used At <SortIcon field="lastUsedAt" /></th>}
+                {isSuperAdmin && <th onClick={() => handleSort("platform")} className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 cursor-pointer hover:bg-muted hover:text-foreground transition-colors group whitespace-nowrap">Platform <SortIcon field="platform" /></th>}
                 <th className="px-4 md:px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-70 text-right">Actions</th>
               </tr>
             </thead>
