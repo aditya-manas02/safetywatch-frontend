@@ -102,6 +102,29 @@ const AppContent = () => {
   // --- Global Mobile State ---
   const [showGlobalReportForm, setShowGlobalReportForm] = useState(false);
 
+  // --- Modals Browser History Sync ---
+  const openGlobalReportForm = () => {
+    if (!showGlobalReportForm) {
+      window.history.pushState({ modalOpen: 'report' }, '');
+      setShowGlobalReportForm(true);
+    }
+  };
+
+  const closeGlobalReportForm = () => {
+    setShowGlobalReportForm(false);
+    if (window.history.state?.modalOpen === 'report') {
+      window.history.back();
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (showGlobalReportForm) setShowGlobalReportForm(false);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showGlobalReportForm]);
+
   const handleGlobalReportSubmit = async (report: any) => {
     let imageUrl: string | null = null;
     if (report.imageFile) {
@@ -130,9 +153,9 @@ const AppContent = () => {
       });
       if (!resp.ok) throw new Error("Failed to submit");
       toast({ title: "Success", description: "Incident reported successfully" });
-      setShowGlobalReportForm(false);
+      closeGlobalReportForm();
       
-      // Dispatch event to update home page if active
+      // Dispatch an event so components like DashboardStats can refetchtive
       window.dispatchEvent(new CustomEvent("report_submitted"));
     } catch (err: any) {
       throw err;
@@ -186,7 +209,7 @@ const AppContent = () => {
     checkPerms();
 
     // Listen for global open-report-form events
-    const handleOpenReport = () => setShowGlobalReportForm(true);
+    const handleOpenReport = () => openGlobalReportForm();
     window.addEventListener("open-report-form", handleOpenReport);
     
     return () => {
@@ -485,7 +508,7 @@ const AppContent = () => {
     const backListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
       // If the global report form is open, close it instead of exiting or going back
       if (showGlobalReportForm) {
-        setShowGlobalReportForm(false);
+        closeGlobalReportForm();
         return;
       }
 
@@ -697,22 +720,23 @@ const AppContent = () => {
       </Suspense>
       <ScrollToTop />
       
-      {!hideNavbar && (
-        <MobileBottomNav onReportClick={() => setShowGlobalReportForm(true)} />
+      {!isSuperAdmin && !maintenanceMode && (
+        <MobileBottomNav onReportClick={openGlobalReportForm} />
       )}
 
       {/* GLOBAL REPORT FORM */}
       <AnimatePresence>
         {showGlobalReportForm && (
           <motion.div
+            key="global-report-form"
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.96 }}
             transition={{ duration: 0.2 }}
-            className="z-[100]"
+            className="fixed inset-0 z-[100] md:flex md:items-center md:justify-center"
           >
             <ReportForm
-              onClose={() => setShowGlobalReportForm(false)}
+              onClose={closeGlobalReportForm}
               onSubmit={handleGlobalReportSubmit}
             />
           </motion.div>
