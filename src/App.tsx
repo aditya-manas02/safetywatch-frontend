@@ -483,6 +483,18 @@ const AppContent = () => {
   // Handle Hardware Back Button
   useEffect(() => {
     const backListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+      // If the global report form is open, close it instead of exiting or going back
+      if (showGlobalReportForm) {
+        setShowGlobalReportForm(false);
+        return;
+      }
+
+      // If an active SOS alert is open, close it
+      if (activeSOS) {
+        setActiveSOS(null);
+        return;
+      }
+
       // If we are on the text root path or auth page, ask to exit
       if (location.pathname === '/' || location.pathname === '/auth') {
         const confirmExit = window.confirm("Do you want to exit SafetyWatch?");
@@ -498,7 +510,7 @@ const AppContent = () => {
     return () => {
       backListener.then(handler => handler.remove());
     };
-  }, [location.pathname]);
+  }, [location.pathname, showGlobalReportForm, activeSOS]);
 
   // Loader is now handled by the parent App component to prevent "double loading"
   if (isLoading) {
