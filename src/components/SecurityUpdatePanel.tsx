@@ -60,6 +60,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
         // ROBUST WEB BYPASS: Official web domains and localhost are always allowed to bypass
         const isWebDomain = window.location.hostname.includes('vercel.app') ||
             window.location.hostname.includes('safetywatch.live') ||
+            window.location.hostname.includes('safetywatch.me') ||
             window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1';
 
