@@ -53,7 +53,7 @@ export default function Navbar() {
 
                     {user ? (
                         <>
-                            <div id="tour-notification-center">
+                            <div id="tour-notification-center-desktop">
                                 <NotificationCenter />
                             </div>
                             <Button
@@ -134,7 +134,11 @@ export default function Navbar() {
                 {/* Mobile Actions (No longer has hamburger) */}
                 <div className="flex md:hidden items-center gap-2">
                     <ThemeToggle />
-                    {user && <NotificationCenter />}
+                    {user && (
+                        <div id="tour-notification-center-mobile">
+                            <NotificationCenter />
+                        </div>
+                    )}
                 </div>
             </div>
         </header>

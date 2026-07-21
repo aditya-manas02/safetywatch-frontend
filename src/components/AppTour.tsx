@@ -133,6 +133,8 @@ export default function AppTour() {
   }, []);
 
   const buildSteps = useCallback((): Step[] => {
+    const isMobile = window.innerWidth < 768;
+
     const allSteps: Step[] = [
       {
         target: "body",
@@ -188,7 +190,7 @@ export default function AppTour() {
         placement: "right",
       },
       {
-        target: "#tour-notification-center",
+        target: isMobile ? "#tour-notification-center-mobile" : "#tour-notification-center-desktop",
         content: (
           <div>
             <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>🔔 Real-Time Alerts</h3>
@@ -199,18 +201,21 @@ export default function AppTour() {
         ),
         disableBeacon: true,
       },
-      {
-        target: "#tour-navbar-circles",
-        content: (
-          <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>👥 Private Circles</h3>
-            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
-              Safety is a team effort. Create or join exclusive Circles to coordinate privately with neighbors, your apartment building, or a local watch group.
-            </p>
-          </div>
-        ),
-        disableBeacon: true,
-      },
+      // Conditional desktop-only steps
+      ...(!isMobile ? [
+        {
+          target: "#tour-navbar-circles",
+          content: (
+            <div>
+              <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>👥 Private Circles</h3>
+              <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+                Safety is a team effort. Create or join exclusive Circles to coordinate privately with neighbors, your apartment building, or a local watch group.
+              </p>
+            </div>
+          ),
+          disableBeacon: true,
+        }
+      ] : []),
       {
         target: "#nearby-section",
         content: (
