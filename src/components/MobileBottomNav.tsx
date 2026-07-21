@@ -65,6 +65,7 @@ export default function MobileBottomNav({ onReportClick }: MobileBottomNavProps)
               return (
                 <button
                   key={tab.id}
+                  id="tour-report-btn-mobile"
                   onClick={() => handleTabClick(tab)}
                   className="relative -mt-5 flex flex-col items-center group"
                   aria-label={tab.label}

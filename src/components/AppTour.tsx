@@ -165,7 +165,7 @@ export default function AppTour() {
         placement: "bottom",
       },
       {
-        target: "#tour-report-btn",
+        target: isMobile ? "#tour-report-btn-mobile" : "#tour-report-btn-desktop",
         content: (
           <div>
             <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📝 Report & Protect</h3>
@@ -343,7 +343,7 @@ export default function AppTour() {
       continuous
       scrollToFirstStep
       showSkipButton
-      disableScrollParentFix={true}
+      disableScrollParentFix={false}
       disableOverlayClose
       scrollOffset={150}
       spotlightClicks={true}
