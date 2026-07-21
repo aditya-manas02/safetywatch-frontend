@@ -720,7 +720,7 @@ const AppContent = () => {
       </Suspense>
       <ScrollToTop />
       
-      {!isSuperAdmin && !maintenanceMode && (
+      {!maintenanceMode && !location.pathname.startsWith("/auth") && (
         <MobileBottomNav onReportClick={openGlobalReportForm} />
       )}
 
