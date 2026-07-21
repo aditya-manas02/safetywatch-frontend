@@ -138,11 +138,11 @@ export default function AppTour() {
         target: "body",
         content: (
           <div>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "8px", color: "hsl(var(--primary))" }}>
+            <h2 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "8px", color: "hsl(var(--primary))" }}>
               Welcome to SafetyWatch! 🛡️
             </h2>
-            <p style={{ fontSize: "0.85rem", opacity: 0.75, margin: 0 }}>
-              Let's take a quick tour of all the critical safety features available to keep you and your neighborhood safe.
+            <p style={{ fontSize: "0.9rem", opacity: 0.85, margin: 0, lineHeight: 1.5 }}>
+              Your ultimate community safety companion. Let's take a comprehensive tour of all the critical features designed to keep you and your neighborhood secure.
             </p>
           </div>
         ),
@@ -153,9 +153,9 @@ export default function AppTour() {
         target: "#tour-safety-pulse",
         content: (
           <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📡 Intelligence Feed</h3>
-            <p style={{ fontSize: "0.85rem", margin: 0 }}>
-              This live ticker constantly streams real-time security signals, incident alerts, and system status updates from the command center.
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📡 Live Intelligence Feed</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              This ticker constantly streams real-time security signals, incident alerts, and system status updates straight from the command center to keep you informed up-to-the-minute.
             </p>
           </div>
         ),
@@ -166,9 +166,9 @@ export default function AppTour() {
         target: "#tour-report-btn",
         content: (
           <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📝 Report Incidents</h3>
-            <p style={{ fontSize: "0.85rem", margin: 0 }}>
-              Click here to report suspicious activities, hazards, fires, or any safety concern. Your report is reviewed and shared with the community instantly.
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📝 Report & Protect</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              Notice something suspicious? A local hazard? Use this button to instantly report it. Your report will be quickly verified and broadcasted to alert the entire community.
             </p>
           </div>
         ),
@@ -178,9 +178,9 @@ export default function AppTour() {
         target: "#tour-guardian-mode",
         content: (
           <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px", color: "#ef4444" }}>🆘 Emergency SOS</h3>
-            <p style={{ fontSize: "0.85rem", margin: 0 }}>
-              <strong>Hold this button only in real emergencies.</strong> It instantly broadcasts your live GPS location to all nearby neighbors and authorities. Misuse is a serious offence.
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px", color: "#ef4444" }}>🆘 Guardian SOS</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              <strong>For extreme emergencies only.</strong> Activating this instantly broadcasts your live GPS coordinates to nearby neighbors and your registered emergency contacts via SMS & Telegram.
             </p>
           </div>
         ),
@@ -191,9 +191,9 @@ export default function AppTour() {
         target: "#tour-notification-center",
         content: (
           <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>🔔 Alerts & Notifications</h3>
-            <p style={{ fontSize: "0.85rem", margin: 0 }}>
-              Your personal notification center. Emergency broadcasts, SOS alerts, and all important safety updates appear here in real-time.
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>🔔 Real-Time Alerts</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              Your personal safety inbox. Emergency broadcasts, SOS alerts, direct messages from neighbors, and important local updates will all appear right here.
             </p>
           </div>
         ),
@@ -203,9 +203,9 @@ export default function AppTour() {
         target: "#tour-navbar-circles",
         content: (
           <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>👥 Community Circles</h3>
-            <p style={{ fontSize: "0.85rem", margin: 0 }}>
-              Create or join private Circles to coordinate with neighbors, apartment buildings, or local watch groups. Share alerts only with trusted members.
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>👥 Private Circles</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              Safety is a team effort. Create or join exclusive Circles to coordinate privately with neighbors, your apartment building, or a local watch group.
             </p>
           </div>
         ),
@@ -215,9 +215,21 @@ export default function AppTour() {
         target: "#nearby-section",
         content: (
           <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📍 Local Watch</h3>
-            <p style={{ fontSize: "0.85rem", margin: 0 }}>
-              Shows verified incidents reported within a 10km radius of your current location. Always stay aware of what is happening around you.
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📍 Local Watch Radar</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              Stay hyper-aware of your surroundings. This section dynamically filters and displays verified incidents reported within a 10km radius of your current location.
+            </p>
+          </div>
+        ),
+        disableBeacon: true,
+      },
+      {
+        target: "#popular-section",
+        content: (
+          <div>
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>🔥 Trending Alerts</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              Discover the most critical and highly-discussed safety issues in your wider area right now. Stay informed on what the community is focusing on.
             </p>
           </div>
         ),
@@ -227,9 +239,9 @@ export default function AppTour() {
         target: "#tour-heatmap",
         content: (
           <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>🗺️ Live Density Heatmap</h3>
-            <p style={{ fontSize: "0.85rem", margin: 0 }}>
-              Red zones indicate high incident activity. Use this interactive map to identify dangerous hotspots and plan safer routes in your area.
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>🗺️ Density Heatmap</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              A powerful visual tool. Glowing red zones highlight historical and active incident hotspots, helping you identify dangerous areas and plan the safest travel routes.
             </p>
           </div>
         ),
@@ -239,9 +251,9 @@ export default function AppTour() {
         target: "#tour-polls-widget",
         content: (
           <div>
-            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📊 Community Surveys</h3>
-            <p style={{ fontSize: "0.85rem", margin: 0 }}>
-              Participate in polls to help local authorities understand neighborhood safety concerns. Every vote shapes better community decisions.
+            <h3 style={{ fontWeight: 700, margin: "0 0 6px" }}>📊 Community Voice</h3>
+            <p style={{ fontSize: "0.9rem", margin: 0, opacity: 0.85, lineHeight: 1.5 }}>
+              Your opinion matters! Participate in safety polls and surveys. Your votes directly influence local authorities and help shape better neighborhood policies.
             </p>
           </div>
         ),
@@ -251,11 +263,11 @@ export default function AppTour() {
         target: "body",
         content: (
           <div>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "8px", color: "hsl(var(--primary))" }}>
+            <h2 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "8px", color: "hsl(var(--primary))" }}>
               You're all set! 🎉
             </h2>
-            <p style={{ fontSize: "0.85rem", opacity: 0.75, margin: 0 }}>
-              You can replay this tour anytime using the <strong>"App Tour"</strong> button in the menu. Stay safe and stay vigilant!
+            <p style={{ fontSize: "0.9rem", opacity: 0.85, margin: 0, lineHeight: 1.5 }}>
+              Remember, you can restart this tour anytime from the menu. Stay vigilant, stay connected, and let's keep our neighborhood safe together!
             </p>
           </div>
         ),
@@ -326,13 +338,13 @@ export default function AppTour() {
       continuous
       scrollToFirstStep
       showSkipButton
-      disableScrollParentFix={false}
+      disableScrollParentFix={true}
       disableOverlayClose
-      scrollOffset={120}
+      scrollOffset={150}
       spotlightClicks={true}
       tooltipComponent={ThemedTooltip}
       callback={handleJoyrideCallback}
-      floaterProps={{ disableAnimation: false }}
+      floaterProps={{ disableAnimation: true }}
       styles={{
         options: {
           primaryColor: "hsl(var(--primary))",
