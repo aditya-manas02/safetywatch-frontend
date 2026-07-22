@@ -23,7 +23,26 @@ import {
   HelpCircle,
   Vote,
   Smartphone,
-  Settings
+  Settings,
+  ThumbsUp,
+  Share2,
+  Bookmark,
+  Send,
+  PlusCircle,
+  Camera,
+  Lock,
+  Clock,
+  Zap,
+  Flame,
+  Activity,
+  Check,
+  CheckCircle,
+  X,
+  Copy,
+  Radio,
+  Eye,
+  Sliders,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,12 +63,6 @@ interface FeatureGuide {
     title: string;
     description: string;
   }[];
-  mockUI: {
-    type: string;
-    title: string;
-    subtitle?: string;
-    elements: { label: string; detail: string; highlight?: boolean; badge?: string }[];
-  };
   tips: string[];
 }
 
@@ -96,17 +109,6 @@ export default function HowToUse() {
           description: "Once safe, enter your secure PIN or tap 'Mark Myself Safe' to resolve the emergency alert."
         }
       ],
-      mockUI: {
-        type: "card",
-        title: "EMERGENCY SOS BROADCAST ACTIVE",
-        subtitle: "Live GPS Tracking Engaged • 5 Responders Notified",
-        elements: [
-          { label: "User Name", detail: "Alex Johnson (You)" },
-          { label: "Current Location", detail: "34.0522° N, 118.2437° W (Downtown Zone)", highlight: true },
-          { label: "Alert Dispatched To", detail: "Family Safety Circle & 12 Nearby Responders" },
-          { label: "Status", detail: "Broadcasting Live GPS Signal...", badge: "LIVE" }
-        ]
-      },
       tips: [
         "Make sure Location permissions are set to 'Always Allow' in your device settings for instant accurate GPS lock.",
         "Add at least 2 emergency contacts in your Safety Circles for guaranteed notifications."
@@ -149,17 +151,6 @@ export default function HowToUse() {
           description: "Turn on 'Post Anonymously' if you wish to remain hidden. Tap 'Submit Incident' to publish to the community map & feed."
         }
       ],
-      mockUI: {
-        type: "form",
-        title: "Report New Incident",
-        subtitle: "Help keep your neighborhood informed and safe",
-        elements: [
-          { label: "Category", detail: "Suspicious Activity", badge: "HIGH SEVERITY" },
-          { label: "Location", detail: "Main St & 4th Avenue (Pinned on Map)" },
-          { label: "Attachment", detail: "photo_evidence_01.jpg (Uploaded)", highlight: true },
-          { label: "Privacy Option", detail: "Post Anonymously: ON" }
-        ]
-      },
       tips: [
         "Include distinct landmarks or street names in your description for quick verification.",
         "Verified reports earn extra Safety Points for your achievement badges!"
@@ -197,17 +188,6 @@ export default function HowToUse() {
           description: "Click the 'Toggle Heatmap' switch on the top right of the map to render color-coded density zones showing high-incident areas."
         }
       ],
-      mockUI: {
-        type: "map",
-        title: "Safety Watch Interactive Map",
-        subtitle: "Showing 14 active incidents in your area",
-        elements: [
-          { label: "Active Filter", detail: "All Incidents (Last 24 Hours)" },
-          { label: "Heatmap Overlay", detail: "ENABLED (High-risk zones highlighted in red/orange)", highlight: true },
-          { label: "Selected Pin", detail: "Street Light Outage • 0.3 miles away" },
-          { label: "Safety Radius", detail: "2.5 km Monitoring Buffer Active" }
-        ]
-      },
       tips: [
         "Check the heatmap before planning late-night walks or travel routes to avoid high-risk zones.",
         "Zoom out to inspect neighboring area codes and city-wide trends."
@@ -250,16 +230,6 @@ export default function HowToUse() {
           description: "Once you arrive safely, tap 'I am Safe' to stop the timer. If the timer runs out without response, an automatic SOS alert triggers."
         }
       ],
-      mockUI: {
-        type: "timer",
-        title: "Guardian Escort Session Running",
-        subtitle: "Walk Home • 12:45 Remaining",
-        elements: [
-          { label: "Assigned Guardians", detail: "Mom, Sarah (Circle Members)" },
-          { label: "Check-in Status", detail: "Timer active • Countdown 12m 45s", highlight: true },
-          { label: "Safety Action", detail: "[I'M SAFE BUTTON] • Tap to complete session" }
-        ]
-      },
       tips: [
         "You can extend your session timer at any point during your trip if you run into delays.",
         "Keep your device volume turned up to hear check-in reminder chimes."
@@ -297,16 +267,6 @@ export default function HowToUse() {
           description: "Inside your circle, view member status updates, private incident pins, and direct group messages."
         }
       ],
-      mockUI: {
-        type: "circle",
-        title: "Oak Street Neighborhood Watch",
-        subtitle: "8 Active Members • Circle Code: SW-9842",
-        elements: [
-          { label: "Circle Admin", detail: "You (Creator)" },
-          { label: "Live Members", detail: "4 Members Online • 0 Active Alerts", highlight: true },
-          { label: "Quick Actions", detail: "Share Invite Code • Group Chat • Broadcast Alert" }
-        ]
-      },
       tips: [
         "Create separate circles for 'Family', 'Work Commute', and 'Neighborhood Block Watch'.",
         "Circle admins can remove members or generate new invite codes anytime."
@@ -344,16 +304,6 @@ export default function HowToUse() {
           description: "Add updates, advice, or warning notes in the comments section under any post."
         }
       ],
-      mockUI: {
-        type: "feed",
-        title: "Community Feed Stream",
-        subtitle: "Filtered by: Nearby (< 5km)",
-        elements: [
-          { label: "Report", detail: "Power Outage reported on 5th Street" },
-          { label: "Verification Score", detail: "98% Credibility (24 Upvotes)", highlight: true },
-          { label: "User Action", detail: "[Verify Report] • [Comment] • [Share]" }
-        ]
-      },
       tips: [
         "Only upvote reports that you have personally confirmed to maintain community accuracy.",
         "Bookmark posts to receive notification when the incident status changes to Resolved."
@@ -386,15 +336,6 @@ export default function HowToUse() {
           description: "The AI instantly generates step-by-step guidance, emergency phone numbers, or feature instructions tailored to your context."
         }
       ],
-      mockUI: {
-        type: "chat",
-        title: "SafetyWatch AI Copilot",
-        subtitle: "Online • Ready to assist",
-        elements: [
-          { label: "Query", detail: "'What should I do if I suspect someone is following me?'" },
-          { label: "AI Response", detail: "1. Head toward a well-lit, populated area.\n2. Do not go straight home.\n3. Call emergency services or activate SafetyWatch SOS.", highlight: true }
-        ]
-      },
       tips: [
         "Ask the AI copilot for immediate local emergency hotline numbers if you are traveling in another city."
       ]
@@ -426,15 +367,6 @@ export default function HowToUse() {
           description: "Go to Leaderboard to see top protective citizens in your area code and city."
         }
       ],
-      mockUI: {
-        type: "achievement",
-        title: "Citizen Guardian Profile",
-        subtitle: "Level 5 Guardian • 1,420 Safety Points",
-        elements: [
-          { label: "Active Badges", detail: "Community Shield 🛡️ • First Responder ⚡ • Eagle Eye 👁️" },
-          { label: "Leaderboard Rank", detail: "#3 in Neighborhood Block 4", highlight: true }
-        ]
-      },
       tips: [
         "Higher badge levels increase the visibility of your submitted safety reports to community moderators."
       ]
@@ -466,16 +398,6 @@ export default function HowToUse() {
           description: "Check percentage breakdowns and total vote counts submitted by verified area residents."
         }
       ],
-      mockUI: {
-        type: "poll",
-        title: "Active Neighborhood Poll",
-        subtitle: "Proposal: Install Night Streetlight on Elm St",
-        elements: [
-          { label: "Option A", detail: "Yes, Urgent Priority (78% Votes)", highlight: true },
-          { label: "Option B", detail: "No, Not Required (22% Votes)" },
-          { label: "Total Votes", detail: "142 Local Residents Voted" }
-        ]
-      },
       tips: [
         "Poll results are forwarded to local neighborhood committees to advocate for safety improvements."
       ]
@@ -502,15 +424,6 @@ export default function HowToUse() {
           description: "Go to Inbox (/inbox) to read official broadcast advisories and chat with Circle members."
         }
       ],
-      mockUI: {
-        type: "inbox",
-        title: "SafetyWatch Notification Center",
-        subtitle: "2 Unread Urgent Alerts",
-        elements: [
-          { label: "Emergency Alert", detail: "SOS Triggered by John Doe (0.4 miles away)", highlight: true },
-          { label: "System Advisory", detail: "Scheduled Patrol Notice for Tonight" }
-        ]
-      },
       tips: [
         "Enable mobile push notifications in device settings to receive critical emergency alerts even when the app is closed."
       ]
@@ -542,16 +455,6 @@ export default function HowToUse() {
           description: "Toggle between Dark Mode, Light Mode, or System theme using the moon/sun icon in the navbar."
         }
       ],
-      mockUI: {
-        type: "profile",
-        title: "User Profile & Security Settings",
-        subtitle: "Monitoring Area: Downtown (Code 90012)",
-        elements: [
-          { label: "Emergency Contact 1", detail: "+1 (555) 019-2834 (Verified)" },
-          { label: "Primary Zone", detail: "Downtown Sector 4", highlight: true },
-          { label: "App Theme", detail: "Dark Mode (Glassmorphic Interface)" }
-        ]
-      },
       tips: [
         "Keep your primary area code updated whenever you move or travel long-term to receive localized alerts."
       ]
@@ -583,15 +486,6 @@ export default function HowToUse() {
           description: "Fill in details and tap 'Send Ticket'. Our team responds via inbox or email."
         }
       ],
-      mockUI: {
-        type: "support",
-        title: "SafetyWatch Help Desk",
-        subtitle: "Response time: < 2 hours",
-        elements: [
-          { label: "Ticket Category", detail: "Feature Request / UI Feedback" },
-          { label: "Status", detail: "Ticket Submitted #SW-84920", highlight: true }
-        ]
-      },
       tips: [
         "Check our FAQ section first for quick resolution of common app questions."
       ]
@@ -620,6 +514,494 @@ export default function HowToUse() {
       return matchesCategory && matchesSearch;
     });
   }, [selectedCategory, searchQuery]);
+
+  // RENDER AUTHENTIC PIXEL-PERFECT COMPONENT MOCKUPS FOR EACH FEATURE
+  const renderRealUIMockup = (guideId: string) => {
+    switch (guideId) {
+      case "sos-emergency":
+        return (
+          <div className="bg-gradient-to-br from-red-950/80 via-slate-950 to-slate-900 border border-red-900/50 rounded-2xl p-6 shadow-2xl relative overflow-hidden space-y-6">
+            <div className="flex items-center justify-between border-b border-red-900/30 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                <span className="text-xs font-black tracking-widest uppercase text-red-400">
+                  SAFETYWATCH EMERGENCY SOS
+                </span>
+              </div>
+              <Badge className="bg-red-500/20 text-red-400 border-red-500/40 text-[10px] font-mono">
+                GPS LOCK: HIGH PRECISION
+              </Badge>
+            </div>
+
+            <div className="flex flex-col items-center justify-center py-4 space-y-4">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute -inset-4 bg-red-600/30 rounded-full blur-md animate-pulse" />
+                <button className="relative w-28 h-28 rounded-full bg-gradient-to-tr from-red-700 via-red-600 to-red-500 border-4 border-red-400/60 shadow-[0_0_40px_rgba(239,68,68,0.6)] flex flex-col items-center justify-center text-white cursor-pointer hover:scale-105 transition-transform">
+                  <ShieldAlert className="w-10 h-10 animate-bounce" />
+                  <span className="text-xs font-black tracking-wider mt-1">HOLD FOR SOS</span>
+                </button>
+              </div>
+              <div className="text-center space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-950 border border-red-800 text-red-300 text-xs font-bold font-mono">
+                  <Clock className="w-3.5 h-3.5 text-red-400" />
+                  <span>03s Safety Countdown Buffer</span>
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Location streaming automatically dispatches to 5 Circle Responders & Area Patrols
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/90 rounded-xl p-3.5 border border-slate-800 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-red-400" />
+                <span className="font-mono text-slate-200">34.0522° N, 118.2437° W (Downtown Sector)</span>
+              </div>
+              <Button size="sm" variant="outline" className="h-7 text-[11px] border-red-800 text-red-400 hover:bg-red-950">
+                Cancel SOS
+              </Button>
+            </div>
+          </div>
+        );
+
+      case "report-incident":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <PlusCircle className="w-5 h-5 text-amber-400" />
+                <span className="text-sm font-black tracking-tight text-white">Report Incident Modal</span>
+              </div>
+              <X className="w-4 h-4 text-slate-400 cursor-pointer" />
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                  Select Incident Category
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-2.5 rounded-xl bg-amber-500/20 border border-amber-500 text-amber-300 font-bold flex items-center gap-2 justify-center">
+                    <AlertTriangle className="w-4 h-4" /> Suspicious
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 font-bold flex items-center gap-2 justify-center">
+                    <ShieldAlert className="w-4 h-4" /> Crime
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 font-bold flex items-center gap-2 justify-center">
+                    <Flame className="w-4 h-4" /> Hazard
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                  Severity Level
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 font-bold">Low</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 font-bold">Medium</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black shadow-md">High</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 font-bold">Critical</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between text-slate-400">
+                  <span>Description & Details</span>
+                  <Camera className="w-4 h-4 text-amber-400" />
+                </div>
+                <div className="bg-slate-950 rounded-lg p-2.5 text-slate-300 italic font-sans border border-slate-800">
+                  "Unattended bag found near metro entrance on 4th street."
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-4 rounded-full bg-emerald-500/30 border border-emerald-500 relative flex items-center justify-end px-0.5">
+                    <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                  </div>
+                  <span className="font-semibold text-slate-300">Post Anonymously</span>
+                </div>
+                <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl px-5">
+                  Submit Incident →
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "live-map-heatmap":
+        return (
+          <div className="bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-2">
+                <Map className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-black text-white">Interactive Community Map</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-red-500/20 text-red-400 border-red-500/40 text-[10px]">
+                  🔥 Threat Heatmap: ON
+                </Badge>
+              </div>
+            </div>
+
+            {/* Simulated Map Canvas */}
+            <div className="relative h-44 rounded-xl bg-slate-900 border border-slate-800 overflow-hidden flex items-center justify-center">
+              {/* Map grid lines background */}
+              <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40" />
+
+              {/* Heatmap density overlay simulation */}
+              <div className="absolute w-32 h-32 rounded-full bg-red-600/30 blur-2xl top-4 left-12 pointer-events-none" />
+              <div className="absolute w-24 h-24 rounded-full bg-amber-500/30 blur-xl bottom-2 right-16 pointer-events-none" />
+
+              {/* Map Pins */}
+              <div className="absolute top-8 left-16 flex flex-col items-center group cursor-pointer">
+                <div className="px-2 py-0.5 rounded bg-red-600 text-white text-[9px] font-black shadow-lg">
+                  Armed Robbery (0.2 mi)
+                </div>
+                <MapPin className="w-6 h-6 text-red-500 fill-red-500 drop-shadow-md animate-bounce" />
+              </div>
+
+              <div className="absolute bottom-6 right-20 flex flex-col items-center group cursor-pointer">
+                <div className="px-2 py-0.5 rounded bg-amber-500 text-slate-950 text-[9px] font-black shadow-lg">
+                  Street Outage (0.5 mi)
+                </div>
+                <MapPin className="w-6 h-6 text-amber-500 fill-amber-500" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span>Map Filters: <strong className="text-slate-200">All (14 Nearby)</strong></span>
+              <span className="text-blue-400 font-bold hover:underline cursor-pointer">Zoom to My Location 📍</span>
+            </div>
+          </div>
+        );
+
+      case "guardian-mode":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-indigo-400" />
+                <span className="text-sm font-black text-white">Guardian Mode Escort Widget</span>
+              </div>
+              <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/40 text-[10px]">
+                SESSION ACTIVE
+              </Badge>
+            </div>
+
+            <div className="flex flex-col items-center py-2 space-y-3">
+              <div className="relative w-32 h-32 rounded-full border-4 border-indigo-500/30 flex flex-col items-center justify-center bg-indigo-950/40 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+                <Clock className="w-6 h-6 text-indigo-400 mb-1" />
+                <span className="text-2xl font-black font-mono text-white">14:52</span>
+                <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Remaining</span>
+              </div>
+
+              <div className="text-center space-y-1">
+                <div className="text-xs font-bold text-slate-300">Walking Home Solo • Destination: Elm St</div>
+                <div className="text-[11px] text-slate-400">Guardians Assigned: <strong>Mom, Sarah M.</strong></div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl py-5">
+                <CheckCircle className="w-4 h-4 mr-1.5" /> I'M SAFE - END SESSION
+              </Button>
+              <Button variant="outline" className="border-slate-800 text-slate-300 hover:bg-slate-900 font-bold text-xs rounded-xl py-5">
+                + Extend 5 Mins
+              </Button>
+            </div>
+          </div>
+        );
+
+      case "safety-circles":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm font-black text-white">Oak Street Neighborhood Watch</span>
+              </div>
+              <span className="text-xs font-mono font-bold bg-emerald-950 text-emerald-400 px-2.5 py-1 rounded-lg border border-emerald-800">
+                Code: SW-9842
+              </span>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                    AJ
+                  </div>
+                  <div>
+                    <div className="font-bold text-white">Alex Johnson (You)</div>
+                    <div className="text-[10px] text-emerald-400 font-semibold">● Location Stream Active</div>
+                  </div>
+                </div>
+                <Badge variant="outline" className="border-emerald-800 text-emerald-400 text-[10px]">Admin</Badge>
+              </div>
+
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+                    SM
+                  </div>
+                  <div>
+                    <div className="font-bold text-white">Sarah Miller</div>
+                    <div className="text-[10px] text-slate-400">Checked In (Home)</div>
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-400">Online</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 pt-1 text-[11px]">
+              <Button size="sm" variant="outline" className="border-slate-800 text-slate-300 hover:bg-slate-900 font-bold">
+                <Copy className="w-3.5 h-3.5 mr-1" /> Copy Code
+              </Button>
+              <Button size="sm" variant="outline" className="border-slate-800 text-slate-300 hover:bg-slate-900 font-bold">
+                <MessageSquare className="w-3.5 h-3.5 mr-1" /> Group Chat
+              </Button>
+              <Button size="sm" variant="outline" className="border-slate-800 text-emerald-400 hover:bg-emerald-950/40 font-bold">
+                <Radio className="w-3.5 h-3.5 mr-1" /> Member Map
+              </Button>
+            </div>
+          </div>
+        );
+
+      case "community-feed":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-xs">
+                  JD
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white flex items-center gap-1">
+                    John Citizen <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
+                  </div>
+                  <div className="text-[10px] text-slate-400">12 mins ago • 0.3 miles away</div>
+                </div>
+              </div>
+              <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/40 text-[10px]">
+                SUSPICIOUS ACTIVITY
+              </Badge>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <h4 className="font-bold text-white text-sm">Unattended Bag near Subway Entrance</h4>
+              <p className="text-slate-300 leading-relaxed">
+                Noticeable black backpack left unattended near Metro Gate B. Transit authority notified.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs text-slate-400">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-400 font-bold">
+                <ThumbsUp className="w-3.5 h-3.5" /> Verify (24)
+              </button>
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold">
+                <MessageSquare className="w-3.5 h-3.5" /> Comment (8)
+              </button>
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold">
+                <Bookmark className="w-3.5 h-3.5" /> Save
+              </button>
+            </div>
+          </div>
+        );
+
+      case "ai-copilot":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-5 border border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between bg-cyan-950/40 p-3 rounded-xl border border-cyan-900/40">
+              <div className="flex items-center gap-2">
+                <Bot className="w-5 h-5 text-cyan-400 animate-pulse" />
+                <span className="text-xs font-black text-white">SafetyWatch AI Security Copilot</span>
+              </div>
+              <span className="text-[10px] text-cyan-400 font-bold">● Online 24/7</span>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 text-slate-300 max-w-[85%]">
+                <span className="text-[10px] font-bold text-cyan-400 block mb-1">User Query:</span>
+                "What should I do if I suspect someone is following me?"
+              </div>
+
+              <div className="bg-cyan-950/30 rounded-xl p-3 border border-cyan-900/50 text-cyan-100 max-w-[90%] ml-auto space-y-1">
+                <span className="text-[10px] font-bold text-cyan-400 block">AI Copilot Response:</span>
+                <p>1. Head toward a well-lit, populated store or main street.</p>
+                <p>2. Activate SafetyWatch Guardian Mode or press SOS.</p>
+                <p>3. Do not go directly home.</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <Input placeholder="Ask AI anything..." className="h-8 text-xs bg-slate-900 border-slate-800 text-slate-200" />
+              <Button size="sm" className="h-8 px-3 bg-cyan-600 text-white font-bold">
+                <Send className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        );
+
+      case "gamification-leaderboard":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-amber-400" />
+                <span className="text-sm font-black text-white">Citizen Guardian Rank: #3</span>
+              </div>
+              <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/40 text-[10px]">
+                1,420 SAFETY POINTS
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800">
+                <Shield className="w-5 h-5 text-indigo-400 mx-auto mb-1" />
+                <div className="font-bold text-white text-[11px]">Community Shield</div>
+                <div className="text-[9px] text-slate-400">Level 3 Unlocked</div>
+              </div>
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800">
+                <Zap className="w-5 h-5 text-amber-400 mx-auto mb-1" />
+                <div className="font-bold text-white text-[11px]">First Responder</div>
+                <div className="text-[9px] text-slate-400">Level 2 Unlocked</div>
+              </div>
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800">
+                <Eye className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
+                <div className="font-bold text-white text-[11px]">Sentinel Watch</div>
+                <div className="text-[9px] text-slate-400">Level 4 Unlocked</div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "community-polls":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Vote className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm font-black text-white">Active Neighborhood Poll</span>
+              </div>
+              <span className="text-[10px] text-slate-400 font-bold">142 Votes Cast</span>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <h4 className="font-bold text-white">Proposal: Install Night Streetlights on Elm St?</h4>
+
+              <div className="space-y-2">
+                <div className="bg-slate-900 rounded-xl p-3 border border-emerald-500/50 relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 bg-emerald-500/20 w-[78%]" />
+                  <div className="relative flex justify-between font-bold text-emerald-300">
+                    <span>Option A: Yes, Urgent Priority</span>
+                    <span>78%</span>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 bg-slate-800/60 w-[22%]" />
+                  <div className="relative flex justify-between font-semibold text-slate-400">
+                    <span>Option B: No, Current Patrols Sufficient</span>
+                    <span>22%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "notifications-inbox":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-5 border border-slate-800 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <div className="flex items-center gap-2">
+                <Bell className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-black text-white">Notification Center (2 Unread)</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="bg-red-950/40 rounded-xl p-3 border border-red-900/40 flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-red-300">Emergency SOS Alert Triggered</div>
+                  <div className="text-[10px] text-slate-300">Sarah M. activated panic alert (0.4 mi away) • 2m ago</div>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-white">Incident Status Resolved</div>
+                  <div className="text-[10px] text-slate-400">Power Outage on 4th Ave marked resolved • 15m ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "profile-area-settings":
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <User className="w-5 h-5 text-slate-300" />
+                <span className="text-sm font-black text-white">Profile & Area Control</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase">Primary Monitoring Zone</div>
+                  <div className="font-bold text-white text-sm">Downtown Sector 4 (Code 90012)</div>
+                </div>
+                <Button size="sm" variant="outline" className="h-7 text-[11px] border-slate-800 text-slate-300">
+                  Change Area
+                </Button>
+              </div>
+
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase">Emergency Contact #1</div>
+                  <div className="font-bold text-emerald-400">+1 (555) 019-2834 (Verified)</div>
+                </div>
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              </div>
+            </div>
+          </div>
+        );
+
+      case "support-help":
+      default:
+        return (
+          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-green-400" />
+                <span className="text-sm font-black text-white">SafetyWatch Support Desk</span>
+              </div>
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/40 text-[10px]">
+                RESPONSE &lt; 2 HOURS
+              </Badge>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 space-y-1">
+                <div className="text-[10px] font-bold text-slate-400">Active Support Ticket:</div>
+                <div className="font-bold text-white">#SW-84920 - Feature Inquiry regarding Guardian Mode</div>
+                <div className="text-[10px] text-emerald-400">Status: Agent Reviewing • Ticket Submitted</div>
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
@@ -816,47 +1198,18 @@ export default function HowToUse() {
                       </div>
                     </div>
 
-                    {/* MOCK UI SCREENSHOT PREVIEW CARD */}
+                    {/* AUTHENTIC UI SCREENSHOT PREVIEW CARD */}
                     <div className="pt-4">
-                      <div className="bg-slate-950 text-slate-100 rounded-2xl p-5 md:p-6 border border-slate-800 shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 px-3 py-1 bg-primary/20 border-b border-l border-primary/30 text-primary text-[10px] font-black uppercase tracking-widest rounded-bl-xl">
-                          Visual UI Preview
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold px-1">
+                          <span className="flex items-center gap-1.5">
+                            <Smartphone className="w-4 h-4 text-primary" /> Visual UI Preview (Real Component View)
+                          </span>
+                          <span className="text-[10px] uppercase font-mono tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                            SafetyWatch UI System
+                          </span>
                         </div>
-
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <Smartphone className="w-4 h-4 text-primary" />
-                            <span className="text-xs font-bold tracking-wide uppercase text-slate-300">
-                              {guide.mockUI.title}
-                            </span>
-                          </div>
-                          {guide.mockUI.subtitle && (
-                            <p className="text-xs text-slate-400 italic">{guide.mockUI.subtitle}</p>
-                          )}
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                            {guide.mockUI.elements.map((el, idx) => (
-                              <div
-                                key={idx}
-                                className={`p-3 rounded-xl border text-xs ${
-                                  el.highlight
-                                    ? "bg-primary/20 border-primary/40 text-primary-foreground"
-                                    : "bg-slate-900/80 border-slate-800 text-slate-300"
-                                }`}
-                              >
-                                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-0.5">
-                                  <span>{el.label}</span>
-                                  {el.badge && (
-                                    <span className="px-1.5 py-0.2 bg-red-500 text-white rounded text-[9px] font-bold">
-                                      {el.badge}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="font-bold text-slate-100">{el.detail}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                        {renderRealUIMockup(guide.id)}
                       </div>
                     </div>
 
