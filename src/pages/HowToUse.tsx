@@ -42,11 +42,13 @@ import {
   Radio,
   Eye,
   Sliders,
-  ChevronRight
+  ChevronRight,
+  Volume2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface FeatureGuide {
@@ -77,8 +79,8 @@ export default function HowToUse() {
       category: "emergency",
       title: "Emergency SOS Alert (Safety Pulse)",
       badge: "Critical Feature",
-      badgeColor: "bg-red-500/10 text-red-500 border-red-500/30",
-      path: "Home Page / Floating Header / Global SOS Button",
+      badgeColor: "bg-destructive/10 text-destructive border-destructive/20",
+      path: "Home Page / Header / Global SOS Button",
       icon: ShieldAlert,
       overview:
         "The Emergency SOS Alert is your instant safety lifeline. When activated, it immediately captures your real-time GPS coordinates and dispatches high-priority panic alerts to your designated Safety Circles, emergency contacts, and registered community members within your area radius.",
@@ -119,7 +121,7 @@ export default function HowToUse() {
       category: "reporting",
       title: "Reporting Safety Incidents",
       badge: "Essential Community Tool",
-      badgeColor: "bg-amber-500/10 text-amber-500 border-amber-500/30",
+      badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
       path: "Navbar / Mobile Bottom Navigation (+) / Home Hero > Report Modal",
       icon: AlertTriangle,
       overview:
@@ -161,7 +163,7 @@ export default function HowToUse() {
       category: "reporting",
       title: "Live Community Map & Threat Heatmaps",
       badge: "Interactive Radar",
-      badgeColor: "bg-blue-500/10 text-blue-500 border-blue-500/30",
+      badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
       path: "Home Page > Interactive Safety Map",
       icon: Map,
       overview:
@@ -198,7 +200,7 @@ export default function HowToUse() {
       category: "emergency",
       title: "Guardian Mode (Virtual Escort & Route Safety)",
       badge: "Personal Protection",
-      badgeColor: "bg-indigo-500/10 text-indigo-500 border-indigo-500/30",
+      badgeColor: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30",
       path: "Home Page > Guardian Mode Widget",
       icon: Shield,
       overview:
@@ -240,7 +242,7 @@ export default function HowToUse() {
       category: "community",
       title: "Safety Circles (Private Groups)",
       badge: "Trusted Network",
-      badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/30",
+      badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
       path: "Navbar > Circles (/circles) or Profile Menu",
       icon: Users,
       overview:
@@ -277,7 +279,7 @@ export default function HowToUse() {
       category: "community",
       title: "Community Incident Feed & Verification",
       badge: "Real-Time Updates",
-      badgeColor: "bg-purple-500/10 text-purple-500 border-purple-500/30",
+      badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30",
       path: "Navbar > Feed (/feed) or Home Feed",
       icon: MessageSquare,
       overview:
@@ -314,7 +316,7 @@ export default function HowToUse() {
       category: "ai_gamification",
       title: "AI Safety Assistant (Security Copilot)",
       badge: "24/7 AI Guidance",
-      badgeColor: "bg-cyan-500/10 text-cyan-500 border-cyan-500/30",
+      badgeColor: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30",
       path: "Floating Shield Icon (Bottom Right of Screen)",
       icon: Bot,
       overview:
@@ -345,7 +347,7 @@ export default function HowToUse() {
       category: "ai_gamification",
       title: "Achievements, Badges & Community Leaderboard",
       badge: "Community Rewards",
-      badgeColor: "bg-amber-500/10 text-amber-500 border-amber-500/30",
+      badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
       path: "Profile > Achievements (/achievements) & Leaderboard (/leaderboard)",
       icon: Trophy,
       overview:
@@ -376,7 +378,7 @@ export default function HowToUse() {
       category: "community",
       title: "Community Safety Polls",
       badge: "Civic Voting",
-      badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/30",
+      badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
       path: "Home Page > Community Polls Widget",
       icon: Vote,
       overview:
@@ -407,7 +409,7 @@ export default function HowToUse() {
       category: "account",
       title: "Notification Center & Inbox Messages",
       badge: "Real-Time Alerts",
-      badgeColor: "bg-blue-500/10 text-blue-500 border-blue-500/30",
+      badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
       path: "Navbar > Bell Icon / Inbox (/inbox)",
       icon: Bell,
       overview:
@@ -433,7 +435,7 @@ export default function HowToUse() {
       category: "account",
       title: "Profile, Emergency Contacts & Area Selector",
       badge: "Account Control",
-      badgeColor: "bg-slate-500/10 text-slate-500 border-slate-500/30",
+      badgeColor: "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/30",
       path: "Navbar / Top Bar > Profile (/profile) & Area Selector",
       icon: User,
       overview:
@@ -464,7 +466,7 @@ export default function HowToUse() {
       category: "account",
       title: "Customer Support & Feedback",
       badge: "Direct Assistance",
-      badgeColor: "bg-green-500/10 text-green-500 border-green-500/30",
+      badgeColor: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30",
       path: "Navbar / Profile > Support (/support)",
       icon: HelpCircle,
       overview:
@@ -515,52 +517,52 @@ export default function HowToUse() {
     });
   }, [selectedCategory, searchQuery]);
 
-  // RENDER AUTHENTIC PIXEL-PERFECT COMPONENT MOCKUPS FOR EACH FEATURE
+  // RENDER AUTHENTIC SAFETYWATCH UI COMPONENTS MATCHING THE SYSTEM THEME
   const renderRealUIMockup = (guideId: string) => {
     switch (guideId) {
       case "sos-emergency":
         return (
-          <div className="bg-gradient-to-br from-red-950/80 via-slate-950 to-slate-900 border border-red-900/50 rounded-2xl p-6 shadow-2xl relative overflow-hidden space-y-6">
-            <div className="flex items-center justify-between border-b border-red-900/30 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 space-y-6 relative overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
                 <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
                 </span>
-                <span className="text-xs font-black tracking-widest uppercase text-red-400">
-                  SAFETYWATCH EMERGENCY SOS
+                <span className="text-xs font-black tracking-wider uppercase text-foreground">
+                  EMERGENCY SOS ALERT
                 </span>
               </div>
-              <Badge className="bg-red-500/20 text-red-400 border-red-500/40 text-[10px] font-mono">
-                GPS LOCK: HIGH PRECISION
+              <Badge variant="outline" className="text-[10px] font-bold border-primary/20 text-primary">
+                GPS LOCK: HIGH ACCURACY
               </Badge>
             </div>
 
             <div className="flex flex-col items-center justify-center py-4 space-y-4">
               <div className="relative flex items-center justify-center">
-                <div className="absolute -inset-4 bg-red-600/30 rounded-full blur-md animate-pulse" />
-                <button className="relative w-28 h-28 rounded-full bg-gradient-to-tr from-red-700 via-red-600 to-red-500 border-4 border-red-400/60 shadow-[0_0_40px_rgba(239,68,68,0.6)] flex flex-col items-center justify-center text-white cursor-pointer hover:scale-105 transition-transform">
+                <div className="absolute -inset-4 bg-destructive/20 rounded-full blur-md animate-pulse" />
+                <button className="relative w-28 h-28 rounded-full bg-gradient-to-tr from-destructive via-red-600 to-rose-500 border-4 border-background shadow-2xl shadow-destructive/40 flex flex-col items-center justify-center text-white cursor-pointer hover:scale-105 transition-transform">
                   <ShieldAlert className="w-10 h-10 animate-bounce" />
                   <span className="text-xs font-black tracking-wider mt-1">HOLD FOR SOS</span>
                 </button>
               </div>
               <div className="text-center space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-950 border border-red-800 text-red-300 text-xs font-bold font-mono">
-                  <Clock className="w-3.5 h-3.5 text-red-400" />
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted border border-border text-foreground text-xs font-bold font-mono">
+                  <Clock className="w-3.5 h-3.5 text-primary" />
                   <span>03s Safety Countdown Buffer</span>
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-muted-foreground">
                   Location streaming automatically dispatches to 5 Circle Responders & Area Patrols
                 </p>
               </div>
             </div>
 
-            <div className="bg-slate-900/90 rounded-xl p-3.5 border border-slate-800 flex items-center justify-between text-xs">
+            <div className="bg-muted/50 rounded-2xl p-3.5 border border-border/50 flex flex-wrap items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-red-400" />
-                <span className="font-mono text-slate-200">34.0522° N, 118.2437° W (Downtown Sector)</span>
+                <MapPin className="w-4 h-4 text-destructive" />
+                <span className="font-mono text-foreground font-semibold">34.0522° N, 118.2437° W (Downtown Sector)</span>
               </div>
-              <Button size="sm" variant="outline" className="h-7 text-[11px] border-red-800 text-red-400 hover:bg-red-950">
+              <Button size="sm" variant="outline" className="h-8 text-xs font-bold border-destructive/30 text-destructive hover:bg-destructive/10">
                 Cancel SOS
               </Button>
             </div>
@@ -569,51 +571,51 @@ export default function HowToUse() {
 
       case "report-incident":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-4">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
-                <PlusCircle className="w-5 h-5 text-amber-400" />
-                <span className="text-sm font-black tracking-tight text-white">Report Incident Modal</span>
+                <PlusCircle className="w-5 h-5 text-primary" />
+                <span className="text-sm font-black text-foreground">Report Incident Modal</span>
               </div>
-              <X className="w-4 h-4 text-slate-400 cursor-pointer" />
+              <X className="w-4 h-4 text-muted-foreground cursor-pointer" />
             </div>
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                  Select Incident Category
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block mb-2">
+                  Select Category
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="p-2.5 rounded-xl bg-amber-500/20 border border-amber-500 text-amber-300 font-bold flex items-center gap-2 justify-center">
+                  <div className="p-2.5 rounded-xl bg-primary/10 border border-primary text-primary font-bold flex items-center gap-2 justify-center">
                     <AlertTriangle className="w-4 h-4" /> Suspicious
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 font-bold flex items-center gap-2 justify-center">
+                  <div className="p-2.5 rounded-xl bg-muted/60 border border-border text-muted-foreground font-bold flex items-center gap-2 justify-center">
                     <ShieldAlert className="w-4 h-4" /> Crime
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 font-bold flex items-center gap-2 justify-center">
+                  <div className="p-2.5 rounded-xl bg-muted/60 border border-border text-muted-foreground font-bold flex items-center gap-2 justify-center">
                     <Flame className="w-4 h-4" /> Hazard
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
                   Severity Level
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 font-bold">Low</span>
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 font-bold">Medium</span>
-                  <span className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black shadow-md">High</span>
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 font-bold">Critical</span>
+                  <span className="px-3 py-1 rounded-xl bg-muted text-muted-foreground font-bold">Low</span>
+                  <span className="px-3 py-1 rounded-xl bg-muted text-muted-foreground font-bold">Medium</span>
+                  <span className="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shadow-sm">High</span>
+                  <span className="px-3 py-1 rounded-xl bg-muted text-muted-foreground font-bold">Critical</span>
                 </div>
               </div>
 
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 space-y-2">
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>Description & Details</span>
-                  <Camera className="w-4 h-4 text-amber-400" />
+              <div className="bg-muted/40 rounded-xl p-3 border border-border/50 space-y-2">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span className="font-semibold">Description & Details</span>
+                  <Camera className="w-4 h-4 text-primary" />
                 </div>
-                <div className="bg-slate-950 rounded-lg p-2.5 text-slate-300 italic font-sans border border-slate-800">
+                <div className="bg-background rounded-lg p-2.5 text-foreground italic border border-border">
                   "Unattended bag found near metro entrance on 4th street."
                 </div>
               </div>
@@ -621,11 +623,11 @@ export default function HowToUse() {
               <div className="flex items-center justify-between pt-1">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-4 rounded-full bg-emerald-500/30 border border-emerald-500 relative flex items-center justify-end px-0.5">
-                    <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
                   </div>
-                  <span className="font-semibold text-slate-300">Post Anonymously</span>
+                  <span className="font-semibold text-foreground">Post Anonymously</span>
                 </div>
-                <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl px-5">
+                <Button size="sm" className="bg-primary text-primary-foreground font-black rounded-xl px-5 h-9">
                   Submit Incident →
                 </Button>
               </div>
@@ -635,34 +637,31 @@ export default function HowToUse() {
 
       case "live-map-heatmap":
         return (
-          <div className="bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-5 space-y-4">
+            <div className="flex items-center justify-between bg-muted/50 p-3 rounded-2xl border border-border/50">
               <div className="flex items-center gap-2">
-                <Map className="w-4 h-4 text-blue-400" />
-                <span className="text-xs font-black text-white">Interactive Community Map</span>
+                <Map className="w-4 h-4 text-primary" />
+                <span className="text-xs font-black text-foreground">Live Interactive Safety Map</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge className="bg-red-500/20 text-red-400 border-red-500/40 text-[10px]">
-                  🔥 Threat Heatmap: ON
-                </Badge>
-              </div>
+              <Badge variant="outline" className="text-[10px] font-bold border-primary/20 text-primary">
+                🔥 Heatmap Overlay: ACTIVE
+              </Badge>
             </div>
 
             {/* Simulated Map Canvas */}
-            <div className="relative h-44 rounded-xl bg-slate-900 border border-slate-800 overflow-hidden flex items-center justify-center">
-              {/* Map grid lines background */}
-              <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40" />
+            <div className="relative h-44 rounded-2xl bg-muted/60 border border-border/60 overflow-hidden flex items-center justify-center">
+              <div className="absolute inset-0 bg-[radial-gradient(hsl(var(--muted-foreground)/0.2)_1px,transparent_1px)] [background-size:16px_16px]" />
 
-              {/* Heatmap density overlay simulation */}
-              <div className="absolute w-32 h-32 rounded-full bg-red-600/30 blur-2xl top-4 left-12 pointer-events-none" />
-              <div className="absolute w-24 h-24 rounded-full bg-amber-500/30 blur-xl bottom-2 right-16 pointer-events-none" />
+              {/* Heatmap overlay simulation */}
+              <div className="absolute w-32 h-32 rounded-full bg-destructive/20 blur-2xl top-4 left-12 pointer-events-none" />
+              <div className="absolute w-24 h-24 rounded-full bg-amber-500/20 blur-xl bottom-2 right-16 pointer-events-none" />
 
               {/* Map Pins */}
               <div className="absolute top-8 left-16 flex flex-col items-center group cursor-pointer">
-                <div className="px-2 py-0.5 rounded bg-red-600 text-white text-[9px] font-black shadow-lg">
+                <div className="px-2 py-0.5 rounded bg-destructive text-destructive-foreground text-[9px] font-black shadow-lg">
                   Armed Robbery (0.2 mi)
                 </div>
-                <MapPin className="w-6 h-6 text-red-500 fill-red-500 drop-shadow-md animate-bounce" />
+                <MapPin className="w-6 h-6 text-destructive fill-destructive drop-shadow-md animate-bounce" />
               </div>
 
               <div className="absolute bottom-6 right-20 flex flex-col items-center group cursor-pointer">
@@ -673,36 +672,36 @@ export default function HowToUse() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>Map Filters: <strong className="text-slate-200">All (14 Nearby)</strong></span>
-              <span className="text-blue-400 font-bold hover:underline cursor-pointer">Zoom to My Location 📍</span>
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Map Filters: <strong className="text-foreground">All Incidents (14 Active)</strong></span>
+              <span className="text-primary font-bold hover:underline cursor-pointer">Zoom to My Location 📍</span>
             </div>
           </div>
         );
 
       case "guardian-mode":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-5">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-indigo-400" />
-                <span className="text-sm font-black text-white">Guardian Mode Escort Widget</span>
+                <Shield className="w-5 h-5 text-indigo-500" />
+                <span className="text-sm font-black text-foreground">Guardian Mode Escort Widget</span>
               </div>
-              <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/40 text-[10px]">
+              <Badge className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 text-[10px] font-bold">
                 SESSION ACTIVE
               </Badge>
             </div>
 
             <div className="flex flex-col items-center py-2 space-y-3">
-              <div className="relative w-32 h-32 rounded-full border-4 border-indigo-500/30 flex flex-col items-center justify-center bg-indigo-950/40 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
-                <Clock className="w-6 h-6 text-indigo-400 mb-1" />
-                <span className="text-2xl font-black font-mono text-white">14:52</span>
-                <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Remaining</span>
+              <div className="relative w-32 h-32 rounded-full border-4 border-indigo-500/30 bg-indigo-500/10 flex flex-col items-center justify-center shadow-lg">
+                <Clock className="w-6 h-6 text-indigo-500 mb-1" />
+                <span className="text-2xl font-black font-mono text-foreground">14:52</span>
+                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Remaining</span>
               </div>
 
               <div className="text-center space-y-1">
-                <div className="text-xs font-bold text-slate-300">Walking Home Solo • Destination: Elm St</div>
-                <div className="text-[11px] text-slate-400">Guardians Assigned: <strong>Mom, Sarah M.</strong></div>
+                <div className="text-xs font-bold text-foreground">Walking Home Solo • Destination: Elm St</div>
+                <div className="text-[11px] text-muted-foreground">Guardians Assigned: <strong>Mom, Sarah M.</strong></div>
               </div>
             </div>
 
@@ -710,7 +709,7 @@ export default function HowToUse() {
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl py-5">
                 <CheckCircle className="w-4 h-4 mr-1.5" /> I'M SAFE - END SESSION
               </Button>
-              <Button variant="outline" className="border-slate-800 text-slate-300 hover:bg-slate-900 font-bold text-xs rounded-xl py-5">
+              <Button variant="outline" className="border-border text-foreground hover:bg-muted font-bold text-xs rounded-xl py-5">
                 + Extend 5 Mins
               </Button>
             </div>
@@ -719,53 +718,53 @@ export default function HowToUse() {
 
       case "safety-circles":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-4">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-emerald-400" />
-                <span className="text-sm font-black text-white">Oak Street Neighborhood Watch</span>
+                <Users className="w-5 h-5 text-emerald-500" />
+                <span className="text-sm font-black text-foreground">Oak Street Neighborhood Watch</span>
               </div>
-              <span className="text-xs font-mono font-bold bg-emerald-950 text-emerald-400 px-2.5 py-1 rounded-lg border border-emerald-800">
+              <span className="text-xs font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-lg border border-emerald-500/20">
                 Code: SW-9842
               </span>
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+              <div className="bg-muted/50 rounded-xl p-3 border border-border/50 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                     AJ
                   </div>
                   <div>
-                    <div className="font-bold text-white">Alex Johnson (You)</div>
-                    <div className="text-[10px] text-emerald-400 font-semibold">● Location Stream Active</div>
+                    <div className="font-bold text-foreground">Alex Johnson (You)</div>
+                    <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">● Location Stream Active</div>
                   </div>
                 </div>
-                <Badge variant="outline" className="border-emerald-800 text-emerald-400 text-[10px]">Admin</Badge>
+                <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px]">Admin</Badge>
               </div>
 
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+              <div className="bg-muted/50 rounded-xl p-3 border border-border/50 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
                     SM
                   </div>
                   <div>
-                    <div className="font-bold text-white">Sarah Miller</div>
-                    <div className="text-[10px] text-slate-400">Checked In (Home)</div>
+                    <div className="font-bold text-foreground">Sarah Miller</div>
+                    <div className="text-[10px] text-muted-foreground">Checked In (Home)</div>
                   </div>
                 </div>
-                <span className="text-[10px] text-slate-400">Online</span>
+                <span className="text-[10px] text-muted-foreground font-medium">Online</span>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2 pt-1 text-[11px]">
-              <Button size="sm" variant="outline" className="border-slate-800 text-slate-300 hover:bg-slate-900 font-bold">
+              <Button size="sm" variant="outline" className="border-border text-foreground hover:bg-muted font-bold">
                 <Copy className="w-3.5 h-3.5 mr-1" /> Copy Code
               </Button>
-              <Button size="sm" variant="outline" className="border-slate-800 text-slate-300 hover:bg-slate-900 font-bold">
+              <Button size="sm" variant="outline" className="border-border text-foreground hover:bg-muted font-bold">
                 <MessageSquare className="w-3.5 h-3.5 mr-1" /> Group Chat
               </Button>
-              <Button size="sm" variant="outline" className="border-slate-800 text-emerald-400 hover:bg-emerald-950/40 font-bold">
+              <Button size="sm" variant="outline" className="border-border text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 font-bold">
                 <Radio className="w-3.5 h-3.5 mr-1" /> Member Map
               </Button>
             </div>
@@ -774,39 +773,39 @@ export default function HowToUse() {
 
       case "community-feed":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-4">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-xs">
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400 font-bold flex items-center justify-center text-xs">
                   JD
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-white flex items-center gap-1">
-                    John Citizen <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
+                  <div className="text-xs font-bold text-foreground flex items-center gap-1">
+                    John Citizen <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
                   </div>
-                  <div className="text-[10px] text-slate-400">12 mins ago • 0.3 miles away</div>
+                  <div className="text-[10px] text-muted-foreground">12 mins ago • 0.3 miles away</div>
                 </div>
               </div>
-              <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/40 text-[10px]">
+              <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]">
                 SUSPICIOUS ACTIVITY
               </Badge>
             </div>
 
             <div className="space-y-2 text-xs">
-              <h4 className="font-bold text-white text-sm">Unattended Bag near Subway Entrance</h4>
-              <p className="text-slate-300 leading-relaxed">
+              <h4 className="font-bold text-foreground text-sm">Unattended Bag near Subway Entrance</h4>
+              <p className="text-muted-foreground leading-relaxed">
                 Noticeable black backpack left unattended near Metro Gate B. Transit authority notified.
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs text-slate-400">
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-400 font-bold">
+            <div className="flex items-center justify-between pt-2 border-t border-border/50 text-xs text-muted-foreground">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-emerald-600 dark:text-emerald-400 font-bold">
                 <ThumbsUp className="w-3.5 h-3.5" /> Verify (24)
               </button>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground font-bold">
                 <MessageSquare className="w-3.5 h-3.5" /> Comment (8)
               </button>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground font-bold">
                 <Bookmark className="w-3.5 h-3.5" /> Save
               </button>
             </div>
@@ -815,23 +814,23 @@ export default function HowToUse() {
 
       case "ai-copilot":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-5 border border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between bg-cyan-950/40 p-3 rounded-xl border border-cyan-900/40">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-5 text-foreground space-y-4">
+            <div className="flex items-center justify-between bg-primary/10 p-3 rounded-2xl border border-primary/20">
               <div className="flex items-center gap-2">
-                <Bot className="w-5 h-5 text-cyan-400 animate-pulse" />
-                <span className="text-xs font-black text-white">SafetyWatch AI Security Copilot</span>
+                <Bot className="w-5 h-5 text-primary animate-pulse" />
+                <span className="text-xs font-black text-foreground">SafetyWatch AI Security Copilot</span>
               </div>
-              <span className="text-[10px] text-cyan-400 font-bold">● Online 24/7</span>
+              <span className="text-[10px] text-primary font-bold">● Online 24/7</span>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 text-slate-300 max-w-[85%]">
-                <span className="text-[10px] font-bold text-cyan-400 block mb-1">User Query:</span>
+              <div className="bg-muted/60 rounded-2xl p-3 border border-border/50 text-foreground max-w-[85%]">
+                <span className="text-[10px] font-bold text-primary block mb-1">User Query:</span>
                 "What should I do if I suspect someone is following me?"
               </div>
 
-              <div className="bg-cyan-950/30 rounded-xl p-3 border border-cyan-900/50 text-cyan-100 max-w-[90%] ml-auto space-y-1">
-                <span className="text-[10px] font-bold text-cyan-400 block">AI Copilot Response:</span>
+              <div className="bg-primary/10 rounded-2xl p-3 border border-primary/20 text-foreground max-w-[90%] ml-auto space-y-1">
+                <span className="text-[10px] font-bold text-primary block">AI Copilot Response:</span>
                 <p>1. Head toward a well-lit, populated store or main street.</p>
                 <p>2. Activate SafetyWatch Guardian Mode or press SOS.</p>
                 <p>3. Do not go directly home.</p>
@@ -839,8 +838,8 @@ export default function HowToUse() {
             </div>
 
             <div className="flex items-center gap-2 pt-1">
-              <Input placeholder="Ask AI anything..." className="h-8 text-xs bg-slate-900 border-slate-800 text-slate-200" />
-              <Button size="sm" className="h-8 px-3 bg-cyan-600 text-white font-bold">
+              <Input placeholder="Ask AI anything..." className="h-9 text-xs bg-background border-border text-foreground" />
+              <Button size="sm" className="h-9 px-4 bg-primary text-primary-foreground font-bold rounded-xl">
                 <Send className="w-3.5 h-3.5" />
               </Button>
             </div>
@@ -849,32 +848,32 @@ export default function HowToUse() {
 
       case "gamification-leaderboard":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-4">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-amber-400" />
-                <span className="text-sm font-black text-white">Citizen Guardian Rank: #3</span>
+                <Trophy className="w-5 h-5 text-amber-500" />
+                <span className="text-sm font-black text-foreground">Citizen Guardian Rank: #3</span>
               </div>
-              <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/40 text-[10px]">
+              <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]">
                 1,420 SAFETY POINTS
               </Badge>
             </div>
 
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800">
-                <Shield className="w-5 h-5 text-indigo-400 mx-auto mb-1" />
-                <div className="font-bold text-white text-[11px]">Community Shield</div>
-                <div className="text-[9px] text-slate-400">Level 3 Unlocked</div>
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50">
+                <Shield className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
+                <div className="font-bold text-foreground text-[11px]">Community Shield</div>
+                <div className="text-[9px] text-muted-foreground">Level 3 Unlocked</div>
               </div>
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800">
-                <Zap className="w-5 h-5 text-amber-400 mx-auto mb-1" />
-                <div className="font-bold text-white text-[11px]">First Responder</div>
-                <div className="text-[9px] text-slate-400">Level 2 Unlocked</div>
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50">
+                <Zap className="w-5 h-5 text-amber-500 mx-auto mb-1" />
+                <div className="font-bold text-foreground text-[11px]">First Responder</div>
+                <div className="text-[9px] text-muted-foreground">Level 2 Unlocked</div>
               </div>
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800">
-                <Eye className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
-                <div className="font-bold text-white text-[11px]">Sentinel Watch</div>
-                <div className="text-[9px] text-slate-400">Level 4 Unlocked</div>
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50">
+                <Eye className="w-5 h-5 text-cyan-500 mx-auto mb-1" />
+                <div className="font-bold text-foreground text-[11px]">Sentinel Watch</div>
+                <div className="text-[9px] text-muted-foreground">Level 4 Unlocked</div>
               </div>
             </div>
           </div>
@@ -882,33 +881,33 @@ export default function HowToUse() {
 
       case "community-polls":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-4">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
-                <Vote className="w-5 h-5 text-emerald-400" />
-                <span className="text-sm font-black text-white">Active Neighborhood Poll</span>
+                <Vote className="w-5 h-5 text-emerald-500" />
+                <span className="text-sm font-black text-foreground">Active Neighborhood Poll</span>
               </div>
-              <span className="text-[10px] text-slate-400 font-bold">142 Votes Cast</span>
+              <span className="text-[10px] text-muted-foreground font-bold">142 Votes Cast</span>
             </div>
 
             <div className="space-y-3 text-xs">
-              <h4 className="font-bold text-white">Proposal: Install Night Streetlights on Elm St?</h4>
+              <h4 className="font-bold text-foreground">Proposal: Install Night Streetlights on Elm St?</h4>
 
               <div className="space-y-2">
-                <div className="bg-slate-900 rounded-xl p-3 border border-emerald-500/50 relative overflow-hidden">
-                  <div className="absolute left-0 top-0 bottom-0 bg-emerald-500/20 w-[78%]" />
-                  <div className="relative flex justify-between font-bold text-emerald-300">
+                <div className="bg-primary/5 rounded-2xl p-3 border border-primary/30 space-y-1">
+                  <div className="flex justify-between font-bold text-primary">
                     <span>Option A: Yes, Urgent Priority</span>
                     <span>78%</span>
                   </div>
+                  <Progress value={78} className="h-2" />
                 </div>
 
-                <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 relative overflow-hidden">
-                  <div className="absolute left-0 top-0 bottom-0 bg-slate-800/60 w-[22%]" />
-                  <div className="relative flex justify-between font-semibold text-slate-400">
+                <div className="bg-muted/40 rounded-2xl p-3 border border-border/50 space-y-1">
+                  <div className="flex justify-between font-semibold text-muted-foreground">
                     <span>Option B: No, Current Patrols Sufficient</span>
                     <span>22%</span>
                   </div>
+                  <Progress value={22} className="h-2" />
                 </div>
               </div>
             </div>
@@ -917,28 +916,28 @@ export default function HowToUse() {
 
       case "notifications-inbox":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-5 border border-slate-800 shadow-2xl space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-5 text-foreground space-y-3">
+            <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
               <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-blue-400" />
-                <span className="text-xs font-black text-white">Notification Center (2 Unread)</span>
+                <Bell className="w-4 h-4 text-primary" />
+                <span className="text-xs font-black text-foreground">Notification Center (2 Unread)</span>
               </div>
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="bg-red-950/40 rounded-xl p-3 border border-red-900/40 flex items-start gap-2.5">
-                <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="bg-destructive/10 rounded-2xl p-3 border border-destructive/20 flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-bold text-red-300">Emergency SOS Alert Triggered</div>
-                  <div className="text-[10px] text-slate-300">Sarah M. activated panic alert (0.4 mi away) • 2m ago</div>
+                  <div className="font-bold text-destructive">Emergency SOS Alert Triggered</div>
+                  <div className="text-[10px] text-muted-foreground">Sarah M. activated panic alert (0.4 mi away) • 2m ago</div>
                 </div>
               </div>
 
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50 flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-bold text-white">Incident Status Resolved</div>
-                  <div className="text-[10px] text-slate-400">Power Outage on 4th Ave marked resolved • 15m ago</div>
+                  <div className="font-bold text-foreground">Incident Status Resolved</div>
+                  <div className="text-[10px] text-muted-foreground">Power Outage on 4th Ave marked resolved • 15m ago</div>
                 </div>
               </div>
             </div>
@@ -947,31 +946,31 @@ export default function HowToUse() {
 
       case "profile-area-settings":
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-4">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
-                <User className="w-5 h-5 text-slate-300" />
-                <span className="text-sm font-black text-white">Profile & Area Control</span>
+                <User className="w-5 h-5 text-foreground" />
+                <span className="text-sm font-black text-foreground">Profile & Area Control</span>
               </div>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50 flex items-center justify-between">
                 <div>
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Primary Monitoring Zone</div>
-                  <div className="font-bold text-white text-sm">Downtown Sector 4 (Code 90012)</div>
+                  <div className="text-[10px] text-muted-foreground font-bold uppercase">Primary Monitoring Zone</div>
+                  <div className="font-bold text-foreground text-sm">Downtown Sector 4 (Code 90012)</div>
                 </div>
-                <Button size="sm" variant="outline" className="h-7 text-[11px] border-slate-800 text-slate-300">
+                <Button size="sm" variant="outline" className="h-8 text-xs font-bold border-border text-foreground">
                   Change Area
                 </Button>
               </div>
 
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50 flex items-center justify-between">
                 <div>
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Emergency Contact #1</div>
-                  <div className="font-bold text-emerald-400">+1 (555) 019-2834 (Verified)</div>
+                  <div className="text-[10px] text-muted-foreground font-bold uppercase">Emergency Contact #1</div>
+                  <div className="font-bold text-emerald-600 dark:text-emerald-400">+1 (555) 019-2834 (Verified)</div>
                 </div>
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
               </div>
             </div>
           </div>
@@ -980,22 +979,22 @@ export default function HowToUse() {
       case "support-help":
       default:
         return (
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-4">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <div className="flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-green-400" />
-                <span className="text-sm font-black text-white">SafetyWatch Support Desk</span>
+                <HelpCircle className="w-5 h-5 text-emerald-500" />
+                <span className="text-sm font-black text-foreground">SafetyWatch Support Desk</span>
               </div>
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/40 text-[10px]">
+              <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]">
                 RESPONSE &lt; 2 HOURS
               </Badge>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 space-y-1">
-                <div className="text-[10px] font-bold text-slate-400">Active Support Ticket:</div>
-                <div className="font-bold text-white">#SW-84920 - Feature Inquiry regarding Guardian Mode</div>
-                <div className="text-[10px] text-emerald-400">Status: Agent Reviewing • Ticket Submitted</div>
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50 space-y-1">
+                <div className="text-[10px] font-bold text-muted-foreground">Active Support Ticket:</div>
+                <div className="font-bold text-foreground">#SW-84920 - Feature Inquiry regarding Guardian Mode</div>
+                <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Status: Agent Reviewing • Ticket Submitted</div>
               </div>
             </div>
           </div>
@@ -1052,7 +1051,7 @@ export default function HowToUse() {
                 placeholder="Search any feature (e.g., 'SOS', 'Guardian', 'Circles', 'Report')..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-10 py-6 text-sm md:text-base rounded-2xl border-border/80 bg-card/80 backdrop-blur-md shadow-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                className="w-full pl-12 pr-10 py-6 text-sm md:text-base rounded-2xl border-border/80 bg-card/80 backdrop-blur-md shadow-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground"
               />
               {searchQuery && (
                 <button
@@ -1205,7 +1204,7 @@ export default function HowToUse() {
                           <span className="flex items-center gap-1.5">
                             <Smartphone className="w-4 h-4 text-primary" /> Visual UI Preview (Real Component View)
                           </span>
-                          <span className="text-[10px] uppercase font-mono tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                          <span className="text-[10px] uppercase font-mono tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
                             SafetyWatch UI System
                           </span>
                         </div>
