@@ -43,7 +43,14 @@ import {
   Eye,
   Sliders,
   ChevronRight,
-  Volume2
+  Volume2,
+  Download,
+  Settings2,
+  FileText,
+  UserCheck,
+  ShieldCheck,
+  Megaphone,
+  BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -77,312 +84,312 @@ export default function HowToUse() {
     {
       id: "sos-emergency",
       category: "emergency",
-      title: "Emergency SOS Alert (Safety Pulse)",
-      badge: "Critical Feature",
+      title: "Emergency SOS Alert (Safety Pulse & Global SOS)",
+      badge: "Critical Emergency Tool",
       badgeColor: "bg-destructive/10 text-destructive border-destructive/20",
-      path: "Home Page / Header / Global SOS Button",
+      path: "Home Page / Navbar / Global SOS Button",
       icon: ShieldAlert,
       overview:
-        "The Emergency SOS Alert is your instant safety lifeline. When activated, it immediately captures your real-time GPS coordinates and dispatches high-priority panic alerts to your designated Safety Circles, emergency contacts, and registered community members within your area radius.",
+        "The Emergency SOS Alert is your instant panic lifeline. Activating SOS locks onto your high-precision GPS coordinates, starts a 3-second safety countdown to prevent false alarms, and dispatches an urgent panic signal to your Safety Circles, emergency contacts, and nearby community members. A real-time Emergency SOS overlay modal appears instantly on nearby users' screens.",
       steps: [
         {
           number: 1,
           title: "Trigger the SOS Button",
-          description: "Tap and hold the prominent red 'SOS' button available in the app header or floating menu."
+          description: "Click and hold the prominent red 'SOS' panic button available in the top header or floating action bar."
         },
         {
           number: 2,
-          title: "Safety Countdown (3 Seconds)",
-          description: "A 3-second countdown window begins with loud haptic feedback. If pressed by mistake, tap 'Cancel' immediately."
+          title: "Safety Countdown Buffer (3s)",
+          description: "A 3-second countdown window begins with audio and haptic feedback. If triggered by mistake, tap 'Cancel SOS' immediately."
         },
         {
           number: 3,
-          title: "Automatic GPS & Data Capture",
-          description: "SafetyWatch locks onto your high-precision location coordinates and logs a live panic event."
+          title: "GPS Lock & Live Tracking Stream",
+          description: "SafetyWatch captures your exact latitude and longitude, initiating a live tracking broadcast for your emergency contacts."
         },
         {
           number: 4,
-          title: "Instant Circle & Push Broadcast",
-          description: "Your emergency contacts and Safety Circle members receive an urgent sound alert with a direct link to your live tracking stream."
+          title: "Circle & Area Push Alert Dispatched",
+          description: "Members of your Safety Circles and nearby users receive an urgent alert sound with a direct link to your live position map."
         },
         {
           number: 5,
-          title: "Resolution & Deactivation",
-          description: "Once safe, enter your secure PIN or tap 'Mark Myself Safe' to resolve the emergency alert."
+          title: "Deactivate & Mark Yourself Safe",
+          description: "Once safe, tap 'I AM SAFE - Deactivate SOS' on your screen to resolve the emergency alert."
         }
       ],
       tips: [
-        "Make sure Location permissions are set to 'Always Allow' in your device settings for instant accurate GPS lock.",
-        "Add at least 2 emergency contacts in your Safety Circles for guaranteed notifications."
+        "Ensure Location permissions are set to 'Always Allow' in your device settings for instant satellite GPS lock.",
+        "Add at least 2 trusted phone numbers under Profile > Emergency Contacts for guaranteed push/SMS notifications."
       ]
     },
     {
       id: "report-incident",
       category: "reporting",
       title: "Reporting Safety Incidents",
-      badge: "Essential Community Tool",
+      badge: "Community Watch",
       badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
       path: "Navbar / Mobile Bottom Navigation (+) / Home Hero > Report Modal",
       icon: AlertTriangle,
       overview:
-        "The Report Incident feature allows you to instantly notify your neighborhood about active safety concerns, suspicious activity, crimes, environmental hazards, or traffic accidents. Adding photo evidence and precise map tags helps protect fellow citizens.",
+        "Report active safety concerns, suspicious individuals, crimes, environmental hazards, fires, or medical emergencies directly to your neighborhood. Attach photo proof, tag exact map locations, and choose whether to post anonymously.",
       steps: [
         {
           number: 1,
-          title: "Open the Report Modal",
-          description: "Click the '+ Report' button on the mobile bottom navigation bar or desktop header."
+          title: "Open Report Modal",
+          description: "Click the '+ Report' button on the mobile bottom navigation bar or desktop top header."
         },
         {
           number: 2,
           title: "Select Category & Severity",
-          description: "Choose from Crime, Suspicious Activity, Traffic Hazard, Medical, Fire, or Lost & Found. Set severity to Low, Medium, High, or Critical."
+          description: "Choose from Crime, Suspicious Activity, Traffic Hazard, Medical Emergency, Fire, or Lost & Found. Set severity to Low, Medium, High, or Critical."
         },
         {
           number: 3,
-          title: "Describe & Attach Media",
-          description: "Type a clear title and description. Tap the camera icon to upload photo or video proof from your device."
+          title: "Describe & Attach Photo Evidence",
+          description: "Type a detailed description of what happened. Tap the camera icon to upload a photo or video proof attachment from your device."
         },
         {
           number: 4,
-          title: "Pin Exact Location",
-          description: "Select 'Use My Current Location' or drag the map pin directly to the exact location of the occurrence."
+          title: "Pin Location on Interactive Map",
+          description: "Tap 'Use Current Location' or drag the map pin marker to the exact street location of the incident."
         },
         {
           number: 5,
           title: "Toggle Anonymity & Submit",
-          description: "Turn on 'Post Anonymously' if you wish to remain hidden. Tap 'Submit Incident' to publish to the community map & feed."
+          description: "Enable 'Post Anonymously' if you wish to hide your name and avatar. Tap 'Submit Incident' to publish to the community map and feed."
         }
       ],
       tips: [
-        "Include distinct landmarks or street names in your description for quick verification.",
-        "Verified reports earn extra Safety Points for your achievement badges!"
+        "Provide landmark descriptions (e.g. 'Near Metro Station Exit B') for faster verification by neighbors.",
+        "Submitting accurate reports earns Safety Points toward your citizen achievement badges!"
       ]
     },
     {
       id: "live-map-heatmap",
       category: "reporting",
       title: "Live Community Map & Threat Heatmaps",
-      badge: "Interactive Radar",
+      badge: "Interactive Map",
       badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
-      path: "Home Page > Interactive Safety Map",
+      path: "Home Page > Live Safety Map Section",
       icon: Map,
       overview:
-        "The Live Community Map provides an interactive spatial overview of all active incidents, emergency alerts, and safety heatmaps around your current location or selected area code.",
+        "The Live Safety Map displays interactive Leaflet map markers for all active community incidents around your area code. Toggle the Threat Heatmap overlay to visualize color-coded density zones indicating high-risk crime concentration areas.",
       steps: [
         {
           number: 1,
-          title: "Access the Map",
+          title: "Locate the Interactive Map",
           description: "Scroll to the main map section on the Home page or tap the map tab."
         },
         {
           number: 2,
-          title: "Filter by Category",
-          description: "Use the filter buttons (All, Crimes, Hazards, Emergency) to view specific types of reports."
+          title: "Filter Map Markers",
+          description: "Use category filter pills (All Incidents, Crime, Hazards, Suspicious) to display specific report types."
         },
         {
           number: 3,
-          title: "Tap Pins for Details",
-          description: "Click any interactive marker on the map to see the incident popup card with description, photos, and time posted."
+          title: "Click Markers for Details",
+          description: "Click any interactive pin to open the incident details popup showing description, photo thumbnail, upvote count, and timestamp."
         },
         {
           number: 4,
           title: "Toggle Threat Heatmap Mode",
-          description: "Click the 'Toggle Heatmap' switch on the top right of the map to render color-coded density zones showing high-incident areas."
+          description: "Click the 'Toggle Heatmap' switch on the top right of the map to display gradient heat circles highlighting high-incident density zones."
         }
       ],
       tips: [
-        "Check the heatmap before planning late-night walks or travel routes to avoid high-risk zones.",
-        "Zoom out to inspect neighboring area codes and city-wide trends."
+        "Check the threat heatmap before leaving for evening commutes to avoid high-risk travel routes.",
+        "Zoom out to monitor security incidents in neighboring area codes."
       ]
     },
     {
       id: "guardian-mode",
       category: "emergency",
       title: "Guardian Mode (Virtual Escort & Route Safety)",
-      badge: "Personal Protection",
+      badge: "Personal Escort",
       badgeColor: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30",
-      path: "Home Page > Guardian Mode Widget",
+      path: "Home Page > Guardian Mode Card",
       icon: Shield,
       overview:
-        "Guardian Mode acts as your automated virtual escort. Perfect for solo night walks or rides home, it monitors your trip duration with a safety timer. If you fail to check in as safe before the timer expires, an emergency alert is automatically dispatched.",
+        "Guardian Mode acts as your personal virtual escort during solo night walks or travel. Set a countdown timer for your trip. If you fail to check in as safe before the timer expires, SafetyWatch automatically triggers an emergency SOS alert to your selected Guardians.",
       steps: [
         {
           number: 1,
-          title: "Open Guardian Mode Widget",
-          description: "Locate the Guardian Mode card on the home dashboard or tap the floating Guardian icon."
+          title: "Open Guardian Mode Card",
+          description: "Find the Guardian Mode widget on the home page or tap the Guardian icon."
         },
         {
           number: 2,
-          title: "Set Estimated Duration",
-          description: "Choose your expected travel time (e.g. 15 mins, 30 mins, or custom duration)."
+          title: "Set Travel Duration",
+          description: "Select your estimated journey duration (15 mins, 30 mins, 1 hour, or custom)."
         },
         {
           number: 3,
-          title: "Select Guardian Contacts",
-          description: "Choose trusted members from your Safety Circles who will monitor your session."
+          title: "Assign Circle Guardians",
+          description: "Select trusted members from your Safety Circles who will monitor your session status."
         },
         {
           number: 4,
-          title: "Start Session",
-          description: "Tap 'Start Guardian Session'. The countdown timer begins running safely in the background."
+          title: "Start Guardian Session",
+          description: "Tap 'Start Guardian Session'. The safety countdown timer begins running in the background."
         },
         {
           number: 5,
           title: "Safe Check-In",
-          description: "Once you arrive safely, tap 'I am Safe' to stop the timer. If the timer runs out without response, an automatic SOS alert triggers."
+          description: "Upon safe arrival, tap 'I'm Safe - End Session'. If the timer reaches zero without response, an automatic SOS panic alert is dispatched."
         }
       ],
       tips: [
-        "You can extend your session timer at any point during your trip if you run into delays.",
-        "Keep your device volume turned up to hear check-in reminder chimes."
+        "Tap '+ Extend 5 Mins' at any time during your walk if you run into traffic or unexpected delays.",
+        "Make sure device volume is turned up to hear check-in reminder chimes."
       ]
     },
     {
       id: "safety-circles",
       category: "community",
-      title: "Safety Circles (Private Groups)",
+      title: "Safety Circles (Private Groups & Invite Codes)",
       badge: "Trusted Network",
       badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
-      path: "Navbar > Circles (/circles) or Profile Menu",
+      path: "Navbar > Circles (/circles) & Circle Details (/circles/:id)",
       icon: Users,
       overview:
-        "Safety Circles allow you to form private networks with family, housemates, or trusted neighbors. Circle members can share live location streams, send direct emergency broadcasts, and communicate in private group channels.",
+        "Safety Circles allow you to form private networks with family, housemates, or neighborhood watch members. Circle members can view each other's live location on a private map, chat in group channels, and send direct circle emergency broadcasts.",
       steps: [
         {
           number: 1,
           title: "Navigate to Circles Page",
-          description: "Click 'Circles' in the main navbar or profile dashboard."
+          description: "Click 'Circles' in the main navbar or profile Quick Actions."
         },
         {
           number: 2,
           title: "Create or Join Circle",
-          description: "Click 'Create Circle' and set a name (e.g. 'Family Watch') OR click 'Join Circle' and enter a 6-digit invite code."
+          description: "Click 'Create Circle' and enter a name (e.g. 'Oak Street Watch') OR click 'Join Circle' and paste a 6-digit invite code."
         },
         {
           number: 3,
-          title: "Invite Trusted Members",
-          description: "Copy your unique Circle invite code or link and send it via text/WhatsApp to trusted friends and family."
+          title: "Share Invite Code",
+          description: "Copy your unique 6-digit Circle Code (e.g. `SW-9842`) and share it with family members via SMS or WhatsApp."
         },
         {
           number: 4,
-          title: "Access Circle Feed & Live Map",
-          description: "Inside your circle, view member status updates, private incident pins, and direct group messages."
+          title: "Access Circle Feed, Chat & Member Map",
+          description: "Inside your circle details page, view member online status, private group chat, and circle live member map."
         }
       ],
       tips: [
-        "Create separate circles for 'Family', 'Work Commute', and 'Neighborhood Block Watch'.",
-        "Circle admins can remove members or generate new invite codes anytime."
+        "Create separate circles for 'Family', 'Apartment Building', and 'Workplace'.",
+        "Circle creators can manage member permissions or generate new invite codes anytime."
       ]
     },
     {
       id: "community-feed",
       category: "community",
-      title: "Community Incident Feed & Verification",
-      badge: "Real-Time Updates",
+      title: "Community Incident Feed & Real-Time Discussions",
+      badge: "Live Feed",
       badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30",
       path: "Navbar > Feed (/feed) or Home Feed",
       icon: MessageSquare,
       overview:
-        "The Community Feed is a chronological stream of safety reports posted by citizens in your area. Users can verify authenticity, leave comments, upvote helpful posts, and bookmark important safety alerts.",
+        "The Community Feed displays a real-time stream of security reports filed in your area. Confirm credibility by upvoting/verifying reports, leave updates in the comment drawer, and bookmark important posts.",
       steps: [
         {
           number: 1,
-          title: "Open the Community Feed",
-          description: "Tap 'Feed' in the navbar or bottom mobile bar."
+          title: "Open Community Feed",
+          description: "Tap 'Feed' in the navbar or mobile bottom navigation bar."
         },
         {
           number: 2,
           title: "Filter Feed Content",
-          description: "Switch between 'Nearby (< 5km)', 'All Area Reports', and 'Verified Incidents'."
+          description: "Filter posts by Area Code, 'Nearby (< 5km)', or 'Verified Only'."
         },
         {
           number: 3,
           title: "Verify / Upvote Reports",
-          description: "If you witnessed or can confirm a report, tap the 'Verify / Upvote' button to increase its credibility score."
+          description: "If you witnessed or can confirm a report, tap 'Verify / Upvote' to increase its credibility score."
         },
         {
           number: 4,
           title: "Comment & Discuss",
-          description: "Add updates, advice, or warning notes in the comments section under any post."
+          description: "Click 'Comment' to open the live incident chat drawer and leave helpful safety notes or status updates."
         }
       ],
       tips: [
-        "Only upvote reports that you have personally confirmed to maintain community accuracy.",
-        "Bookmark posts to receive notification when the incident status changes to Resolved."
+        "Only upvote reports you have verified to maintain high community trust.",
+        "Bookmark posts to receive automatic notifications when an incident is marked 'Resolved'."
       ]
     },
     {
       id: "ai-copilot",
       category: "ai_gamification",
       title: "AI Safety Assistant (Security Copilot)",
-      badge: "24/7 AI Guidance",
+      badge: "24/7 AI Assistance",
       badgeColor: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30",
-      path: "Floating Shield Icon (Bottom Right of Screen)",
+      path: "Floating Shield Chat Icon (Bottom Right Corner)",
       icon: Bot,
       overview:
-        "The AI Safety Assistant is an intelligent security copilot available 24/7. Ask questions about safety procedures, emergency protocols, app navigation, or local risk summaries.",
+        "The AI Safety Assistant is an intelligent security copilot available 24/7 at the bottom right of your screen. Ask questions about emergency procedures, local risk advice, app navigation, or self-defense protocols.",
       steps: [
         {
           number: 1,
-          title: "Open Chat Assistant",
-          description: "Click the floating blue Shield Chat button located at the bottom-right of your screen."
+          title: "Click Floating AI Button",
+          description: "Tap the floating blue Shield Chat button on the bottom right of any screen."
         },
         {
           number: 2,
-          title: "Select or Type Question",
-          description: "Pick from suggested quick queries or type any custom safety question into the prompt box."
+          title: "Select Prompt or Type Query",
+          description: "Select suggested quick queries (e.g., 'Night Walk Checklist') or type any safety question."
         },
         {
           number: 3,
-          title: "Receive Instant Advice",
-          description: "The AI instantly generates step-by-step guidance, emergency phone numbers, or feature instructions tailored to your context."
+          title: "Receive Instant AI Guidance",
+          description: "The AI copilot generates step-by-step emergency advice, hotline numbers, or feature navigation instructions."
         }
       ],
       tips: [
-        "Ask the AI copilot for immediate local emergency hotline numbers if you are traveling in another city."
+        "Ask the AI copilot for immediate local emergency hotline numbers if traveling in another city."
       ]
     },
     {
       id: "gamification-leaderboard",
       category: "ai_gamification",
-      title: "Achievements, Badges & Community Leaderboard",
-      badge: "Community Rewards",
+      title: "Gamification, Achievements & Community Leaderboard",
+      badge: "Citizen Rewards",
       badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
       path: "Profile > Achievements (/achievements) & Leaderboard (/leaderboard)",
       icon: Trophy,
       overview:
-        "SafetyWatch rewards active community guardians! Earn Safety Points by submitting accurate reports, verifying posts, and completing Guardian check-ins. Level up your profile and climb the civic leaderboard.",
+        "Earn Safety Points by reporting valid incidents, verifying reports, and completing Guardian check-ins. Unlock achievement badges and compete on the area leaderboard.",
       steps: [
         {
           number: 1,
           title: "Earn Safety Points",
-          description: "Perform positive community safety actions to earn points automatically."
+          description: "Perform helpful security actions across the app to earn points automatically."
         },
         {
           number: 2,
           title: "Unlock Achievement Badges",
-          description: "Visit Profile > Achievements to claim badges like 'First Responder', 'Shield Master', and 'Sentinel Watch'."
+          description: "Visit Profile > Achievements to claim badges like 'First Responder', 'Community Sentinel', and 'Master Verifier'."
         },
         {
           number: 3,
           title: "View Community Leaderboard",
-          description: "Go to Leaderboard to see top protective citizens in your area code and city."
+          description: "Go to Leaderboard to view rankings of top protective citizens in your area code and city."
         }
       ],
       tips: [
-        "Higher badge levels increase the visibility of your submitted safety reports to community moderators."
+        "Unlocking higher achievement badges increases your report visibility score for moderators."
       ]
     },
     {
       id: "community-polls",
       category: "community",
-      title: "Community Safety Polls",
-      badge: "Civic Voting",
+      title: "Community Safety Polls (Civic Voting)",
+      badge: "Neighborhood Voting",
       badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
       path: "Home Page > Community Polls Widget",
       icon: Vote,
       overview:
-        "Vote on local neighborhood security decisions, such as requesting extra streetlights, organizing volunteer patrols, or suggesting camera placements.",
+        "Vote on local neighborhood security decisions, such as requesting extra streetlights, organizing volunteer patrols, or recommending camera installations.",
       steps: [
         {
           number: 1,
@@ -396,21 +403,21 @@ export default function HowToUse() {
         },
         {
           number: 3,
-          title: "View Real-Time Results",
-          description: "Check percentage breakdowns and total vote counts submitted by verified area residents."
+          title: "View Percentage Results",
+          description: "View real-time voting progress bars and total participant counts from verified area residents."
         }
       ],
       tips: [
-        "Poll results are forwarded to local neighborhood committees to advocate for safety improvements."
+        "Poll results are forwarded to neighborhood committees to advocate for security improvements."
       ]
     },
     {
       id: "notifications-inbox",
       category: "account",
       title: "Notification Center & Inbox Messages",
-      badge: "Real-Time Alerts",
+      badge: "Real-Time Notifications",
       badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
-      path: "Navbar > Bell Icon / Inbox (/inbox)",
+      path: "Navbar > Bell Icon & Messages Inbox (/inbox)",
       icon: Bell,
       overview:
         "Stay informed with real-time push alerts, emergency notifications, circle invitations, and direct messaging.",
@@ -418,12 +425,12 @@ export default function HowToUse() {
         {
           number: 1,
           title: "Notification Bell Tray",
-          description: "Click the bell icon on the top header to view unread emergency notifications and incident alerts."
+          description: "Click the bell icon on the top header to view unread emergency notifications and incident updates."
         },
         {
           number: 2,
           title: "Messages Inbox",
-          description: "Go to Inbox (/inbox) to read official broadcast advisories and chat with Circle members."
+          description: "Navigate to Inbox (/inbox) to view official security announcements and circle group messages."
         }
       ],
       tips: [
@@ -433,27 +440,27 @@ export default function HowToUse() {
     {
       id: "profile-area-settings",
       category: "account",
-      title: "Profile, Emergency Contacts & Area Selector",
+      title: "Profile, Emergency Contacts & Area Code Selector",
       badge: "Account Control",
       badgeColor: "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/30",
-      path: "Navbar / Top Bar > Profile (/profile) & Area Selector",
+      path: "Navbar / Top Header > Profile (/profile) & Area Selector",
       icon: User,
       overview:
-        "Manage your personal profile settings, emergency contact phone numbers, primary monitoring area code, and theme customization.",
+        "Manage your personal profile details, emergency contact phone numbers, primary neighborhood area code, and theme settings.",
       steps: [
         {
           number: 1,
           title: "Set Primary Area Code",
-          description: "Use the Area Selector dropdown at the top header to select your home neighborhood postal zone."
+          description: "Use the Area Selector dropdown at the top header to choose your home neighborhood postal zone."
         },
         {
           number: 2,
           title: "Update Emergency Contacts",
-          description: "Navigate to Profile (/profile) to enter trusted family phone numbers for SMS/push alerts."
+          description: "Go to Profile (/profile) to add trusted family phone numbers for instant emergency alerts."
         },
         {
           number: 3,
-          title: "Custom Theme Settings",
+          title: "Custom Theme Customization",
           description: "Toggle between Dark Mode, Light Mode, or System theme using the moon/sun icon in the navbar."
         }
       ],
@@ -462,10 +469,41 @@ export default function HowToUse() {
       ]
     },
     {
+      id: "admin-moderation",
+      category: "account",
+      title: "Admin Dashboard & Security Panel (Admins Only)",
+      badge: "Admin Moderation",
+      badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30",
+      path: "Navbar > Admin Panel (/admin) [Visible for Admin accounts]",
+      icon: Settings2,
+      overview:
+        "Comprehensive moderation panel for community admins to verify reports, issue emergency broadcasts, suspend malicious users, create community polls, and manage security content.",
+      steps: [
+        {
+          number: 1,
+          title: "Access Admin Dashboard",
+          description: "Click 'Admin Panel' in the top navbar (available only for verified admin accounts)."
+        },
+        {
+          number: 2,
+          title: "Moderate Reports",
+          description: "Review submitted incidents, approve verified posts, reject false reports, or elevate to 'Emergency Broadcast'."
+        },
+        {
+          number: 3,
+          title: "User & Area Management",
+          description: "Suspend abusive accounts, manage neighborhood area codes, create civic polls, and view audit logs."
+        }
+      ],
+      tips: [
+        "Admins can issue high-priority push notifications to all users registered in an area code during active emergencies."
+      ]
+    },
+    {
       id: "support-help",
       category: "account",
-      title: "Customer Support & Feedback",
-      badge: "Direct Assistance",
+      title: "Customer Support & Direct Help Desk",
+      badge: "Help Desk",
       badgeColor: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30",
       path: "Navbar / Profile > Support (/support)",
       icon: HelpCircle,
@@ -480,12 +518,12 @@ export default function HowToUse() {
         {
           number: 2,
           title: "Choose Inquiry Type",
-          description: "Select Bug Report, Feature Suggestion, or Account Assistance."
+          description: "Select Bug Report, Feature Suggestion, Account Help, or Safety Concern."
         },
         {
           number: 3,
           title: "Submit Ticket",
-          description: "Fill in details and tap 'Send Ticket'. Our team responds via inbox or email."
+          description: "Fill in details and tap 'Send Ticket'. Track response status directly on your support page."
         }
       ],
       tips: [
@@ -971,6 +1009,51 @@ export default function HowToUse() {
                   <div className="font-bold text-emerald-600 dark:text-emerald-400">+1 (555) 019-2834 (Verified)</div>
                 </div>
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              </div>
+            </div>
+          </div>
+        );
+
+      case "admin-moderation":
+        return (
+          <div className="bg-card border border-border/60 shadow-xl rounded-3xl p-6 text-foreground space-y-4">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
+              <div className="flex items-center gap-2">
+                <Settings2 className="w-5 h-5 text-purple-500" />
+                <span className="text-sm font-black text-foreground">Admin Security & Moderation Panel</span>
+              </div>
+              <Badge className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30 text-[10px]">
+                ADMIN PRIVILEGES ACTIVE
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50">
+                <div className="text-lg font-black text-primary">3</div>
+                <div className="text-[10px] text-muted-foreground">Pending Reports</div>
+              </div>
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50">
+                <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">18</div>
+                <div className="text-[10px] text-muted-foreground">Verified Today</div>
+              </div>
+              <div className="bg-muted/50 rounded-2xl p-3 border border-border/50">
+                <div className="text-lg font-black text-purple-500">99.9%</div>
+                <div className="text-[10px] text-muted-foreground">System Uptime</div>
+              </div>
+            </div>
+
+            <div className="bg-muted/40 rounded-2xl p-3 border border-border/50 text-xs flex items-center justify-between">
+              <div>
+                <span className="font-bold text-foreground block">Report #8492 - Suspicious Vehicle</span>
+                <span className="text-[10px] text-muted-foreground">Submitted 5m ago • Pending Review</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Button size="sm" className="h-7 text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5">
+                  Approve
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 text-[11px] border-destructive/30 text-destructive hover:bg-destructive/10 px-2.5">
+                  Reject
+                </Button>
               </div>
             </div>
           </div>
