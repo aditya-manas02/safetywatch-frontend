@@ -23,7 +23,6 @@ import { AreaCodeSelector } from "./components/AreaCodeSelector";
 import { SuspensionModal } from "./components/SuspensionModal";
 import { Megaphone, X, Bell, ShieldAlert } from "lucide-react";
 import SOSAlert from "./components/SOSAlert";
-import AppTour from "./components/AppTour";
 import ScrollToTop from "./components/ScrollToTop";
 import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
@@ -71,6 +70,7 @@ const CircleDetails = lazyWithRetry(() => import("./pages/CircleDetails"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 const Maintenance = lazyWithRetry(() => import("./pages/Maintenance"));
 const FeedPage = lazyWithRetry(() => import("./pages/FeedPage"));
+const HowToUse = lazyWithRetry(() => import("./pages/HowToUse"));
 
 
 
@@ -708,6 +708,7 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="/how-to-use" element={<HowToUse />} />
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -900,7 +901,6 @@ const App = () => {
         </QueryClientProvider>
         <Toaster />
         <Sonner />
-        <AppTour />
         <IosInstallPrompt />
       </TooltipProvider>
     </ThemeProvider>

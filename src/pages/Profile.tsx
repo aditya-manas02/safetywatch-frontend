@@ -19,7 +19,7 @@ import * as LucideIcons from "lucide-react";
 import {
     Shield, ArrowLeft, User, Mail, Phone, Save, RefreshCw, Lock,
     Eye, EyeOff, KeyRound, CheckCircle2, Calendar, Edit2, X, Camera,
-    Info, MapPin, Trophy, MessageSquare, Clock, AlertCircle, Zap, Crown, ShieldCheck, Palette, Settings, Users, LifeBuoy, LogOut
+    Info, MapPin, Trophy, MessageSquare, Clock, AlertCircle, Zap, Crown, ShieldCheck, Palette, Settings, Users, LifeBuoy, LogOut, BookOpen
 } from "lucide-react";
 
 
@@ -635,11 +635,11 @@ export default function Profile() {
                     </Button>
                     <Button
                         variant="outline"
-                        onClick={() => window.dispatchEvent(new Event("start-app-tour"))}
-                        className="h-auto py-4 flex flex-col items-center justify-center gap-2 bg-card"
+                        onClick={() => navigate("/how-to-use")}
+                        className="h-auto py-4 flex flex-col items-center justify-center gap-2 bg-card border-primary/20 hover:border-primary/40 transition-all"
                     >
-                        <Info className="h-6 w-6 text-purple-500" />
-                        <span className="text-xs font-bold">App Tour</span>
+                        <BookOpen className="h-6 w-6 text-primary" />
+                        <span className="text-xs font-bold">How to Use</span>
                     </Button>
                     <Button
                         variant="outline"

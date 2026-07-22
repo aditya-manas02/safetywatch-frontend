@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, LifeBuoy, User, LogOut, Settings, LogIn, MessageSquare, Users, Info } from "lucide-react";
+import { Shield, LifeBuoy, User, LogOut, Settings, LogIn, MessageSquare, Users, Info, BookOpen, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -105,11 +105,11 @@ export default function Navbar() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.dispatchEvent(new Event("start-app-tour"))}
+                                onClick={() => navigate("/how-to-use")}
                                 className="hidden lg:flex border-primary/20 text-primary hover:bg-primary/10 font-bold rounded-xl px-4 transition-all"
                             >
-                                <Info className="mr-2 h-4 w-4" />
-                                App Tour
+                                <BookOpen className="mr-2 h-4 w-4" />
+                                How to Use
                             </Button>
                         </>
                     ) : (
@@ -117,11 +117,11 @@ export default function Navbar() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.dispatchEvent(new Event("start-app-tour"))}
+                                onClick={() => navigate("/how-to-use")}
                                 className="hidden lg:flex border-primary/20 text-primary hover:bg-primary/10 font-bold rounded-xl px-4 transition-all"
                             >
-                                <Info className="mr-2 h-4 w-4" />
-                                App Tour
+                                <BookOpen className="mr-2 h-4 w-4" />
+                                How to Use
                             </Button>
                             <Button size="sm" onClick={() => navigate("/auth")} className="shadow-xl shadow-primary/20 bg-primary text-primary-foreground font-black px-6 h-11 rounded-xl hover:scale-105 active:scale-95 transition-all">
                                 <LogIn className="mr-2 h-4 w-4" />
