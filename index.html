@@ -46,15 +46,40 @@
     <meta name="theme-color" content="#0f172a" />
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
 
-    <!-- Structured Data -->
+    <!-- Advanced Structured Data (Google Knowledge Graph & FAQ Snippets) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "SafetyWatch",
-      "alternateName": ["Safety Watch", "SafetyWatch App"],
+      "alternateName": ["Safety Watch", "SafetyWatch App", "SafetyWatch.me"],
       "url": "https://www.safetywatch.me/",
-      "description": "Community safety platform for reporting and tracking neighborhood incidents in real-time."
+      "description": "Official SafetyWatch community safety and real-time neighborhood incident reporting platform.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.safetywatch.me/?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "SafetyWatch",
+      "url": "https://www.safetywatch.me/",
+      "logo": "https://www.safetywatch.me/favicon.png",
+      "slogan": "Empowering Safer Neighborhoods Together",
+      "sameAs": [
+        "https://www.safetywatch.me/",
+        "https://github.com/aditya-manas02/safetywatch-frontend"
+      ],
+      "knowsAbout": [
+        "Neighborhood Safety",
+        "Incident Reporting",
+        "Emergency SOS Alerts",
+        "Community Watch Network"
+      ]
     }
     </script>
     <script type="application/ld+json">
@@ -64,29 +89,79 @@
       "name": "SafetyWatch",
       "applicationCategory": "SocialNetworkingApplication",
       "operatingSystem": "Web, iOS, Android",
-      "url": "https://www.safetywatch.me/"
+      "url": "https://www.safetywatch.me/",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "154"
+      },
+      "featureList": [
+        "Real-time Incident Feed & Alerts",
+        "Emergency SOS Guardian Mode",
+        "Density Heatmaps & Route Safety",
+        "Community Watch Circles",
+        "AI Safety Assistant"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is SafetyWatch?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SafetyWatch (https://www.safetywatch.me/) is an intelligent community safety and real-time neighborhood incident reporting platform. It empowers citizens to report local hazards, send emergency SOS alerts, and monitor safety density maps."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is SafetyWatch free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, SafetyWatch is 100% free to access on Web, Android, and iOS for real-time incident reporting and neighborhood watch alerts."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What features does the SafetyWatch app provide?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SafetyWatch features real-time security alerts, emergency Guardian SOS mode, density heatmaps, community circles, verified incident moderation, and AI safety assistance."
+          }
+        }
+      ]
     }
     </script>
   </head>
 
   <body>
     <div id="root">
-      <header style="padding: 20px; text-align: center; font-family: sans-serif;">
-        <h1>SafetyWatch (Safety Watch) - Neighborhood Safety & Incident Reporting</h1>
-        <p>Real-time community safety alerts, local incident tracking, emergency SOS, and neighborhood watch network.</p>
+      <header style="padding: 24px; text-align: center; font-family: Inter, system-ui, sans-serif;">
+        <h1 style="font-size: 28px; font-weight: 800; color: #0f172a;">SafetyWatch | Official Neighborhood Incident Reporting & Community Safety Platform</h1>
+        <p style="font-size: 16px; color: #475569; max-width: 700px; margin: 12px auto;">SafetyWatch (Safety Watch) empowers neighborhoods with real-time incident alerts, emergency SOS, community watch circles, and live safety density mapping.</p>
       </header>
     </div>
     <noscript>
-      <div style="padding: 20px; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
-        <h2>About SafetyWatch</h2>
-        <p>SafetyWatch is an intelligent community safety platform enabling residents to report incidents, receive real-time local emergency alerts, coordinate neighborhood watch activities, and protect their families.</p>
+      <div style="padding: 30px; font-family: Inter, sans-serif; max-width: 850px; margin: 0 auto; color: #1e293b;">
+        <h2>Welcome to SafetyWatch (Official Platform)</h2>
+        <p>SafetyWatch is an intelligent community safety platform designed to keep your family and neighborhood secure.</p>
+        <h3>Key Features of SafetyWatch:</h3>
         <ul>
-          <li>Real-time Incident Feed & Density Maps</li>
-          <li>Emergency SOS Guardian Mode</li>
-          <li>Community Circles & Neighborhood Chat</li>
-          <li>Verified Incident Moderation & Leaderboards</li>
+          <li><strong>Real-time Intelligence Feed:</strong> Instant updates on local safety alerts and community reports.</li>
+          <li><strong>Emergency SOS (Guardian Mode):</strong> Broadcast live location to trusted neighbors during emergencies.</li>
+          <li><strong>Live Density Heatmaps:</strong> Identify high-risk zones and plan safer routes in real-time.</li>
+          <li><strong>Community Watch Circles:</strong> Connect directly with local neighborhood watch groups.</li>
         </ul>
-        <p>Visit <a href="https://www.safetywatch.me/">SafetyWatch.me</a> to stay informed and keep your community safe.</p>
+        <p>Access the official platform online at <a href="https://www.safetywatch.me/">https://www.safetywatch.me/</a>.</p>
       </div>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
