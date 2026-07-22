@@ -12,4 +12,4 @@ Disallow: /profile
 Disallow: /inbox
 Disallow: /support
 
-Sitemap: https://safetywatch.vercel.app/sitemap.xml
+Sitemap: https://www.safetywatch.me/sitemap.xml

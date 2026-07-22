@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://safetywatch.vercel.app/</loc>
-    <lastmod>2026-02-13</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://www.safetywatch.me/</loc>
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://safetywatch.vercel.app/auth</loc>
-    <lastmod>2026-02-13</lastmod>
+    <loc>https://www.safetywatch.me/auth</loc>
+    <lastmod>2026-07-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://safetywatch.vercel.app/privacy</loc>
-    <lastmod>2026-02-13</lastmod>
+    <loc>https://www.safetywatch.me/privacy</loc>
+    <lastmod>2026-07-22</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://safetywatch.vercel.app/terms</loc>
-    <lastmod>2026-02-13</lastmod>
+    <loc>https://www.safetywatch.me/terms</loc>
+    <lastmod>2026-07-22</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://safetywatch.vercel.app/leaderboard</loc>
-    <lastmod>2026-02-13</lastmod>
+    <loc>https://www.safetywatch.me/leaderboard</loc>
+    <lastmod>2026-07-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
