@@ -187,7 +187,7 @@ export default function ChatBot() {
                                             type="text"
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
-                                            placeholder="Ask Nexus..."
+                                            placeholder="Ask SafetyWatch Buddy..."
                                             className="flex-1 bg-muted text-foreground placeholder:text-muted-foreground border border-border rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-primary/70 focus:border-primary/70 transition-all outline-none"
                                         />
                                         <Button
