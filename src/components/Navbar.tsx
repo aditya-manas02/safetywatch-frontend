@@ -106,7 +106,7 @@ export default function Navbar() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => navigate("/how-to-use")}
-                                className="hidden lg:flex border-primary/20 text-primary hover:bg-primary/10 font-bold rounded-xl px-4 transition-all"
+                                className="flex border-primary/20 text-primary hover:bg-primary/10 font-bold rounded-xl px-4 transition-all"
                             >
                                 <BookOpen className="mr-2 h-4 w-4" />
                                 How to Use
@@ -118,7 +118,7 @@ export default function Navbar() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => navigate("/how-to-use")}
-                                className="hidden lg:flex border-primary/20 text-primary hover:bg-primary/10 font-bold rounded-xl px-4 transition-all"
+                                className="flex border-primary/20 text-primary hover:bg-primary/10 font-bold rounded-xl px-4 transition-all"
                             >
                                 <BookOpen className="mr-2 h-4 w-4" />
                                 How to Use
@@ -131,8 +131,17 @@ export default function Navbar() {
                     )}
                 </div>
 
-                {/* Mobile Actions (No longer has hamburger) */}
+                {/* Mobile Actions */}
                 <div className="flex md:hidden items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate("/how-to-use")}
+                        className="border-primary/30 text-primary hover:bg-primary/10 font-bold rounded-xl px-2.5 h-9 text-xs flex items-center gap-1"
+                    >
+                        <BookOpen className="h-3.5 w-3.5" />
+                        Guide
+                    </Button>
                     <ThemeToggle />
                     {user && (
                         <div id="tour-notification-center-mobile">

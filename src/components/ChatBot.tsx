@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageSquare, X, Send, Minus, Maximize2, Sparkles, Zap, BrainCircuit } from "lucide-react";
+import { MessageSquare, X, Send, Minus, Maximize2, Sparkles, Zap, BrainCircuit, BookOpen, ExternalLink, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { API_BASE, VERSION_HEADERS } from "@/lib/api";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
     role: "user" | "bot";
@@ -11,6 +12,7 @@ interface Message {
 }
 
 export default function ChatBot() {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [input, setInput] = useState("");
@@ -143,7 +145,41 @@ export default function ChatBot() {
                                                     ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm shadow-primary/20"
                                                     : "bg-muted border border-border text-foreground rounded-2xl rounded-tl-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                                                     }`}>
-                                                    {m.content}
+                                                    <div>
+                                                        {m.content.split(/(\/how-to-use)/g).map((part, pIdx) => {
+                                                            if (part === "/how-to-use") {
+                                                                return (
+                                                                    <button
+                                                                        key={pIdx}
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            navigate("/how-to-use");
+                                                                        }}
+                                                                        className="inline-flex items-center gap-1 font-mono font-bold text-cyan-400 underline underline-offset-2 hover:text-cyan-300 transition-colors cursor-pointer mx-1 px-1.5 py-0.5 rounded bg-purple-950/70 border border-purple-500/40"
+                                                                    >
+                                                                        <BookOpen className="w-3 h-3" />
+                                                                        /how-to-use
+                                                                    </button>
+                                                                );
+                                                            }
+                                                            return part;
+                                                        })}
+                                                    </div>
+
+                                                    {m.role === "bot" && (m.content.includes("/how-to-use") || m.content.toLowerCase().includes("how to use")) && (
+                                                        <Button
+                                                            size="sm"
+                                                            type="button"
+                                                            onClick={() => {
+                                                                navigate("/how-to-use");
+                                                            }}
+                                                            className="mt-3 flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl px-3.5 py-2 text-xs shadow-md shadow-purple-500/20 transition-all w-full justify-center cursor-pointer"
+                                                        >
+                                                            <BookOpen className="w-3.5 h-3.5" />
+                                                            Visit How to Use Section
+                                                            <ArrowRight className="w-3.5 h-3.5" />
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             </motion.div>
                                         ))}
