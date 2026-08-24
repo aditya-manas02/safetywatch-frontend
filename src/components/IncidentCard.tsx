@@ -390,7 +390,7 @@ export function IncidentCard({
                     <TypeIcon className={cn("h-4 w-4", typeConfig.color)} />
                   </div>
                   <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/60">
-                    {incident.type}
+                    {incident.masterCategory && incident.category ? `${incident.masterCategory} > ${incident.category}` : incident.type}
                   </span>
                 </div>
 
@@ -466,7 +466,9 @@ export function IncidentCard({
                   <div className={cn("p-2.5 rounded-xl border border-border/50", typeConfig.color)}>
                     <TypeIcon className="h-5 w-5" />
                   </div>
-                  <span className="text-[11px] font-black tracking-widest text-muted-foreground uppercase">{incident.type}</span>
+                  <span className="text-[11px] font-black tracking-widest text-muted-foreground uppercase">
+                    {incident.masterCategory && incident.category ? `${incident.masterCategory} > ${incident.category}` : incident.type}
+                  </span>
                 </div>
                 <DialogTitle className="text-2xl md:text-4xl font-black text-foreground leading-[1.1] tracking-tight">
                   {incident.translatedTitle || incident.title}

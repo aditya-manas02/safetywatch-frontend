@@ -17,6 +17,7 @@ interface AreaCode {
     code: string;
     name: string;
     description?: string;
+    areaType?: string;
     isActive: boolean;
     totalUsers: number;
     totalIncidents: number;
@@ -36,6 +37,7 @@ export default function AreaCodeManager() {
         code: "",
         name: "",
         description: "",
+        areaType: "default",
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -67,7 +69,7 @@ export default function AreaCodeManager() {
         }
     };
 
-    const handleCreate = async () => {
+    const handleSave = async () => {
         if (!formData.code || !formData.name) {
             toast({
                 title: "Validation Error",
@@ -79,8 +81,15 @@ export default function AreaCodeManager() {
 
         setSubmitting(true);
         try {
-            const response = await fetch(`${API_BASE}/area-codes/generate`, {
-                method: "POST",
+            const isEditing = !!editingAreaCode;
+            const url = isEditing 
+                ? `${API_BASE}/area-codes/${editingAreaCode._id}/edit`
+                : `${API_BASE}/area-codes/generate`;
+            
+            const method = isEditing ? "PATCH" : "POST";
+
+            const response = await fetch(url, {
+                method,
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -91,16 +100,17 @@ export default function AreaCodeManager() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || "Failed to create area code");
+                throw new Error(data.error || `Failed to ${isEditing ? 'update' : 'create'} area code`);
             }
 
             toast({
                 title: "Success",
-                description: "Area code created successfully",
+                description: `Area code ${isEditing ? 'updated' : 'created'} successfully`,
             });
 
             setShowCreateDialog(false);
-            setFormData({ code: "", name: "", description: "" });
+            setEditingAreaCode(null);
+            setFormData({ code: "", name: "", description: "", areaType: "default" });
             fetchAreaCodes();
         } catch (error: any) {
             toast({
@@ -111,6 +121,17 @@ export default function AreaCodeManager() {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const openEditDialog = (areaCode: AreaCode) => {
+        setEditingAreaCode(areaCode);
+        setFormData({
+            code: areaCode.code,
+            name: areaCode.name,
+            description: areaCode.description || "",
+            areaType: areaCode.areaType || "default",
+        });
+        setShowCreateDialog(true);
     };
 
     const handleToggleStatus = async (id: string, currentStatus: boolean) => {
@@ -185,7 +206,11 @@ export default function AreaCodeManager() {
                     <p className="text-sm text-muted-foreground">Create and manage area codes for your community</p>
                 </div>
                 {isSuperAdmin && (
-                    <Button onClick={() => setShowCreateDialog(true)}>
+                    <Button onClick={() => {
+                        setEditingAreaCode(null);
+                        setFormData({ code: "", name: "", description: "", areaType: "default" });
+                        setShowCreateDialog(true);
+                    }}>
                         <Plus className="h-4 w-4 mr-2" />
                         Create Area Code
                     </Button>
@@ -244,6 +269,16 @@ export default function AreaCodeManager() {
                                 </Button>
                                 <Button
                                     size="sm"
+                                    variant="outline"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        openEditDialog(areaCode);
+                                    }}
+                                >
+                                    <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                    size="sm"
                                     variant="destructive"
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -259,13 +294,13 @@ export default function AreaCodeManager() {
                 ))}
             </div>
 
-            {/* Create Dialog */}
+            {/* Create / Edit Dialog */}
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Create New Area Code</DialogTitle>
+                        <DialogTitle>{editingAreaCode ? "Edit Area Code" : "Create New Area Code"}</DialogTitle>
                         <DialogDescription>
-                            Add a new area code to organize your community
+                            {editingAreaCode ? "Update the details for this area code" : "Add a new area code to organize your community"}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -278,8 +313,9 @@ export default function AreaCodeManager() {
                                 value={formData.code}
                                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                                 maxLength={12}
+                                disabled={!!editingAreaCode} // Cannot edit code
                             />
-                            <p className="text-xs text-muted-foreground mt-1">3-12 characters</p>
+                            <p className="text-xs text-muted-foreground mt-1">3-12 characters {editingAreaCode && "(Cannot be changed)"}</p>
                         </div>
 
                         <div>
@@ -290,6 +326,22 @@ export default function AreaCodeManager() {
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="areaType">Area Type *</Label>
+                            <select
+                                id="areaType"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+                                value={formData.areaType}
+                                onChange={(e) => setFormData({ ...formData, areaType: e.target.value })}
+                            >
+                                <option value="default">Default / Mixed</option>
+                                <option value="university">University / College Campus</option>
+                                <option value="society">Residential Society / Complex</option>
+                                <option value="city">City / Municipality</option>
+                                <option value="ward">Ward / District</option>
+                            </select>
                         </div>
 
                         <div>
@@ -308,14 +360,14 @@ export default function AreaCodeManager() {
                         <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleCreate} disabled={submitting}>
+                        <Button onClick={handleSave} disabled={submitting}>
                             {submitting ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating...
+                                    Saving...
                                 </>
                             ) : (
-                                "Create Area Code"
+                                editingAreaCode ? "Save Changes" : "Create Area Code"
                             )}
                         </Button>
                     </DialogFooter>
