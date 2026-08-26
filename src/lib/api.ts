@@ -1,9 +1,9 @@
 import { Capacitor } from "@capacitor/core";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://safetywatch-backend.onrender.com";
+const baseUrl = "https://safetywatch-backend.onrender.com";
 
 // Ensure no trailing slash
-export const BASE_URL = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+export const BASE_URL = baseUrl;
 
 // Correctly handle /api suffix
 export const API_BASE = `${BASE_URL}/api`;
