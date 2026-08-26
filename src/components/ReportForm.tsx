@@ -160,21 +160,32 @@ const CATEGORY_DATA: Record<string, any> = {
     }
   },
   "University & Campus": {
-    "Campus Security": {
-      "Incidents": ["Theft in Hostel/Campus", "Harassment/Ragging", "Suspicious Outsider", "Substance Abuse"],
-      "Access & Gates": ["ID Card Issue", "Gate Pass Issue", "Vehicle Entry Denied", "Hostel Curfew Violation"]
+    "Campus Security & Emergencies": {
+      "Incidents": ["Theft in Hostel/Campus", "Harassment/Ragging", "Suspicious Outsider", "Substance Abuse", "Physical Altercation / Fight", "Vandalism / Property Damage"],
+      "Access & Gates": ["ID Card Issue", "Gate Pass Issue", "Vehicle Entry Denied", "Hostel Curfew Violation", "Visitor Entry Issue", "Turnstile/Biometric Not Working"],
+      "Medical & Safety": ["Medical Emergency on Campus", "Ambulance Request", "Fire Hazard", "Chemical Spill in Lab", "Stray Animal Menace"]
     },
     "Hostel & Dorm Maintenance": {
-      "Room Fixes": ["Fan/Light Broken", "Bed/Furniture Broken", "Window/Door Lock Issue", "Pest/Bedbug Issue"],
-      "Washrooms": ["No Hot Water", "Blocked Toilet", "Cleaning Required", "Broken Mirror/Tap"]
+      "Room Fixes": ["Fan/Light Broken", "Bed/Furniture Broken", "Window/Door Lock Issue", "Pest/Bedbug Issue", "AC/Heater Malfunction", "Seepage/Leak in Room"],
+      "Washrooms": ["No Hot Water", "Blocked Toilet", "Cleaning Required", "Broken Mirror/Tap", "Shower Not Working", "Plumbing Leak"],
+      "Amenities": ["Washing Machine Broken", "Water Purifier Not Working", "Common Room TV/AC Issue", "Elevator Not Working"],
+      "Mess & Food": ["Poor Food Quality", "Unhygienic Utensils/Kitchen", "Food Poisoning Complaint", "Mess Staff Behavior", "Water Shortage in Mess"]
     },
     "Academic Blocks & Facilities": {
-      "Classroom/Lab": ["Projector Not Working", "AC/Fan Not Working", "Lab Equipment Broken", "Broken Desks"],
-      "Library & WiFi": ["Campus WiFi Down", "Library Noise Disturbance", "Missing Books", "E-Library Access Issue"]
+      "Classroom/Lab": ["Projector/Smartboard Not Working", "AC/Fan Not Working", "Lab Equipment Broken", "Broken Desks/Chairs", "Mic/Sound System Failure", "No Chalk/Markers"],
+      "Library & Study Rooms": ["Library Noise Disturbance", "Missing/Torn Books", "E-Library Access Issue", "Study Room AC Issue", "Not Enough Seats", "Printer/Scanner Not Working"],
+      "IT & Network": ["Campus WiFi Down", "Eduroam Not Connecting", "Blocked Websites Issue", "Computer Lab PC Malfunction", "University Email Login Issue"]
     },
-    "Events & Admin": {
-      "Administration": ["Fee Payment Issue", "Scholarship Query", "Document/Transcript Request", "Exam Grievance"],
-      "Events/Fests": ["Event Registration Issue", "Crowd Management Needed", "Lost & Found"]
+    "Campus Life & Transport": {
+      "Sports & Gym": ["Gym Equipment Broken", "Basketball/Tennis Court Maintenance", "Swimming Pool Unclean", "Sports Gear Missing", "Ground Floodlights Issue"],
+      "Cafeteria & Shops": ["Overcharging at Canteen", "Stale Food / Hygiene Issue", "Stationery Shop Closed", "Vending Machine Swallowed Money"],
+      "Transport & Parking": ["Campus Bus Late/Missed", "Bus Overcrowded", "Rash Driving by Shuttle Driver", "No Parking Space", "Unauthorized Vehicle in Student Parking"]
+    },
+    "Administration & Services": {
+      "Finance & Fees": ["Fee Payment Issue / Failure", "Scholarship Disbursal Delay", "Fine/Penalty Dispute", "Hostel Fee Query"],
+      "Academic Services": ["Exam Schedule Conflict", "Result/Transcript Delay", "Admit Card Issue", "Attendance Discrepancy", "Degree Certificate Request"],
+      "Placements & Counseling": ["Placement Portal Glitch", "Company Interview Query", "Mental Health Counseling Request", "Grievance Redressal Cell Request"],
+      "Events/Fests": ["Event Registration Issue", "Crowd Management Needed", "Lost & Found", "Sponsorship Query", "Auditorium Booking Issue"]
     }
   },
   "Feedback & Suggestions": {
