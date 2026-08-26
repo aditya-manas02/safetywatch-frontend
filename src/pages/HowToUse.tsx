@@ -132,7 +132,7 @@ export default function HowToUse() {
       path: "Navbar / Mobile Bottom Navigation (+) / Home Hero > Report Modal",
       icon: AlertTriangle,
       overview:
-        "Report active safety concerns, suspicious individuals, crimes, environmental hazards, fires, or medical emergencies directly to your neighborhood. Attach photo proof, tag exact map locations, and choose whether to post anonymously.",
+        "Report active safety concerns, suspicious individuals, crimes, environmental hazards, fires, or medical emergencies directly to your neighborhood. The smart form adapts its categories based on your Area Code type (University, Society, City, etc.) and features automatic GPS reverse-geocoding for precise street addresses.",
       steps: [
         {
           number: 1,
@@ -141,8 +141,8 @@ export default function HowToUse() {
         },
         {
           number: 2,
-          title: "Select Category & Severity",
-          description: "Choose from Crime, Suspicious Activity, Traffic Hazard, Medical Emergency, Fire, or Lost & Found. Set severity to Low, Medium, High, or Critical."
+          title: "Smart Dynamic Categorization",
+          description: "Select from the 4-tier category dropdowns (Request Type > Master Category > Category > Sub Category). The options are automatically filtered based on your Area Type (e.g., Campus issues for Universities, Civic issues for Cities)."
         },
         {
           number: 3,
@@ -151,8 +151,8 @@ export default function HowToUse() {
         },
         {
           number: 4,
-          title: "Pin Location on Interactive Map",
-          description: "Tap 'Use Current Location' or drag the map pin marker to the exact street location of the incident."
+          title: "Reverse Geocoding & Map Pin",
+          description: "Tap 'Use GPS' or 'Use My Location' on the map. The system will auto-fetch your exact GPS coordinates and instantly reverse-geocode them to fill in your real-world street address."
         },
         {
           number: 5,
@@ -161,7 +161,7 @@ export default function HowToUse() {
         }
       ],
       tips: [
-        "Provide landmark descriptions (e.g. 'Near Metro Station Exit B') for faster verification by neighbors.",
+        "If reverse geocoding provides a general address, you can manually append landmarks (e.g. 'Near Metro Station Exit B').",
         "Submitting accurate reports earns Safety Points toward your citizen achievement badges!"
       ]
     },
@@ -492,7 +492,7 @@ export default function HowToUse() {
         {
           number: 3,
           title: "User & Area Management",
-          description: "Suspend abusive accounts, manage neighborhood area codes, create civic polls, and view audit logs."
+          description: "Suspend abusive accounts, create/edit neighborhood area codes, assign Area Types (University, Society, City, Ward, Default), create civic polls, and view audit logs."
         }
       ],
       tips: [
