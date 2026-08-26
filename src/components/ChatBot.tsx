@@ -57,9 +57,16 @@ export default function ChatBot() {
             const data = await res.json();
             setMessages((prev) => [...prev, { role: "bot", content: data.reply }]);
         } catch (err: any) {
-            const errorMessage = err.message.includes("Failed to fetch")
-                ? "Network anomaly detected. Retrying connection..."
-                : `SafetyWatch Buddy Error: ${err.message || "Algorithms interrupted."}`;
+            let errorMessage = "SafetyWatch Buddy Error: Algorithms interrupted.";
+            
+            if (err.message) {
+                if (err.message.includes("Failed to fetch") || err.message.includes("Unable to resolve host") || err.message.includes("Network Error")) {
+                    errorMessage = "Network anomaly detected. Unable to reach SafetyWatch servers. Please check your internet connection.";
+                } else {
+                    errorMessage = `SafetyWatch Buddy Error: ${err.message}`;
+                }
+            }
+            
             setMessages((prev) => [...prev, { role: "bot", content: errorMessage }]);
         } finally {
             setIsLoading(false);
