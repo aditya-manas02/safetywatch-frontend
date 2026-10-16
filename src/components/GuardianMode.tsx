@@ -21,6 +21,7 @@ const GuardianMode = () => {
     const [isSendingUpdate, setIsSendingUpdate] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const lastLocationRef = useRef<{ lat: number; lng: number } | null>(null);
 
     useEffect(() => {
         if (active) {
@@ -116,7 +117,7 @@ const GuardianMode = () => {
             }
         };
 
-        try {
+        const getLocation = async (): Promise<{ lat: number; lng: number }> => {
             // Check and Request Permissions for Native Platforms
             if (Capacitor.isNativePlatform()) {
                 const permStatus = await Geolocation.checkPermissions();
@@ -128,31 +129,63 @@ const GuardianMode = () => {
                 }
             }
 
-            // STAGE 1: Quick Fix (might be inaccurate)
-            let position = await Geolocation.getCurrentPosition({
-                enableHighAccuracy: Capacitor.isNativePlatform(),
-                timeout: 10000
-            });
+            try {
+                // STAGE 1: Attempt native / browser geolocation
+                let position = await Geolocation.getCurrentPosition({
+                    enableHighAccuracy: Capacitor.isNativePlatform(),
+                    timeout: 6000,
+                    maximumAge: 60000
+                });
 
-            // STAGE 2: Refinement (If accuracy is worse than 100m, wait for satellite lock)
-            if (position.coords.accuracy && position.coords.accuracy > 100) {
-                console.log(`[SOS] Initial accuracy poor (${position.coords.accuracy}m). Waiting for satellite lock...`);
-                try {
-                    const refined = await Geolocation.getCurrentPosition({
-                        enableHighAccuracy: Capacitor.isNativePlatform(),
-                        timeout: 10000 // Give it more time to see satellites
-                    });
-                    if (refined.coords.accuracy < position.coords.accuracy) {
-                        position = refined;
-                        console.log(`[SOS] Location refined to ${position.coords.accuracy}m accuracy.`);
+                // STAGE 2: Refinement on Native GPS if accuracy > 100m
+                if (Capacitor.isNativePlatform() && position.coords.accuracy && position.coords.accuracy > 100) {
+                    try {
+                        const refined = await Geolocation.getCurrentPosition({
+                            enableHighAccuracy: true,
+                            timeout: 6000
+                        });
+                        if (refined.coords.accuracy < position.coords.accuracy) {
+                            position = refined;
+                        }
+                    } catch (e) {
+                        console.warn("[SOS] Refinement failed, using initial position.");
                     }
-                } catch (e) {
-                    console.warn("[SOS] Refinement failed, using initial position.");
                 }
+
+                if (position.coords.latitude && position.coords.longitude) {
+                    return { lat: position.coords.latitude, lng: position.coords.longitude };
+                }
+            } catch (geoErr) {
+                console.warn("[SOS] Direct Geolocation failed, trying IP fallback...", geoErr);
             }
 
-            await handleActivation(position.coords.latitude, position.coords.longitude);
+            // STAGE 3: Fallback to IP geolocation (vital for desktop web without GPS hardware)
+            try {
+                const ipRes = await fetch("https://ipapi.co/json/");
+                const ipData = await ipRes.json();
+                if (ipData && ipData.latitude && ipData.longitude) {
+                    return { lat: Number(ipData.latitude), lng: Number(ipData.longitude) };
+                }
+            } catch (ipErr) {
+                console.warn("[SOS] ipapi.co failed, trying ipwho.is...", ipErr);
+            }
 
+            try {
+                const ipRes2 = await fetch("https://ipwho.is/");
+                const ipData2 = await ipRes2.json();
+                if (ipData2 && ipData2.latitude && ipData2.longitude) {
+                    return { lat: Number(ipData2.latitude), lng: Number(ipData2.longitude) };
+                }
+            } catch (ipErr2) {
+                console.error("[SOS] All location providers failed:", ipErr2);
+            }
+
+            throw new Error("Unable to determine location from GPS or IP.");
+        };
+
+        try {
+            const { lat, lng } = await getLocation();
+            await handleActivation(lat, lng);
         } catch (error: any) {
             setLoading(false);
             const isPermissionError = error.message?.includes("denied") || error.code === 1;
@@ -160,8 +193,8 @@ const GuardianMode = () => {
             toast({
                 title: isPermissionError ? "Permission Required" : "Location Error",
                 description: isPermissionError 
-                    ? "Please grant location access to use Guardian Mode." 
-                    : "Failed to get your location. Please check your GPS settings.",
+                    ? "Please grant location access in your browser to use Guardian Mode." 
+                    : "Failed to get your location. Please check your network or location settings.",
                 variant: "destructive"
             });
         }
@@ -235,13 +268,38 @@ const GuardianMode = () => {
             if (!token || isAuthPage) return;
 
             try {
-                // Use High Accuracy GPS for maximum precision
-                const position = await Geolocation.getCurrentPosition({
-                    enableHighAccuracy: Capacitor.isNativePlatform(),
-                    timeout: 15000 // Give GPS more time for high precision
-                });
+                let latitude: number | null = lastLocationRef.current?.lat || null;
+                let longitude: number | null = lastLocationRef.current?.lng || null;
+                let accuracy: number | null = null;
 
-                const { latitude, longitude, accuracy } = position.coords;
+                if (!latitude || !longitude) {
+                    try {
+                        const position = await Geolocation.getCurrentPosition({
+                            enableHighAccuracy: Capacitor.isNativePlatform(),
+                            timeout: 8000,
+                            maximumAge: 60000
+                        });
+                        latitude = position.coords.latitude;
+                        longitude = position.coords.longitude;
+                        accuracy = position.coords.accuracy;
+                        lastLocationRef.current = { lat: latitude, lng: longitude };
+                    } catch (geoErr) {
+                        // On Web, try IP lookup once to establish initial area
+                        if (!Capacitor.isNativePlatform()) {
+                            try {
+                                const ipRes = await fetch("https://ipapi.co/json/");
+                                const ipData = await ipRes.json();
+                                if (ipData && ipData.latitude && ipData.longitude) {
+                                    latitude = Number(ipData.latitude);
+                                    longitude = Number(ipData.longitude);
+                                    lastLocationRef.current = { lat: latitude, lng: longitude };
+                                }
+                            } catch {}
+                        }
+                    }
+                }
+
+                if (!latitude || !longitude) return;
                 
                 // IGNORE weak or invalid locations
                 if ((latitude === 0 && longitude === 0) || (accuracy && accuracy > 300)) {
