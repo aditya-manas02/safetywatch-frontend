@@ -172,7 +172,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
             setVersionInfo({
                 version: "Checking...",
                 minVersion: "1.4.8",
-                url: `https://safetywatch-backend.onrender.com/SafetyWatch.apk`,
+                url: `https://safetywatch-backend-zj3f.onrender.com/SafetyWatch.apk`,
                 notes: `Connection error. Please check your internet. (Error: ${error?.message || 'Unknown'})`
             });
             onCheckComplete?.(true); // Treat as blocking error
@@ -282,7 +282,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
     };
 
     const startDownload = async () => {
-        const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
+        const downloadUrl = versionInfo?.url || `https://safetywatch-backend-zj3f.onrender.com/SafetyWatch.apk`;
         if (!downloadUrl) {
             toast.error("Update source URL missing.");
             return;
@@ -327,7 +327,7 @@ export function SecurityUpdatePanel({ onCheckComplete }: AppUpdateCheckerProps) 
 
     if (!showUpdate || !versionInfo) return null;
 
-    const downloadUrl = versionInfo?.url || `https://safetywatch-backend.onrender.com/SafetyWatch.apk`;
+    const downloadUrl = versionInfo?.url || `https://safetywatch-backend-zj3f.onrender.com/SafetyWatch.apk`;
 
     return (
         <AnimatePresence>

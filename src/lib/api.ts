@@ -1,6 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 
-const baseUrl = "https://safetywatch-backend.onrender.com";
+const baseUrl = "https://safetywatch-backend-zj3f.onrender.com";
 
 // Ensure no trailing slash
 export const BASE_URL = baseUrl;

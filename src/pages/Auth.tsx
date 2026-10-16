@@ -908,7 +908,7 @@ const Auth = () => {
 
               {!Capacitor.isNativePlatform() && (
                 <a
-                  href="https://safetywatch-backend.onrender.com/SafetyWatch.apk"
+                  href="https://safetywatch-backend-zj3f.onrender.com/SafetyWatch.apk"
                   target="_blank"
                   className="flex items-center gap-2 text-primary font-black hover:scale-105 transition-all ml-auto"
                 >

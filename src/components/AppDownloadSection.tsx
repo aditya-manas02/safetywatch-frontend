@@ -7,7 +7,7 @@ const AppDownloadSection = () => {
     // Strict web-only check
     if (Capacitor.isNativePlatform()) return null;
 
-    const downloadUrl = "https://safetywatch-backend.onrender.com/SafetyWatch.apk";
+    const downloadUrl = "https://safetywatch-backend-zj3f.onrender.com/SafetyWatch.apk";
 
     return (
         <section className="relative py-24 overflow-hidden">
